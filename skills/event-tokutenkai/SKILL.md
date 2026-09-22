@@ -212,6 +212,22 @@ npx @myriaddreamin/typst-ts-cli compile flyer.typ output.pdf
   - 印刷用HTMLではクラッシュを誘発しやすいカラー絵文字を避け、安定した標準グリフ記号（`⚠️`、`★`、`📍`、`🎁`、`🎫`、`🎤`、`📸`、`✨`、`📱` 等）やテキストラベル（`【重要】`、`【入場順】` 等）を使用します。
 * **出演者名・メンバー名などの固有名詞の完全な正確性**:
   - 出演者やメンバーの氏名は、公式プロフィール等に記載された正式表記（姓名フルネーム、正しい漢字・ひらがな表記）を厳密に用います。略称や名字のみ、推測での表記は行いません。
+* **特典会イメージ画像（共通アセット一覧と都度生成のワークフロー）**:
+  - 特典会セクションの直感的な理解を促すため、イラスト素材（`assets/illustrations/`）をアイコンや解説図として活用します。
+  - **同梱されている共通イラストアセット**:
+    - `reference-characters.jpg`: リファレンス用キャラクターシート（メンバー、ファン、スタッフの正面・背面・表情）
+    - `reference-props.jpg`: リファレンス用備品セット（長机、パイプ椅子、アクリル板、スマホ、カメラ、色紙、チケット）
+    - `tokuten-sendoff.jpg`: 全員お見送り会（お手振り会）
+    - `tokuten-2shot.jpg`: 2ショット撮影会（スタッフ撮影、ピース・ハート等）
+    - `tokuten-video-sendoff.jpg`: 動画撮影付きお見送り会（ファンがスマホ動画撮影しながら進む）
+    - `tokuten-talk.jpg`: 個別お話し会（パーテーション・机越し、ストップウォッチ計測スタッフ）
+    - `tokuten-group-shot.jpg`: ユニット集合撮影 / グループショット（メンバー複数名＋ファン1名）
+    - `tokuten-back-oshi-2shot.jpg`: 後ろ向き推し 2shot（メンバーは後ろ向きで衣装・髪型を見せ、ファンは前向き）
+    - `tokuten-autograph.jpg`: サイン会（メンバー着席・机でサイン、ファン直立対面、スタッフ同席）
+  - **特殊な特典会の都度生成ガイド（リファレンス参照必須）**:
+    - ハイタッチ会、私物サイン、個別動画撮影など特殊な特典会画像を新たに生成する場合は、既存アセットと世界観・スタイルを揃えるため、`reference-characters.jpg` および `reference-props.jpg` を必ず `ImagePaths` に渡して `generate_image` を実行してください。
+    - **プロンプト指定の要点**:
+      `Isometric cute flat vector illustration matching the exact art style and character designs in reference images. Clean composition, white background, bright colors, sticker icon clipart style.`
 
 
 
