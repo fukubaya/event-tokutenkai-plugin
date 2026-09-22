@@ -496,11 +496,17 @@ class EventExtractor:
                     res["allowed_devices"] = line.lstrip("※・- ")
                 if any(k in line for k in ["三脚", "一脚", "フラッシュ", "セルカ棒", "脚立"]):
                     res["prohibited"].append(line.lstrip("※・- "))
+        elif "指示がない場合" in full_text:
+            # メンバー・スタッフの指示がある場合は撮影可（指示時のみ可・原則禁止）
+            res["has_photo_time"] = "conditional"
+            for line in self.lines:
+                if "指示がない場合" in line:
+                    res["condition"] = line.lstrip("※・- ")
         else:
             # 撮影禁止の明記
             res["has_photo_time"] = False
             for line in self.lines:
-                if "写真撮影、動画撮影、録音行為は固く禁止" in line:
+                if "写真撮影、動画撮影、録音行為は固く禁止" in line or "撮影は禁止" in line:
                     res["condition"] = line.lstrip("※・- ")
 
         return res
@@ -661,7 +667,7 @@ class EventExtractor:
         md.append("")
 
         md.append("## 7. 撮可（撮影可能）TIME")
-        if photo.get("has_photo_time"):
+        if photo.get("has_photo_time") is True:
             md.append("- **撮可TIME**: あり")
             if photo.get("condition"):
                 md.append(f"  - 条件: {photo.get('condition')}")
@@ -669,6 +675,10 @@ class EventExtractor:
                 md.append(f"  - 機材: {photo.get('allowed_devices')}")
             if photo.get("prohibited"):
                 md.append(f"  - 禁止事項: {', '.join(photo.get('prohibited'))}")
+        elif photo.get("has_photo_time") == "conditional":
+            md.append("- **撮可TIME**: 指示時のみ可（原則禁止）")
+            if photo.get("condition"):
+                md.append(f"  - 公式記述: {photo.get('condition')}")
         else:
             md.append("- **撮可TIME**: なし（ライブ・イベント中の撮影・録画・録音は全面禁止）")
             if photo.get("condition"):
