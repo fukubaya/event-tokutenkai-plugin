@@ -31,10 +31,34 @@
   /* 背景画像（AI生成またはSVG/CSSパターン） */
   --bg-image: none;                  /* 例: url("bg-autumn.jpg") */
 
-  /* フォント指定 */
-  --font-body: "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-display: "Noto Sans JP", sans-serif;
-  --font-num: "Helvetica Neue", Arial, sans-serif;
+  /* ==========================================================================
+     フォント・タイポグラフィ選定プリセット
+     Mac / Windows のOS標準インストールフォント（ヒラギノ、游ゴシック、游明朝、Impact等）を
+     最優先で活用し、外部Webフォント（Google Fonts等）と組み合わせてオフライン・高速・高品質を両立
+     ========================================================================== */
+
+  /* [選定パターン1: ポップ＆スクール・モダン] モダン角ゴシック + ジオメトリック欧文 (デフォルト) */
+  --font-body: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", sans-serif;
+  --font-display: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", sans-serif;
+  --font-num: "Jost", "Helvetica Neue", Arial, "Segoe UI", sans-serif;
+
+  /* [選定パターン2: 優美・透明感・愛・気品] しっぽり明朝／ヒラギノ明朝 + クラシカルセリフ欧文
+     --font-body: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+     --font-display: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+     --font-num: "Cormorant Garamond", "Times New Roman", "Georgia", serif;
+  */
+
+  /* [選定パターン3: ライブハウス・フェス・熱気] 極太角ゴシック + コンデンスド欧文（Impact / Oswald）
+     --font-body: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
+     --font-display: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
+     --font-num: "Impact", "Oswald", "Arial Black", "Helvetica Neue", sans-serif;
+  */
+
+  /* [選定パターン4: キュート・アイドル・親しみ] ポップ丸ゴシック + ラウンド欧文
+     --font-body: "Hiragino Maru Gothic ProN", "Zen Maru Gothic", "BIZ UDPGothic", "Meiryo", sans-serif;
+     --font-display: "Hiragino Maru Gothic ProN", "Zen Maru Gothic", "BIZ UDPGothic", "Meiryo", sans-serif;
+     --font-num: "Quicksand", "Arial Rounded MT Bold", "Nunito", "Helvetica Neue", sans-serif;
+  */
 
   /* 余白・スペーシング */
   --space-xs: 1.5mm;

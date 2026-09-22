@@ -123,6 +123,7 @@ class EventExtractor:
             "tokutenkai": self._extract_tokutenkai(),
             "photo_time": self._extract_photo_time(),
             "regulations_and_notes": self._extract_notes(),
+            "style_and_typography": self._extract_style_and_typography(),
         }
         return data
 
@@ -553,6 +554,69 @@ class EventExtractor:
 
         return notes
 
+    def _extract_style_and_typography(self) -> Dict[str, Any]:
+        """公式ページやイベント内容から、推奨スタイル・配色テーマおよびタイポグラフィ（フォント選定）を分析"""
+        detected_fonts: List[str] = []
+        soup = BeautifulSoup(self.raw_html, "html.parser")
+        for link in soup.find_all("link", rel=re.compile(r"stylesheet", re.I)):
+            href = link.get("href", "")
+            if "fonts.googleapis.com" in href:
+                m_f = re.findall(r"family=([^&:]+)", href)
+                for f in m_f:
+                    clean_name = f.replace("+", " ")
+                    if clean_name not in detected_fonts:
+                        detected_fonts.append(clean_name)
+
+        title_raw = (self.page_title + " " + self.cleaned_text)
+
+        recommended_font_pattern = "1_modern_geometric"
+        font_reason = "Mac/Win標準フォント（Hiragino Sans / Yu Gothic）とJost欧文によるクリーンで洗練された視認性"
+
+        if any(k in title_raw for k in ["天使", "気品", "クラシック", "エレガント", "透明感", "クラシカル", "愛"]):
+            recommended_font_pattern = "2_elegant_mincho"
+            font_reason = "優美な明朝体（Shippori Mincho / Hiragino Mincho / Yu Mincho）とクラシカルセリフ欧文による幻想的な世界観"
+        elif any(k in title_raw for k in ["ROCK", "ロック", "FES", "フェス", "激闘", "爆音", "タワーレコード", "熱気"]):
+            recommended_font_pattern = "3_heavy_condensed"
+            font_reason = "迫力の極太角ゴシック（Hiragino Sans / Yu Gothic / Noto Sans 900）とコンデンスド欧文（Impact / Oswald）"
+        elif any(k in title_raw for k in ["キュート", "放課後", "学園", "アカデミー", "ポップ", "かわいい"]):
+            recommended_font_pattern = "1_modern_geometric"
+            font_reason = "親しみやすい標準角ゴシック（Hiragino Sans / Yu Gothic）とスクール感のあるJost欧文の組み合わせ"
+
+        theme_presets = [
+            {
+                "id": "pattern_a",
+                "name": "シーズン・イベント連動テーマ（例: オータム・ウォーム）",
+                "concept": "ツアー名や開催季節（秋の放課後、松ぼっくり、どんぐり）を象徴する暖色系配色",
+                "primary_color": "#b45309 (アンバー・テラコッタ)",
+                "bg_accent": "秋の葉・どんぐりベクターパターン (bg-autumn.svg)",
+                "font_stack": "Jost + Hiragino Sans / Yu Gothic / Noto Sans JP",
+            },
+            {
+                "id": "pattern_b",
+                "name": "公式ブランド・アイデンティティテーマ（例: アカデミー・ネイビー＆ゴールド）",
+                "concept": "スタープラネット・アイドルアカデミーの制服とエンブレムを意識した端正なスクール配色",
+                "primary_color": "#1e3a8a (スクールディープネイビー)",
+                "bg_accent": "スクールチェック・幾何学パターン (bg-academy.svg)",
+                "font_stack": "Jost + Hiragino Sans / Yu Gothic / Noto Sans JP",
+            },
+            {
+                "id": "pattern_c",
+                "name": "会場・ロケーション連動テーマ（例: パルコ・ポップ＆ルーフトップ）",
+                "concept": "吉祥寺パルコの屋上オープンスペースの青空とモダンストリート感を表現したポップ配色",
+                "primary_color": "#ea580c (パルコビビッドオレンジ)",
+                "bg_accent": "青空ルーフトップ・ポップドットパターン (bg-parco.svg)",
+                "font_stack": "Jost + Hiragino Sans / Yu Gothic / Noto Sans JP",
+            },
+        ]
+
+        return {
+            "detected_fonts": detected_fonts,
+            "recommended_font_pattern": recommended_font_pattern,
+            "font_selection_reason": font_reason,
+            "theme_patterns": theme_presets,
+        }
+
+
     def to_markdown(self, data: Dict[str, Any]) -> str:
         """決定論的に整理された構造化Markdown（情報要約シート）を生成"""
         meta = data["meta"]
@@ -703,6 +767,24 @@ class EventExtractor:
             for c in notes.get("contact"):
                 md.append(f"- {c}")
         md.append("")
+
+        # 9. スタイル選定＆フォント選定ガイド
+        style = data.get("style_and_typography", {})
+        if style:
+            md.append("## 9. スタイル選定＆フォント選定ガイド（推奨タイポグラフィ）")
+            if style.get("detected_fonts"):
+                md.append(f"- **検出された公式Webフォント**: {', '.join(style['detected_fonts'])}")
+            md.append(f"- **推奨フォント選定パターン**: `{style.get('recommended_font_pattern')}`")
+            md.append(f"- **選定理由**: {style.get('font_selection_reason')}")
+            md.append("")
+            md.append("### 推奨デザインスタイル・テーマ案（3パターン提示）")
+            for tp in style.get("theme_patterns", []):
+                md.append(f"- **{tp.get('name')}** (`{tp.get('id')}`)")
+                md.append(f"  - コンセプト: {tp.get('concept')}")
+                md.append(f"  - 推奨カラー: {tp.get('primary_color')}")
+                md.append(f"  - 推奨背景: {tp.get('bg_accent')}")
+                md.append(f"  - フォントスタック: `{tp.get('font_stack')}`")
+            md.append("")
 
         return "\n".join(md)
 

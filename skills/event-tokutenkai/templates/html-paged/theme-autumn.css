@@ -1,0 +1,49 @@
+/* ==========================================================================
+   Pattern A: Autumn Warmth（オータム・ウォーム / 秋の放課後ツアーカラー）
+   「スタアカ🍂放課後オータムツアー」の秋らしさと松ぼっくり・どんぐりを意識した、
+   暖かみのあるキャラメルブラウン、アンバー、テラコッタ×マスタードゴールドの配色
+   ========================================================================== */
+
+:root {
+  /* 印刷物理サイズ（A4縦） */
+  --page-width: 210mm;
+  --page-height: 297mm;
+  --page-padding-v: 5mm;
+  --page-padding-h: 6.5mm;
+
+  /* カラーセット（ブランド・テーマカラー） */
+  --color-primary: #b45309;          /* アンバー・テラコッタ（見出し、主要アクセント） */
+  --color-primary-dark: #78350f;     /* ディープチェスナットブラウン（タイトル・強調） */
+  --color-primary-light: #fef3c7;    /* オータムイエロー（淡背景ハイライト） */
+  --color-secondary: #dc2626;        /* アラート・注目アクセント（注意事項、赤バッジ） */
+  --color-secondary-light: #fee2e2;  /* アラート淡背景 */
+  --color-gold: #d97706;             /* マスタードゴールド・くじハイライト */
+  --color-gold-light: #fffbeb;
+
+  --color-text-main: #291e14;        /* 本文文字色（深いウォームチャコール） */
+  --color-text-sub: #574332;         /* 補足説明文字色 */
+  --color-text-muted: #786455;       /* 注釈・注記文字色 */
+
+  --color-bg-body: #fbf7f0;          /* 全体背景（柔らかなオータムアイボリー） */
+  --color-card-bg: #ffffff;          /* カードソリッド背景色（※PDF透過漏れ防止） */
+  --color-bg-sub: #fdf5ea;           /* 表ヘッダー・薄いウォーム背景 */
+  --color-border: #e2d3be;           /* 境界線・区切り線 */
+  --color-border-bold: #bcaaa4;      /* カード外枠ボーダー */
+
+  /* 背景画像（秋の葉・どんぐりベクターパターン） */
+  --bg-image: url("bg-autumn.svg");
+
+  /* フォント指定（Mac / Windows OS標準フォント優先） */
+  --font-body: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", sans-serif;
+  --font-display: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", sans-serif;
+  --font-num: "Jost", "Helvetica Neue", Arial, "Segoe UI", sans-serif;
+
+  /* 組分けチップ固有カラー */
+  --color-pinecone-bg: #fef3c7;
+  --color-pinecone-text: #78350f;
+  --color-pinecone-border: #d97706;
+
+  --color-acorn-bg: #ffedd5;
+  --color-acorn-text: #9a3412;
+  --color-acorn-border: #ea580c;
+}

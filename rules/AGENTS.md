@@ -86,9 +86,19 @@
   - 「ポップだから丸ゴシック」と画一的に決めつけず、対象グループや作品・イベントのコンセプトやトーン＆マナーに最も合致するフォントスタックを選定すること。
   - **公式リサーチの徹底**: 公式サイトのInspectや楽曲・ビジュアル資料を調査し、公式が採用しているWebフォント（例: `Shippori Mincho`, `Jost`, `Cormorant Garamond` 等）やグループコンセプト（例: ロック、天使、ストリート等）を積極的に取り入れること。
   - **タイポグラフィのバリエーション例**:
-    - **エッジの効いたモダン角ゴシック + ジオメトリック欧文**（例: `M PLUS 1p` + `Jost`）: ポップ＆ロック、洗練されたモダンカルチャー
+    - **エッジの効いたモダン角ゴシック + ジオメトリック欧文**（例: `Noto Sans JP` / `M PLUS 1p` + `Jost`）: ポップ＆ロック、洗練されたモダンカルチャー、スクール感
     - **優美なしっぽり明朝 + クラシカルセリフ欧文**（例: `Shippori Mincho` + `Cormorant Garamond`）: 天使・透明感・愛・気品・幻想的な世界観
     - **極太角ゴシック + コンデンスド欧文**（例: `Noto Sans JP 900` + `Oswald`）: ライブハウス、フェス、タワーレコード風の熱気とインパクト
+  - **Mac / Windows のOS標準インストールフォント活用原則**:
+    - 外部Webフォント（Google Fonts等）だけに過度に依存せず、実行環境（macOS / Windows）にインストールされていることが前提とできる高品質なシステム標準フォントをスタック上位に指定すること。
+    - **macOS 標準**: `"Hiragino Sans"`, `"Hiragino Kaku Gothic ProN"`（角ゴシック）、`"Hiragino Mincho ProN"`（明朝）、`"Hiragino Maru Gothic ProN"`（丸ゴシック）、`"Helvetica Neue"`, `"Arial"`, `"Impact"` 等
+    - **Windows 標準**: `"Yu Gothic"`, `"Meiryo"`, `"Segoe UI"`（角ゴシック）、`"Yu Mincho"`, `"MS Mincho"`（明朝）、`"BIZ UDPGothic"`（丸ゴシック）、`"Arial"`, `"Impact"` 等
+    - **フォントスタックの優先順位構成**:
+      1. 目的に応じた欧文・数字フォント（例: `"Jost"`, `"Impact"`, `"Cormorant Garamond"`, `"Quicksand"`）
+      2. macOS高品質システムフォント（`"Hiragino Sans"`, `"Hiragino Mincho ProN"` 等）
+      3. Windows高品質システムフォント（`"Yu Gothic"`, `"Yu Mincho"`, `"Segoe UI"` 等）
+      4. 汎用Webフォントおよびフォールバック（`"Noto Sans JP"`, `"Noto Serif JP"`, sans-serif / serif）
+    - これにより、外部ネットワークへの過剰な依存やフォント取得遅延・タイムアウトを根本的に防ぎ、ローカル環境でミリ秒単位の超高速レンダリングと極めてシャープな印刷品位を両立する。
   - **Google Fonts のウェイト最小化原則（Vivliostyle CLIクラッシュ防止）**:
     - 日本語Webフォント（特に `Shippori Mincho` など）を Vivliostyle 等のヘッドレスChromiumベースのレンダラーで読み込む際、ウェイトを多数（500, 700, 800等）指定すると分割.woff2ファイルの過剰フェッチにより内部タイムアウト（`Page.printToPDF: Printing failed`）が発生する。印刷用HTMLでは、必要なウェイトを最小限（例: `wght@700` のみ）に絞ること。
 

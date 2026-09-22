@@ -15,8 +15,8 @@ description: >-
 ```mermaid
 flowchart LR
     A0["公式URL入力"] --> A["情報構造化抽出<br/>(flyer.py extract)"]
-    A --> B["要約・JSON生成<br/>(event_summary.md)"]
-    B --> C["デザイントークン設定<br/>(テーマ色・組分け・フォント)"]
+    A --> B["要約・JSON・選定ガイド<br/>(event_summary.md)"]
+    B --> C["スタイル＆フォント選定<br/>(3パターン提示・テーマ設計)"]
     C --> D["組版・コンテンツ配置<br/>(HTML/CSS)"]
     D --> E["パイプライン実行<br/>(flyer.py all)"]
     E --> F["A4ベクターPDF<br/>& 300dpi高精細PNG"]
@@ -45,6 +45,7 @@ uv run python scripts/flyer.py extract "https://starplanet-academy.com/schedule/
 6. **特典会メニュー・実施順・くじ内訳**: 進行順、メニュー名、必要枚数、くじ賞品内訳（当選個数・指名ルール）、禁止事項
 7. **撮可（撮影可能）TIME**: 有無、許可機材（スマホ/一眼）、禁止事項（三脚・一脚・フラッシュ）
 8. **注意事項・安全管理・お問い合わせ**: 傘禁止/雨具、手荷物自己管理、禁止行為、お問い合わせ先
+9. **スタイル選定＆フォント選定ガイド**: 公式Webフォント検出結果、推奨フォント選定パターン、3パターンの推奨テーマスタイル案
 
 ---
 
@@ -67,59 +68,60 @@ uv run python scripts/flyer.py extract "https://starplanet-academy.com/schedule/
 
 ---
 
-## ステップ2: テンプレートの配置とカスタマイズ
+## ステップ2: スタイルの選定とフォントの選定（テーマ・タイポグラフィ設計）
 
-本スキル内に用意されているテンプレートをプロジェクトにコピーして利用します。
+本スキルでは、単一のデザインに画一化せず、世界観や受ける印象が異なる**「複数パターン（3パターン程度）」を同時に設計・提示**することを原則とします。
 
-### パターンA: HTML/CSS (Paged Media)
+### 1. スタイルの選定（3パターンのテーマ設計）
+共通のセマンティックHTML（`index.html`）をベースとし、`theme-*.css` を切り替えるトークン分離アーキテクチャにより、低コストで多様なバリエーションを提案します。
 
+| パターン | テーマ種別 | 配色・世界観の方向性 | 背景ビジュアル | 推奨フォントスタック |
+| :--- | :--- | :--- | :--- | :--- |
+| **パターンA** | **シーズン・イベント連動** | ツアー名・季節感を意識した暖色系（アンバー、テラコッタ、マスタード等） | 秋の葉・どんぐりベクターパターン (`bg-autumn.svg`) | `Jost` + `Noto Sans JP` |
+| **パターンB** | **公式ブランド・アイデンティティ** | グループ制服・公式エンブレムの端正な配色（ディープネイビー、ゴールド、クリムゾン） | スクールチェック・幾何学パターン (`bg-academy.svg`) | `Jost` + `Noto Sans JP` |
+| **パターンC** | **会場・ロケーション連動** | 会場（商業施設・屋上オープンスペース）の開放感（ビビッドオレンジ、スカイブルー） | ルーフトップ青空・ポップドット (`bg-parco.svg`) | `Jost` + `Noto Sans JP` |
+
+### 2. フォントの選定（タイポグラフィ設計とOS標準フォント活用）
+「とりあえず丸ゴシック」と画一的に決めつけず、グループやイベントのコンセプトに合わせてフォントスタックを選定します。
+**MacおよびWindowsに標準インストールされている高品質フォント（ヒラギノ、游ゴシック、游明朝、メイリオ、Impact等）をスタック上位に配置**することで、外部Webフォントのネットワーク遅延や取得エラーを完全に排除し、高速かつ極めて鮮明なベクター印刷品質を実現します。
+
+| パターン | 特徴・世界観 | 和文フォント（Mac/Win標準優先） | 欧文・数字フォント | 適用例 |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. モダン＆ジオメトリック** *(標準)* | ポップ＆ロック、洗練されたモダンカルチャー、スクール感 | `"Hiragino Sans"`, `"Yu Gothic"`, `"Meiryo"`, `"Noto Sans JP"` | `"Jost"`, `"Helvetica Neue"`, `Arial`, `"Segoe UI"` | アイドルイベント全般、スタアカ、リリイベ |
+| **2. 優美なしっぽり明朝＆セリフ** | 天使、透明感、愛、気品、幻想的な世界観 | `"Shippori Mincho"`, `"Hiragino Mincho ProN"`, `"Yu Mincho"` | `"Cormorant Garamond"`, `"Times New Roman"`, `Georgia` | アコースティック公演、クラシカル・聖歌隊コンセプト |
+| **3. 極太角ゴシック＆コンデンスド** | ライブハウス、フェス、タワーレコード風の熱気と迫力 | `"Hiragino Sans"` (W8/W9), `"Yu Gothic"`, `"Noto Sans JP 900"` | `"Impact"`, `"Oswald"`, `"Arial Black"` | ロックフェス、激闘対バン、インストアイベント |
+| **4. ポップ丸ゴシック＆ラウンド** | キュート、親しみやすさ、学園アイドル | `"Hiragino Maru Gothic ProN"`, `"Zen Maru Gothic"`, `"BIZ UDPGothic"` | `"Quicksand"`, `"Arial Rounded MT Bold"`, `Nunito` | 低年齢ユニット、ファンシー系アイドル、バラエティ |
+
+#### クロスプラットフォーム・フォントスタックの優先順位
+1. **欧文・数字フォント**: 数字や英字の見出しを際立たせる欧文フォント（`Jost`, `Impact`, `Cormorant Garamond` 等）
+2. **macOS 高品位標準フォント**: `Hiragino Sans`（ヒラギノ角ゴ）, `Hiragino Mincho ProN`（ヒラギノ明朝）, `Hiragino Maru Gothic ProN`
+3. **Windows 高品位標準フォント**: `Yu Gothic`（游ゴシック）, `Yu Mincho`（游明朝）, `Meiryo`（メイリオ）, `Segoe UI`
+4. **Webフォント / 汎用フォールバック**: `Noto Sans JP`, `Noto Serif JP`, `sans-serif` / `serif`
+
+#### Google Fonts のウェイト最小化原則（レンダラークラッシュ防止）
+Webフォントを併用する場合でも、Vivliostyle CLI（Puppeteer）内部の Skia / HarfBuzz グリフ解決において、分割.woff2ファイルの過剰フェッチによる `ProtocolError (Page.printToPDF): Printing failed` を防ぐため、**必要なウェイトのみに絞って読み込みます**:
+```html
+<!-- 推奨: 必要最小限のウェイトのみをインポート -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@700;900&family=Noto+Sans+JP:wght@500;700;900&display=swap" rel="stylesheet">
+```
+
+### 3. テンプレートディレクトリ構成
 テンプレートディレクトリ:
 [templates/html-paged/](./templates/html-paged/)
-
-1. **`theme.css`（デザイントークン）の編集**:
-   - ブランドカラー、アクセントカラー、背景色、余白、フォントファミリーを一元管理。
-   ```css
-   :root {
-     --color-primary: #1a73e8;
-     --color-secondary: #ff6d00;
-     --color-text: #202124;
-     --color-bg-sub: #f8f9fa;
-     
-     --page-margin: 15mm;
-     --base-radius: 4px;
-     
-     --font-base: "Noto Sans JP", -apple-system, sans-serif;
-     --font-heading: "Noto Serif JP", serif;
-   }
-   ```
-2. **`layout.css`（印刷ページ設定）**:
-   - `@page` ルールで用紙サイズ、マージン、トンボ、断ち落とし（bleed）を設定。
-   ```css
-   @page {
-     size: A4 portrait;
-     margin: var(--page-margin);
-     bleed: 3mm;
-     marks: crop cross;
-   }
-   ```
-3. **`index.html`（コンテンツ編集）**:
-   - テキスト、`<table>` による表組み、`<svg>` によるベクターイラストを配置。
-
-### パターンB: Typst
-
-テンプレートファイル:
-[templates/typst/flyer.typ](./templates/typst/flyer.typ)
-
-1. 変数定義（色、マージン）を変更:
-   ```typst
-   #let primary-color = rgb("#1a73e8")
-   #let page-margin = 15mm
-   ```
-2. ページ設定とテキスト・表組みを編集。
+- `index.html`: セマンティック構造化HTML（共通）
+- `layout.css`: A4 1ページ厳守印刷レイアウト（上寄せ・下寄せ・主役枠最大化）
+- `theme.css`: デザイントークン定義（フォント選定プリセット同梱）
+- `theme-autumn.css`: オータム・ウォーム（秋の放課後ツアーテーマ）
+- `theme-academy.css`: アカデミー・ネイビー＆ゴールド（公式制服テーマ）
+- `theme-parco.css`: パルコ・ポップ＆ルーフトップ（会場連動テーマ）
+- `assets/`: 共通SVGピクトグラムアイコン、イラストアセット
 
 ---
 
-## ステップ3: CLIによるPDFビルド・検査・プレビュー（flyer.py / uv）
+## ステップ3: 組版・コンテンツ配置とCLIビルド（flyer.py / uv）
+
 
 フライヤーのビルド、1ページ検証、高解像度プレビュー、QRコード生成を高速・確実に行うため、本プラグイン付属のツール [`scripts/flyer.py`](./scripts/flyer.py)（または [`scripts/build.sh`](./scripts/build.sh)）を使用します。
 
