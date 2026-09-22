@@ -1,0 +1,727 @@
+#!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#     "beautifulsoup4>=4.12.0",
+# ]
+# ///
+"""
+Event Information Extractor & Normalizer
+イベント・特典会公式告知ページからの情報抽出・構造化ツール
+
+Web URL またはローカル HTML/テキストファイルから、
+アイドルのリリースイベント・特典会ドメインに必要な情報を網羅的・決定論的に抽出し、
+構造化 JSON (`event_data.json`) および 整理された Markdown (`event_summary.md`) として出力します。
+"""
+
+import argparse
+import datetime
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import urllib.request
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+# beautifulsoup4 のインポートと uv run による動的自己解決
+try:
+    from bs4 import BeautifulSoup
+except ImportError:
+    if os.environ.get("_EXTRACT_REEXEC") != "1" and shutil.which("uv"):
+        env = os.environ.copy()
+        env["_EXTRACT_REEXEC"] = "1"
+        cmd = [
+            "uv",
+            "run",
+            "--with",
+            "beautifulsoup4>=4.12.0",
+            "python",
+            os.path.abspath(__file__),
+            *sys.argv[1:],
+        ]
+        res = subprocess.run(cmd, env=env)
+        sys.exit(res.returncode)
+    else:
+        print("Error: Missing required dependency (beautifulsoup4). Run with 'uv run extract_event.py'.", file=sys.stderr)
+        sys.exit(1)
+
+
+class EventExtractor:
+    def __init__(self, source: str):
+        self.source = source
+        self.raw_html = ""
+        self.lines: List[str] = []
+        self.cleaned_text = ""
+        self.page_title = ""
+
+    def fetch_or_read(self) -> None:
+        """URL またはファイルからコンテンツを取得"""
+        if self.source.startswith("http://") or self.source.startswith("https://"):
+            req = urllib.request.Request(
+                self.source,
+                headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"},
+            )
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                charset = resp.headers.get_content_charset() or "utf-8"
+                self.raw_html = resp.read().decode(charset, errors="replace")
+        else:
+            p = Path(self.source)
+            if not p.exists():
+                raise FileNotFoundError(f"File not found: {self.source}")
+            self.raw_html = p.read_text(encoding="utf-8", errors="replace")
+
+    def parse_content(self) -> None:
+        """HTML をブロック要素境界で適切に改行分割して行リストを構築"""
+        soup = BeautifulSoup(self.raw_html, "html.parser")
+
+        if soup.title and soup.title.string:
+            self.page_title = soup.title.string.strip()
+
+        # 不要タグの除去
+        for tag in soup(["script", "style", "nav", "footer", "header", "noscript", "aside"]):
+            tag.decompose()
+
+        # 改行・ブロック要素の前後に改行を明示的に挿入
+        block_tags = ["br", "p", "div", "li", "tr", "th", "td", "h1", "h2", "h3", "h4", "h5", "h6", "section", "article"]
+        for tag in soup.find_all(block_tags):
+            tag.insert_before("\n")
+            tag.insert_after("\n")
+
+        # コンテンツ抽出
+        content_elem = (
+            soup.find("main")
+            or soup.find("article")
+            or soup.find(class_=re.compile(r"schedule|detail|entry|post|event|content", re.I))
+            or soup.body
+        )
+        if not content_elem:
+            content_elem = soup
+
+        raw_text = content_elem.get_text()
+        self.lines = [re.sub(r"\s+", " ", l).strip() for l in raw_text.splitlines() if l.strip()]
+        self.cleaned_text = "\n".join(self.lines)
+
+    def extract(self) -> Dict[str, Any]:
+        """構造化イベントデータを抽出"""
+        self.fetch_or_read()
+        self.parse_content()
+
+        data: Dict[str, Any] = {
+            "meta": {
+                "source_url": self.source,
+                "extracted_at": datetime.datetime.now().isoformat(),
+                "page_title": self.page_title,
+            },
+            "overview": self._extract_overview(),
+            "cast": self._extract_cast(),
+            "timetable": self._extract_timetable(),
+            "products": self._extract_products(),
+            "admission": self._extract_admission(),
+            "tokutenkai": self._extract_tokutenkai(),
+            "photo_time": self._extract_photo_time(),
+            "regulations_and_notes": self._extract_notes(),
+        }
+        return data
+
+    def _extract_overview(self) -> Dict[str, Any]:
+        """公演名、日時、会場、アクセスの抽出"""
+        res: Dict[str, Any] = {
+            "event_name": "",
+            "date": "",
+            "day_of_week": "",
+            "venue_name": "",
+            "venue_floor": "",
+            "venue_address": "",
+            "access_notes": [],
+        }
+
+        for idx, line in enumerate(self.lines):
+            # タイトル
+            if not res["event_name"]:
+                m = re.search(r"(?:タイトル|イベント名)[：:]\s*[「『\"]?([^\n」』\"]+)[」』\"]?", line)
+                if m:
+                    res["event_name"] = m.group(1).strip()
+
+            # 日程 (例: 2026年9月27日(日), 2026.09.27(日))
+            if not res["date"]:
+                m = re.search(r"(\d{4})[年\.\-/](\d{1,2})[月\.\-/](\d{1,2})日?\s*[\(（]([日月火水木金土祝・]+)[\)）]", line)
+                if m:
+                    y, m_val, d = int(m.group(1)), int(m.group(2)), int(m.group(3))
+                    res["date"] = f"{y:04d}-{m_val:02d}-{d:02d}"
+                    res["day_of_week"] = m.group(4)
+                else:
+                    m2 = re.search(r"(\d{4})[年\.\-/](\d{1,2})[月\.\-/](\d{1,2})", line)
+                    if m2:
+                        y, m_val, d = int(m2.group(1)), int(m2.group(2)), int(m2.group(3))
+                        res["date"] = f"{y:04d}-{m_val:02d}-{d:02d}"
+
+            # 会場
+            if not res["venue_name"]:
+                m = re.search(r"^会場[：:]\s*(.+)", line)
+                if m:
+                    v_raw = m.group(1).strip()
+                    # 住所分離
+                    m_addr = re.search(r"[\(（]〒?(\d{3}-\d{4})?\s*([^\)）]+)[\)）]", v_raw)
+                    if m_addr:
+                        res["venue_address"] = m_addr.group(2).strip()
+                        v_raw = v_raw[: m_addr.start()].strip()
+                    
+                    # 施設名とフロアの分離
+                    m_fl = re.search(r"^(.+?(?:パルコ|ビル|タワー|プラザ|モール|会館|劇場|ホール|LOFT|店))\s*(.*)$", v_raw)
+                    if m_fl:
+                        res["venue_name"] = m_fl.group(1).strip()
+                        res["venue_floor"] = m_fl.group(2).strip()
+                    else:
+                        res["venue_name"] = v_raw
+
+            # 住所単独行
+            if not res["venue_address"] and ("〒" in line or "東京都" in line or "市" in line or "区" in line):
+                if any(k in self.lines[max(0, idx - 1)] for k in ["会場", "場所"]):
+                    res["venue_address"] = line.strip("（）() ")
+
+            # アクセス注意
+            if any(k in line for k in ["エレベーター", "エスカレーター", "階段で", "来場方法", "7Fまで"]):
+                clean_l = line.lstrip("※・- ")
+                if clean_l not in res["access_notes"]:
+                    res["access_notes"].append(clean_l)
+
+        # ページタイトルからのフォールバック
+        if not res["event_name"] and self.page_title:
+            parts = re.split(r"[|｜\-–—]", self.page_title)
+            res["event_name"] = parts[0].strip()
+
+        return res
+
+    def _extract_cast(self) -> Dict[str, Any]:
+        """出演者、組分け・チーム分けの抽出"""
+        res: Dict[str, Any] = {
+            "group_name": "",
+            "members": [],
+            "teams": [],
+        }
+
+        # グループ名判定
+        full_text = self.cleaned_text
+        if "スタープラネットアイドルアカデミー" in full_text or "スタアカ" in full_text:
+            res["group_name"] = "スタープラネットアイドルアカデミー (スタアカ)"
+        elif "ukka" in full_text:
+            res["group_name"] = "ukka"
+        elif "TEAM SHACHI" in full_text:
+            res["group_name"] = "TEAM SHACHI"
+        elif "私立恵比寿中学" in full_text:
+            res["group_name"] = "私立恵比寿中学"
+        elif "超ときめき♡宣伝部" in full_text:
+            res["group_name"] = "超ときめき♡宣伝部"
+
+        # 組分け・チーム分けパターン (例: 【松ぼっくり組】原田麻衣・ゆめ・香月りおな・沖名むぎ)
+        team_pattern = re.compile(r"^[【\[]([🍂🌰🌸🌻🍁☘️]*[^\n】\]]+(?:組|チーム|ユニット))[】\]]\s*(.+)")
+        for line in self.lines:
+            m = team_pattern.match(line)
+            if m:
+                t_name = m.group(1).strip()
+                t_members_raw = m.group(2).strip()
+                m_list = [mem.strip() for mem in re.split(r"[・,、/／\s]+", t_members_raw) if mem.strip()]
+                res["teams"].append({
+                    "team_name": t_name,
+                    "members": m_list,
+                })
+                for mem in m_list:
+                    if mem not in res["members"]:
+                        res["members"].append(mem)
+
+        # 出演者行パターン (例: 出演：メンバー1, メンバー2)
+        if not res["members"]:
+            for line in self.lines:
+                m = re.match(r"^(?:出演|出演者|MEMBERS)[：:]\s*(.+)", line)
+                if m:
+                    m_list = [mem.strip() for mem in re.split(r"[・,、/／\s]+", m.group(1)) if mem.strip()]
+                    res["members"] = m_list
+                    break
+
+        return res
+
+    def _extract_timetable(self) -> List[Dict[str, Any]]:
+        """タイムテーブルの抽出（時系列順の厳格保持）"""
+        items: List[Dict[str, Any]] = []
+        # 時刻パターン: 10:30〜物販開始, 12:25〜(予定) 優先観覧エリア...
+        tt_pattern = re.compile(r"^(\d{1,2}:\d{2})\s*(?:〜|~|-)?\s*(\d{1,2}:\d{2})?\s*(?:\(予定\))?\s*(.+)")
+
+        for line in self.lines:
+            m = tt_pattern.match(line)
+            if m:
+                st = m.group(1)
+                et = m.group(2) or ""
+                content = m.group(3).strip()
+
+                # 補足（例: （約45分））の切り出し
+                note = ""
+                m_note = re.search(r"[\(（]([^\)）]+)[\)）]", content)
+                if m_note:
+                    note = m_note.group(1).strip()
+                    content = content[: m_note.start()] + content[m_note.end() :]
+                    content = content.strip()
+
+                items.append({
+                    "time": st,
+                    "end_time": et,
+                    "title": content,
+                    "detail": note,
+                })
+
+        # 重複除去 & ソート
+        seen = set()
+        dedup_items = []
+        for it in items:
+            key = (it["time"], it["title"])
+            if key not in seen:
+                seen.add(key)
+                dedup_items.append(it)
+
+        dedup_items.sort(key=lambda x: x["time"])
+        return dedup_items
+
+    def _extract_products(self) -> Dict[str, Any]:
+        """CD・グッズ・対象商品、購入上限、ループルールの抽出"""
+        res: Dict[str, Any] = {
+            "items": [],
+            "purchase_limit": "",
+            "loop_rule": "",
+            "payment_methods": [],
+            "payment_exclusions": [],
+        }
+
+        # 商品行の走査 (例: ・生写真第2シリーズ ¥1,000(税込), 対象商品(BTRC-1055))
+        for line in self.lines:
+            # 品番
+            m_code = re.search(r"([A-Z]{3,5}-\d{3,5})", line)
+            # 価格
+            m_price = re.search(r"([0-9,]+円(?:\(税込\))?|¥[0-9,]+(?:\(税込\))?)", line)
+
+            if m_price and any(k in line for k in ["生写真", "CD", "エムカード", "グッズ", "写真", "盤"]):
+                clean_name = re.sub(r"^[・※\-\s]+", "", line)
+                price_str = m_price.group(1)
+                # 商品名から価格部分を除去
+                clean_name = clean_name.replace(price_str, "").strip(" 　/／")
+                code_str = m_code.group(1) if m_code else ""
+                
+                # 盤種（集合盤、ユニット盤など）
+                disc_type = ""
+                m_disc = re.search(r"【([^】]+)】", clean_name)
+                if m_disc:
+                    disc_type = m_disc.group(1)
+                    clean_name = clean_name[: m_disc.start()].strip()
+
+                res["items"].append({
+                    "name": clean_name,
+                    "disc_type": disc_type,
+                    "code": code_str,
+                    "price": price_str,
+                })
+
+            # 1会計上限
+            if any(k in line for k in ["1会計", "一会計"]) and any(k in line for k in ["上限", "点まで", "枚まで", "個まで", "制限"]):
+                res["purchase_limit"] = line.lstrip("※・- ")
+
+            # ループ
+            if any(k in line for k in ["ループ", "並び直し", "買い増し"]):
+                if not any(k in line for k in ["：", ":"]) or "個" not in line:
+                    res["loop_rule"] = line.lstrip("※・- ")
+
+            # 決済方法
+            if "支払い方法" in line or "支払方法" in line or any(k in line for k in ["クレジットカード", "QRコード決済", "電子マネー", "現金"]):
+                if not any(k in line for k in ["禁止", "不可", "対象外"]):
+                    clean_p = line.lstrip("※・- ")
+                    if clean_p not in res["payment_methods"]:
+                        res["payment_methods"].append(clean_p)
+
+            # 対象外事項
+            if any(k in line for k in ["対象外", "ご利用いただけません", "発行は全て対象外"]):
+                clean_e = line.lstrip("※・- ")
+                if clean_e not in res["payment_exclusions"]:
+                    res["payment_exclusions"].append(clean_e)
+
+        return res
+
+    def _extract_admission(self) -> Dict[str, Any]:
+        """入場・観覧エリアルールの抽出"""
+        res: Dict[str, Any] = {
+            "has_priority_area": False,
+            "meeting_time": "",
+            "meeting_place": "",
+            "ticket_rule": "",
+            "free_viewing": "",
+            "female_area": False,
+            "handicap_area": False,
+        }
+
+        full_text = self.cleaned_text
+        res["has_priority_area"] = "優先観覧エリア" in full_text
+        res["female_area"] = "女性専用" in full_text or "女性優先" in full_text
+        res["handicap_area"] = "車椅子" in full_text or "お身体の不自由" in full_text
+
+        for line in self.lines:
+            if "集合" in line or "整列" in line or "入場開始" in line:
+                m_t = re.search(r"(\d{1,2}:\d{2})", line)
+                if m_t and not res["meeting_time"]:
+                    res["meeting_time"] = m_t.group(1)
+
+            if any(k in line for k in ["整理番号付き優先観覧エリア券", "優先観覧エリア券"]):
+                if any(k in line for k in ["ランダム", "先着", "1枚まで", "配布"]):
+                    res["ticket_rule"] = line.lstrip("※・- ")
+
+            if "一般観覧" in line or "フリー観覧" in line or "観覧は無料" in line:
+                res["free_viewing"] = line.lstrip("※・- ")
+
+            if "集合場所" in line or "整列場所" in line:
+                res["meeting_place"] = line.lstrip("※・- ")
+
+        return res
+
+    def _extract_tokutenkai(self) -> Dict[str, Any]:
+        """特典会メニュー、くじ内訳、実施順の抽出"""
+        res: Dict[str, Any] = {
+            "execution_order": "",
+            "menus": [],
+            "kuji_items": [],
+            "general_rules": [],
+        }
+
+        in_kuji_section = False
+        for line in self.lines:
+            # 実施順序 (例: 推し運検定→帰りの会)
+            if "→" in line and any(k in line for k in ["会", "検定", "撮影", "ショット", "お話し"]):
+                res["execution_order"] = line.strip()
+
+            # 特典会大メニュー (例: ①帰りの会(お見送り会), ②推し運検定(ランダムくじ特典会))
+            m_menu = re.match(r"^([①②③④⑤⑥⑦⑧⑨⑩\d]+[\.\)]?\s*[^\n：:]{3,30}?)(?:[：:]\s*(.+))?$", line)
+            if m_menu:
+                title = m_menu.group(1).strip()
+                desc = m_menu.group(2) or ""
+                if any(k in title for k in ["帰りの会", "お見送り", "推し運検定", "撮影", "shot", "ショット", "お話し", "サイン"]):
+                    res["menus"].append({
+                        "name": title,
+                        "description": desc,
+                        "required_sets": "",
+                    })
+
+            # 特典券必要セット数 (例: 対象商品1セットご購入で...)
+            if res["menus"] and ("セットご購入" in line or "特典券をお渡し" in line):
+                res["menus"][-1]["required_sets"] = line.lstrip("※・- ")
+
+            # くじ賞品セクション (例: ◼︎グループショット(お客様＋メンバー全員))
+            if any(k in line for k in ["推し運検定特典会内容", "くじ内訳", "賞品内容"]):
+                in_kuji_section = True
+                continue
+
+            # 個数行 (例: ・グループショット：1個, ・推し2shot：2個)
+            m_qty = re.search(r"^[・※\-\s]*([^\n：:]+)[：:]\s*(\d+個)", line)
+            if m_qty:
+                prize_name = m_qty.group(1).strip()
+                qty_val = m_qty.group(2).strip()
+                # 既存賞品に個数を付与
+                matched = False
+                for item in res["kuji_items"]:
+                    if prize_name in item["name"]:
+                        item["quantity"] = qty_val
+                        matched = True
+                        break
+                if not matched and any(k in prize_name for k in ["ショット", "shot", "ソロ"]):
+                    res["kuji_items"].append({"name": prize_name, "quantity": qty_val, "rules": []})
+                continue
+
+            if in_kuji_section:
+                if line.startswith("■") or line.startswith("▼") or line.startswith("【商品販売"):
+                    in_kuji_section = False
+                elif any(line.startswith(p) for p in ["◼︎", "■", "・", "- "]):
+                    clean_item = line.lstrip("◼︎■・- ")
+                    if any(k in clean_item for k in ["ショット", "shot", "ソロ", "2shot", "3shot", "グループ"]):
+                        # 重複追加の回避
+                        if not any(it["name"] == clean_item for it in res["kuji_items"]):
+                            res["kuji_items"].append({"name": clean_item, "quantity": "", "rules": []})
+                    elif res["kuji_items"] and ("指名" in line or "撮影" in line or "メンバー" in line):
+                        clean_rule = line.lstrip("※・- ")
+                        if clean_rule not in res["kuji_items"][-1]["rules"]:
+                            res["kuji_items"][-1]["rules"].append(clean_rule)
+
+            # 特典会禁止事項・現場ルール
+            if any(k in line for k in ["ふれる行為", "座らせる行為", "小道具", "画面録画", "Live Photos", "BeReal", "加工アプリ"]):
+                clean_r = line.lstrip("※・- ")
+                if clean_r not in res["general_rules"]:
+                    res["general_rules"].append(clean_r)
+            if any(k in line for k in ["スマートフォンで行います", "スマホ限定", "手ぶら", "荷物置き場"]):
+                clean_r = line.lstrip("※・- ")
+                if clean_r not in res["general_rules"]:
+                    res["general_rules"].append(clean_r)
+
+        return res
+
+    def _extract_photo_time(self) -> Dict[str, Any]:
+        """撮可TIMEの厳格抽出"""
+        res: Dict[str, Any] = {
+            "has_photo_time": False,
+            "condition": "",
+            "allowed_devices": "",
+            "prohibited": [],
+        }
+
+        full_text = self.cleaned_text
+        if "撮可" in full_text or "撮影可能タイム" in full_text:
+            res["has_photo_time"] = True
+            for line in self.lines:
+                if any(k in line for k in ["撮可", "撮影可能"]):
+                    res["condition"] = line.lstrip("※・- ")
+                if any(k in line for k in ["スマートフォンのみ", "スマホ限定", "一眼レフ可"]):
+                    res["allowed_devices"] = line.lstrip("※・- ")
+                if any(k in line for k in ["三脚", "一脚", "フラッシュ", "セルカ棒", "脚立"]):
+                    res["prohibited"].append(line.lstrip("※・- "))
+        else:
+            # 撮影禁止の明記
+            res["has_photo_time"] = False
+            for line in self.lines:
+                if "写真撮影、動画撮影、録音行為は固く禁止" in line:
+                    res["condition"] = line.lstrip("※・- ")
+
+        return res
+
+    def _extract_notes(self) -> Dict[str, List[str]]:
+        """注意事項・安全管理・禁止事項の整理"""
+        notes: Dict[str, List[str]] = {
+            "facility_and_safety": [],
+            "baggage": [],
+            "prohibited_actions": [],
+            "contact": [],
+        }
+
+        for line in self.lines:
+            clean_l = line.lstrip("※・- ")
+            if not clean_l:
+                continue
+
+            # 屋上・施設安全
+            if any(k in clean_l for k in ["傘の使用", "雨具", "カッパ", "危険防止", "屋上内", "オープンスペース", "一般のお客様"]):
+                notes["facility_and_safety"].append(clean_l)
+            # 通路・待機
+            elif any(k in clean_l for k in ["立ち止まり", "階段など", "観覧エリア外", "徹夜", "早朝からの待機"]):
+                notes["facility_and_safety"].append(clean_l)
+            # 手荷物
+            elif any(k in clean_l for k in ["手荷物", "貴重品", "ロッカー", "クローク", "故障"]):
+                notes["baggage"].append(clean_l)
+            # 禁止行為
+            elif any(k in clean_l for k in ["座り込み", "迷惑行為", "三脚や一脚", "脚立", "台の上"]):
+                notes["prohibited_actions"].append(clean_l)
+            # 問い合わせ
+            elif any(k in clean_l for k in ["お問い合わせ", "お問合せ", "contact", "株式会社スターダスト"]):
+                notes["contact"].append(clean_l)
+
+        # 重複除外
+        for k in notes:
+            seen = set()
+            dedup = []
+            for item in notes[k]:
+                if item not in seen:
+                    seen.add(item)
+                    dedup.append(item)
+            notes[k] = dedup
+
+        return notes
+
+    def to_markdown(self, data: Dict[str, Any]) -> str:
+        """決定論的に整理された構造化Markdown（情報要約シート）を生成"""
+        meta = data["meta"]
+        ov = data["overview"]
+        cast = data["cast"]
+        tt = data["timetable"]
+        prod = data["products"]
+        adm = data["admission"]
+        tokuten = data["tokutenkai"]
+        photo = data["photo_time"]
+        notes = data["regulations_and_notes"]
+
+        md = []
+        md.append(f"# 【情報構造化シート】{ov.get('event_name') or meta.get('page_title')}")
+        md.append("")
+        md.append(f"- **元URL**: {meta.get('source_url')}")
+        md.append(f"- **抽出日時**: {meta.get('extracted_at')}")
+        md.append("")
+
+        md.append("## 1. 公演概要")
+        md.append(f"- **イベント名**: {ov.get('event_name')}")
+        md.append(f"- **開催日程**: {ov.get('date')} ({ov.get('day_of_week')})")
+        md.append(f"- **会場**: {ov.get('venue_name')} {ov.get('venue_floor')}")
+        if ov.get("venue_address"):
+            md.append(f"- **所在地**: {ov.get('venue_address')}")
+        if ov.get("access_notes"):
+            md.append("- **来場・アクセス方法**:")
+            for an in ov.get("access_notes"):
+                md.append(f"  - {an}")
+        md.append("")
+
+        md.append("## 2. 出演者・組分け（チップ用データ）")
+        if cast.get("group_name"):
+            md.append(f"- **グループ**: {cast.get('group_name')}")
+        if cast.get("teams"):
+            md.append("- **組分け・チーム一覧**:")
+            for tm in cast.get("teams"):
+                m_str = "、".join(tm.get("members", []))
+                md.append(f"  - **{tm.get('team_name')}**: {m_str}")
+        elif cast.get("members"):
+            md.append(f"- **出演者**: {'、'.join(cast.get('members'))}")
+        md.append("")
+
+        md.append("## 3. タイムテーブル（時系列順）")
+        if tt:
+            md.append("| 時刻 | 内容 | 補足 |")
+            md.append("| :--- | :--- | :--- |")
+            for it in tt:
+                t_str = it["time"]
+                if it["end_time"]:
+                    t_str += f"〜{it['end_time']}"
+                md.append(f"| {t_str} | {it['title']} | {it['detail']} |")
+        else:
+            md.append("（タイムテーブル明記なし）")
+        md.append("")
+
+        md.append("## 4. CD・対象商品＆購入レギュレーション")
+        if prod.get("items"):
+            md.append("### 対象商品")
+            md.append("| 商品名 / 盤種 | 品番 | 価格 |")
+            md.append("| :--- | :--- | :--- |")
+            for it in prod.get("items"):
+                d_type = f"【{it['disc_type']}】" if it.get("disc_type") else ""
+                md.append(f"| {it.get('name')} {d_type} | {it.get('code', '-')} | {it.get('price', '-')} |")
+        if prod.get("purchase_limit"):
+            md.append(f"- **購入点数上限**: {prod.get('purchase_limit')}")
+        if prod.get("loop_rule"):
+            md.append(f"- **ループ（並び直し）可否**: {prod.get('loop_rule')}")
+        if prod.get("payment_methods"):
+            md.append("- **決済方法**:")
+            for pm in prod.get("payment_methods"):
+                md.append(f"  - {pm}")
+        if prod.get("payment_exclusions"):
+            md.append("- **決済対象外・注意事項**:")
+            for pe in prod.get("payment_exclusions"):
+                md.append(f"  - {pe}")
+        md.append("")
+
+        md.append("## 5. 入場＆優先観覧エリア案内")
+        md.append(f"- **優先観覧エリア**: {'あり' if adm.get('has_priority_area') else 'なし'}")
+        if adm.get("meeting_time"):
+            md.append(f"- **整列・入場開始**: {adm.get('meeting_time')}")
+        if adm.get("ticket_rule"):
+            md.append(f"- **入場券配布方法**: {adm.get('ticket_rule')}")
+        if adm.get("free_viewing"):
+            md.append(f"- **フリー観覧**: {adm.get('free_viewing')}")
+        md.append(f"- **女性専用エリア**: {'あり' if adm.get('female_area') else 'なし / 記載なし'}")
+        md.append(f"- **車椅子エリア**: {'あり' if adm.get('handicap_area') else 'なし / 記載なし'}")
+        md.append("")
+
+        md.append("## 6. 特典会メニュー・レギュレーション・実施順")
+        if tokuten.get("execution_order"):
+            md.append(f"- **実施順序**: {tokuten.get('execution_order')}")
+        if tokuten.get("menus"):
+            md.append("### 特典会メニュー")
+            for m in tokuten.get("menus"):
+                req = f"（{m['required_sets']}）" if m.get("required_sets") else ""
+                md.append(f"- **{m.get('name')}** {req}")
+        if tokuten.get("kuji_items"):
+            md.append("### くじ賞品内訳（推し運検定等）")
+            md.append("| 賞品内容 | 当選個数 | レギュレーション・指名条件 |")
+            md.append("| :--- | :--- | :--- |")
+            for k in tokuten.get("kuji_items"):
+                rule_str = " / ".join(k.get("rules", [])) or "-"
+                qty = k.get("quantity") or "-"
+                md.append(f"| {k.get('name')} | {qty} | {rule_str} |")
+        if tokuten.get("general_rules"):
+            md.append("### 特典会共通ルール・禁止事項")
+            for gr in tokuten.get("general_rules"):
+                md.append(f"- {gr}")
+        md.append("")
+
+        md.append("## 7. 撮可（撮影可能）TIME")
+        if photo.get("has_photo_time"):
+            md.append("- **撮可TIME**: あり")
+            if photo.get("condition"):
+                md.append(f"  - 条件: {photo.get('condition')}")
+            if photo.get("allowed_devices"):
+                md.append(f"  - 機材: {photo.get('allowed_devices')}")
+            if photo.get("prohibited"):
+                md.append(f"  - 禁止事項: {', '.join(photo.get('prohibited'))}")
+        else:
+            md.append("- **撮可TIME**: なし（ライブ・イベント中の撮影・録画・録音は全面禁止）")
+            if photo.get("condition"):
+                md.append(f"  - 公式記述: {photo.get('condition')}")
+        md.append("")
+
+        md.append("## 8. 注意事項・安全管理・お問い合わせ（紙面下部集約用）")
+        if notes.get("facility_and_safety"):
+            md.append("### 施設利用・屋上安全管理")
+            for s in notes.get("facility_and_safety"):
+                md.append(f"- {s}")
+        if notes.get("baggage"):
+            md.append("### 手荷物・クローク")
+            for b in notes.get("baggage"):
+                md.append(f"- {b}")
+        if notes.get("prohibited_actions"):
+            md.append("### 禁止事項（観覧マナー・迷惑行為）")
+            for p in notes.get("prohibited_actions"):
+                md.append(f"- {p}")
+        if notes.get("contact"):
+            md.append("### お問い合わせ先")
+            for c in notes.get("contact"):
+                md.append(f"- {c}")
+        md.append("")
+
+        return "\n".join(md)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Event & Tokutenkai Information Extractor CLI",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+使用例:
+  # 1. URL から情報を抽出し、Markdown と JSON を同時に保存 (推奨)
+  uv run python extract_event.py "https://starplanet-academy.com/schedule/item-359/" -o event_summary.md --json event_data.json
+
+  # 2. 抽出結果を標準出力に表示
+  uv run python extract_event.py "https://starplanet-academy.com/schedule/item-359/"
+""",
+    )
+    parser.add_argument("source", help="抽出元の URL または ローカル HTML/テキストファイル")
+    parser.add_argument("-o", "--output", help="出力先 Markdown ファイルパス (省略時: 標準出力)")
+    parser.add_argument("--json", help="出力先 JSON ファイルパス")
+    parser.add_argument("-q", "--quiet", action="store_true", help="進捗メッセージを抑制")
+
+    args = parser.parse_args()
+
+    extractor = EventExtractor(args.source)
+    if not args.quiet:
+        print(f"==> Extracting event information from: {args.source}")
+
+    data = extractor.extract()
+    md_content = extractor.to_markdown(data)
+
+    if args.json:
+        json_path = Path(args.json)
+        json_path.parent.mkdir(parents=True, exist_ok=True)
+        json_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        if not args.quiet:
+            print(f"💾 Structured JSON saved to: {json_path}")
+
+    if args.output:
+        out_path = Path(args.output)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        out_path.write_text(md_content, encoding="utf-8")
+        if not args.quiet:
+            print(f"📝 Structured Markdown summary saved to: {out_path}")
+    elif not args.json:
+        print(md_content)
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

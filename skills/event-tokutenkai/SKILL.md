@@ -14,12 +14,37 @@ description: >-
 
 ```mermaid
 flowchart LR
-    A["要件定義（サイズ・用途）"] --> B["アプローチ選択<br/>(HTML/CSS or Typst)"]
-    B --> C["デザイントークン設定<br/>(テーマ色・余白・フォント)"]
-    C --> D["組版・コンテンツ配置<br/>(文章・表・SVGイラスト)"]
-    D --> E["CLIコンパイル<br/>(npx / uv)"]
-    E --> F["印刷用ベクターPDF"]
+    A0["公式URL入力"] --> A["情報構造化抽出<br/>(flyer.py extract)"]
+    A --> B["要約・JSON生成<br/>(event_summary.md)"]
+    B --> C["デザイントークン設定<br/>(テーマ色・組分け・フォント)"]
+    C --> D["組版・コンテンツ配置<br/>(HTML/CSS)"]
+    D --> E["パイプライン実行<br/>(flyer.py all)"]
+    E --> F["A4ベクターPDF<br/>& 300dpi高精細PNG"]
 ```
+
+---
+
+## ステップ0: 公式URLからの決定論的情報抽出（必須先行ステップ）
+
+イベント告知ページやニュースリリースから情報を収集する際、**AIが自己判断で場当たり的に拾い集めてはなりません**（解釈揺れや重要なレギュレーションの脱落を防ぐため）。
+必ず最初に内製抽出ツール [`scripts/flyer.py extract`](./scripts/flyer.py) を実行し、決定論的に整理された要約Markdownと構造化JSONを生成します。
+
+```bash
+# 公式URLから情報を抽出し、整理されたMarkdownとJSONを出力
+uv run python scripts/flyer.py extract "https://starplanet-academy.com/schedule/item-359/" \
+  -o event_summary.md \
+  --json event_data.json
+```
+
+抽出される構造化データ（`event_summary.md` / `event_data.json`）:
+1. **公演概要**: 正式イベント名、開催日程、会場名、フロア、所在地、来場導線（エレベーター/階段）
+2. **出演者・組分け**: グループ名、チーム分け（松ぼっくり組・どんぐり組等）、メンバー一覧
+3. **タイムテーブル**: 時系列順の正確な時刻・内容・所要時間
+4. **対象商品＆購入レギュレーション**: 商品名、品番、価格、1会計購入上限、ループ可否、決済方法
+5. **入場＆優先観覧エリア案内**: 集合時刻・場所、入場券配布方法、一般フリー観覧の有無
+6. **特典会メニュー・実施順・くじ内訳**: 進行順、メニュー名、必要枚数、くじ賞品内訳（当選個数・指名ルール）、禁止事項
+7. **撮可（撮影可能）TIME**: 有無、許可機材（スマホ/一眼）、禁止事項（三脚・一脚・フラッシュ）
+8. **注意事項・安全管理・お問い合わせ**: 傘禁止/雨具、手荷物自己管理、禁止行為、お問い合わせ先
 
 ---
 
@@ -34,11 +59,11 @@ flowchart LR
    - **HTML/CSS (Vivliostyle / WeasyPrint)**:
      - Webデザインのノウハウ（Flexbox, CSS Grid, Webフォント）を活かしたい場合
      - デザインの自由度が高く、テンプレート連携（Jinja2 / Mustache等）が容易
-     - 推奨実行: `npx vivliostyle build` または `uv run weasyprint`
+     - 推奨実行: `uv run python scripts/flyer.py all index.html`
    - **Typst**:
-     - ページ物のカタログ、厳密な表組み、数式、書籍風レイアウトを作成したい場合
+     - ページ物のカタログ、厳密な表組み、書籍風レイアウトを作成したい場合
      - プレーンテキストで簡潔に記述したい場合
-     - 推奨実行: `npx @myriaddreamin/typst-ts-cli compile`
+     - 推奨実行: `uv run python scripts/flyer.py all flyer.typ`
 
 ---
 
@@ -94,38 +119,57 @@ flowchart LR
 
 ---
 
-## ステップ3: CLIによるPDFビルド
+## ステップ3: CLIによるPDFビルド・検査・プレビュー（flyer.py / uv）
 
-プロジェクトルートまたは対象ディレクトリで以下のコマンドを実行します。
+フライヤーのビルド、1ページ検証、高解像度プレビュー、QRコード生成を高速・確実に行うため、本プラグイン付属のツール [`scripts/flyer.py`](./scripts/flyer.py)（または [`scripts/build.sh`](./scripts/build.sh)）を使用します。
 
-### 1. Vivliostyle（Node.js / npx）
-出版・印刷向け組版ツール。トンボや見開き、裁ち落としに対応。
+### 1. ビルド・1ページ検証・高精細PNG生成の一括実行（推奨）
+ワンコマンドで「PDFビルド ➔ ページ数・A4寸法チェック ➔ 300dpi（約2480×3508px）高精細PNG生成」を一気通貫で実行します。
 ```bash
-# ビルド実行（output.pdf を生成）
-npx vivliostyle build index.html -o output.pdf
+# HTMLからPDFとPNGプレビューを一括生成
+uv run python scripts/flyer.py all index.html
 
-# プレビュー表示（ローカルサーバー起動）
-npx vivliostyle preview index.html
+# 出力先を明示する場合
+uv run python scripts/flyer.py all index.html -o output.pdf --preview output.png --dpi 300
 ```
 
-### 2. WeasyPrint（Python / uv）
-PythonベースのCSS Paged Mediaレンダラー。
+### 2. 個別コマンドの利用
+
+#### A. PDFビルド (`build`)
 ```bash
-# uvでインストール＆即時実行
-uv run weasyprint index.html output.pdf
+# HTML (Vivliostyle)
+uv run python scripts/flyer.py build index.html -o output.pdf
+
+# WeasyPrint を明示
+uv run python scripts/flyer.py build index.html -o output.pdf --engine weasyprint
+
+# Typst
+uv run python scripts/flyer.py build flyer.typ -o output.pdf
 ```
 
-### 3. Typst（npx）
-Typstソースファイルを即座にPDFへコンパイル。
+#### B. ページ数・寸法の検証 (`pages` / `verify`)
+PDFがA4 1枚（チラシ1枚もの）に厳密に収まっているか、超過ページがないかを瞬時に検証します。
 ```bash
-npx @myriaddreamin/typst-ts-cli compile flyer.typ output.pdf
+# 1ページ厳守チェック（1ページ以外ならエラー終了）
+uv run python scripts/flyer.py pages output.pdf --expect 1
 ```
 
-### 4. 付属のビルドスクリプト
-本プラグインの [scripts/build.sh](./scripts/build.sh) を使用して統一的にビルドすることも可能です。
+#### C. 高解像度 PNG プレビューの生成 (`render` / `preview`)
+macOS の `qlmanage` や Swift スクリプトに依存せず、PyMuPDF によりクロスプラットフォームで 300dpi（4K解像度相当）のPNGを生成します。
 ```bash
-./scripts/build.sh html index.html output.pdf
-# または
+# 300dpi で第1ページをレンダリング
+uv run python scripts/flyer.py render output.pdf -o output.png --dpi 300
+```
+
+#### D. ベクター SVG QR コードの生成 (`qr`)
+Webの一次情報URLから、印刷でも縮小・拡大でも劣化しないベクターSVG QRコードを生成します。
+```bash
+uv run python scripts/flyer.py qr "https://example.com/event" -o qr.svg
+```
+
+### 3. シェルスクリプトによる呼び出し (`build.sh`)
+```bash
+./scripts/build.sh auto index.html output.pdf output.png
 ./scripts/build.sh typst flyer.typ output.pdf
 ```
 
@@ -206,8 +250,8 @@ npx @myriaddreamin/typst-ts-cli compile flyer.typ output.pdf
   - 公式タイムテーブルに示された特典会の実施順（フリーお手振り ➔ ①動画お手振り ➔ ②グループshot ➔ ③2shot/ソロshot）と、メニュー表の行順序を100%揃えます。順番の齟齬をなくすことで、参加者がどのタイミングでどの券を使うべきかが直感的に伝わります。
 * **対象商品の品番・盤種バッジ表示**:
   - 複数形態（集合盤、ユニット盤等）のエムカードやCDがある場合、品番（`BTRC-1055`等）と盤種名をセットにしたバッジをタイムライン内に一覧表示し、レジでの注文間違いを未然に防ぎます。
-* **4Kディスプレイ・印刷品質でのプレビュー画像生成**:
-  - 生成されたPDFを目視確認する際、文字潰れを防ぐため `qlmanage -t -s 3508 -o <dir> <pdf-file>` や Swift PDFKitレンダリングにより A4 300dpi相当（2480×3508px）以上の高精細PNGを出力し、4K環境でも細かな文字・注釈までクッキリ確認できるようにします。
+* **4Kディスプレイ・印刷品質でのプレビュー画像生成（flyer.py render）**:
+  - 生成されたPDFを目視確認する際、文字潰れを防ぐため `uv run python scripts/flyer.py render <pdf-file> -o <preview.png> --dpi 300` により A4 300dpi相当（2481×3508px）の高精細PNGを出力し、4K環境でも細かな文字・注釈までクッキリ確認できるようにします（macOS `qlmanage` や Swift スクリプト不要）。
 * **会場フロアマップの縦長構成と入場案内文の横幅確保**:
   - 会場図が横長の場合、並列する入場案内の横幅を奪って文章が窮屈になり、視線誘導も乱れます。会場図面はステージを上部（または進行方向）に配した**縦長比率（アスペクト比 3:4〜1:1.35程度）**で再構成し、入場案内枠の右側にコンパクトに配置することで、左側の入場案内欄（入場順ステップ、優先／女性専用エリア案内、集合ルール）に十分な横幅を確保し、視認性を最大化します。
 * **長文テキストの適正改行と横幅制御**:

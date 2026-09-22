@@ -1,18 +1,26 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Build Script for Event & Tokutenkai Flyer PDF
-# 支持: Vivliostyle (npx), WeasyPrint (uv), Typst (npx)
+# Build Script for Event & Tokutenkai Flyer PDF & High-Res PNG
 # ==============================================================================
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+FLYER_PY="$SCRIPT_DIR/flyer.py"
+
 usage() {
-  echo "Usage: $0 <format: html-vivliostyle|html-weasyprint|typst> <input-file> [output-file]"
+  echo "Usage: $0 [options] <format: auto|vivliostyle|weasyprint|typst> <input-file> [output-pdf] [output-png]"
   echo ""
   echo "Examples:"
-  echo "  $0 html-vivliostyle index.html output.pdf"
-  echo "  $0 html-weasyprint index.html output.pdf"
+  echo "  $0 auto index.html"
+  echo "  $0 vivliostyle index.html output.pdf output.png"
   echo "  $0 typst flyer.typ output.pdf"
+  echo ""
+  echo "Or run flyer.py directly with uv:"
+  echo "  uv run python $FLYER_PY all index.html"
+  echo "  uv run python $FLYER_PY pages output.pdf --expect 1"
+  echo "  uv run python $FLYER_PY render output.pdf -o output.png --dpi 300"
+  echo "  uv run python $FLYER_PY qr 'https://example.com' -o qr.svg"
   exit 1
 }
 
@@ -22,25 +30,22 @@ fi
 
 FORMAT="$1"
 INPUT="$2"
-OUTPUT="${3:-output.pdf}"
+OUTPUT_PDF="${3:-${INPUT%.*}.pdf}"
+OUTPUT_PNG="${4:-${INPUT%.*}.png}"
 
-if [ ! -f "$INPUT" ]; then
-  echo "Error: Input file '$INPUT' does not exist." >&2
-  exit 1
-fi
-
+ENGINE="auto"
 case "$FORMAT" in
+  auto)
+    ENGINE="auto"
+    ;;
   html-vivliostyle|vivliostyle)
-    echo "==> Building PDF with Vivliostyle (npx)..."
-    npx -y @vivliostyle/cli build "$INPUT" -o "$OUTPUT"
+    ENGINE="vivliostyle"
     ;;
   html-weasyprint|weasyprint)
-    echo "==> Building PDF with WeasyPrint (uv)..."
-    uv run weasyprint "$INPUT" "$OUTPUT"
+    ENGINE="weasyprint"
     ;;
   typst)
-    echo "==> Building PDF with Typst (npx)..."
-    npx -y @myriaddreamin/typst-ts-cli compile "$INPUT" "$OUTPUT"
+    ENGINE="typst"
     ;;
   *)
     echo "Error: Unknown format '$FORMAT'." >&2
@@ -48,4 +53,9 @@ case "$FORMAT" in
     ;;
 esac
 
-echo "==> Successfully generated '$OUTPUT'"
+# Execute via flyer.py pipeline
+uv run python "$FLYER_PY" all "$INPUT" \
+  --engine "$ENGINE" \
+  -o "$OUTPUT_PDF" \
+  --preview "$OUTPUT_PNG" \
+  --dpi 300

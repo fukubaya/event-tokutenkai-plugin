@@ -28,8 +28,11 @@
 * 🖨️ **完全ベクターPDFと4K解像度PNG出力**:
   * A4サイズ（210×297mm）1枚に美しく収まる組版。
   * 拡大しても文字や罫線がボケないベクターPDF、および4Kディスプレイやスマートフォンでも鮮明に読める高精細PNG（2480×3508px）を出力。
-* ⚡ **ゼロインストールCLI（`npx`, `uv`）による即時ビルド**:
-  * `npx @vivliostyle/cli` や `uv run weasyprint`、`npx @myriaddreamin/typst-ts-cli` により、環境を汚さずワンライナーでPDF生成。
+* 🔍 **公式URLからの決定論的情報抽出・正規化ツール（AI独自判断の排除）**:
+  - 公式告知URLからHTML構造・ブロック境界を解析し、公演概要、出演者組分け、タイムテーブル、対象商品、優先入場案内、特典会くじ内訳、撮可制限、注意事項を漏れなく決定論的に抽出。
+  - AIの解釈ブレや拾い漏れを防ぎ、統一された要約Markdown（`event_summary.md`）および構造化JSON（`event_data.json`）を生成。
+* ⚡ **ゼロインストールCLI（`npx`, `uv`, `flyer.py`）による即時ビルド・検証・プレビュー**:
+  - `flyer.py all` により、ワンコマンドで「PDFビルド ➔ A4 1ページ厳守判定 ➔ 300dpi高精細PNGプレビュー生成」を一気通貫で実行。macOS 固有コマンド（`qlmanage`, `mdls`）や外部 Swift 不要。
 
 ---
 
@@ -94,46 +97,69 @@ git clone https://github.com/fukubaya/event-tokutenkai-plugin.git <project-root>
 
 ## 使い方・コマンド一覧
 
-### 1. HTML/CSS テンプレートを使う場合
+本プラグインには、URL情報抽出・PDFビルド・1ページ検証・高精細PNG生成・ベクターQRコード生成を高速に行う内製CLIツール [`skills/event-tokutenkai/scripts/flyer.py`](file:///skills/event-tokutenkai/scripts/flyer.py) が同梱されています（Python & `uv` 対応）。
 
-#### Vivliostyle（Node.js / npx）
+### 0. 公式URLからの決定論的情報抽出 (`extract`・必須先行ステップ)
+
+AIが自身の場当たり的な判断で情報を集めるのを防ぎ、公演概要・組分け・タイムテーブル・商品・優先観覧・特典会くじ・注意事項を網羅的に抽出して整理します。
+
 ```bash
-# PDFをビルド
-npx -y @vivliostyle/cli build index.html -o output.pdf
-
-# ブラウザでプレビュー
-npx -y @vivliostyle/cli preview index.html
+# 公式URLから情報を抽出し、整理された要約Markdownと構造化JSONを出力
+uv run python skills/event-tokutenkai/scripts/flyer.py extract "https://starplanet-academy.com/schedule/item-359/" \
+  -o event_summary.md \
+  --json event_data.json
 ```
 
-#### WeasyPrint（Python / uv）
+### 1. ビルド・検証・プレビューの一括実行（パイプライン・推奨）
+
+ワンコマンドで「PDFビルド ➔ A4 1ページ厳守判定 ➔ 300dpi（2481×3508px）高精細PNG生成」を一気通貫で実行します。
+
 ```bash
-uv run weasyprint index.html output.pdf
+# HTML から PDF と高精細PNGプレビューを一括生成
+uv run python skills/event-tokutenkai/scripts/flyer.py all index.html
+
+# 出力ファイル名を明示する場合
+uv run python skills/event-tokutenkai/scripts/flyer.py all index.html -o output.pdf --preview output.png --dpi 300
 ```
 
-### 2. Typst テンプレートを使う場合
+### 2. 個別機能の利用
 
+#### A. PDF のビルド (`build`)
 ```bash
-npx -y @myriaddreamin/typst-ts-cli compile flyer.typ output.pdf
-```
+# HTML (Vivliostyle)
+uv run python skills/event-tokutenkai/scripts/flyer.py build index.html -o output.pdf
 
-### 3. 付属のビルドスクリプトを使う場合
-
-```bash
-# HTML + Vivliostyle
-./skills/event-tokutenkai/scripts/build.sh html-vivliostyle index.html output.pdf
-
-# HTML + WeasyPrint
-./skills/event-tokutenkai/scripts/build.sh html-weasyprint index.html output.pdf
+# WeasyPrint を明示する場合
+uv run python skills/event-tokutenkai/scripts/flyer.py build index.html -o output.pdf --engine weasyprint
 
 # Typst
-./skills/event-tokutenkai/scripts/build.sh typst flyer.typ output.pdf
+uv run python skills/event-tokutenkai/scripts/flyer.py build flyer.typ -o output.pdf
 ```
 
-### 4. 4K解像度（300dpi相当）PNGプレビューの生成 (macOS)
+#### B. ページ数・A4寸法の検証 (`pages` / `verify`)
+チラシ・フライヤーがA4 1枚に美しく収まっているかを厳格に検査します（超過時は終了コード 1）。
+```bash
+uv run python skills/event-tokutenkai/scripts/flyer.py pages output.pdf --expect 1
+```
+
+#### C. 4K解像度（300dpi相当）PNGプレビューの生成 (`render` / `preview`)
+macOS の `qlmanage` や Swift スクリプトに依存せず、PyMuPDF によりクロスプラットフォームで高速に 300dpi 高解像度 PNG（2481×3508px）を出力します。
+```bash
+uv run python skills/event-tokutenkai/scripts/flyer.py render output.pdf -o output.png --dpi 300
+```
+
+#### D. 印刷用ベクター SVG QR コード生成 (`qr`)
+外部CLI（`npx qrcode` 等）を使わず、Python ライブラリで直接ベクター SVG の QR コードを生成します。
+```bash
+uv run python skills/event-tokutenkai/scripts/flyer.py qr "https://starplanet-academy.com/schedule/item-359/" -o qr.svg
+```
+
+### 3. シェルスクリプトを使う場合 (`build.sh`)
 
 ```bash
-# PDFから 2480x3508px の高精細PNGをレンダリング
-qlmanage -t -s 3508 -o . output.pdf
+# flyer.py のパイプラインをシェルスクリプト経由で実行
+./skills/event-tokutenkai/scripts/build.sh auto index.html output.pdf output.png
+./skills/event-tokutenkai/scripts/build.sh typst flyer.typ output.pdf output.png
 ```
 
 ---

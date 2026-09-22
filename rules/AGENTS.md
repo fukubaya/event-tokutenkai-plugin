@@ -83,16 +83,34 @@
   - **ワンポイントのマスコット・アイコン**（例: ステッカー風のキャラクターやオブジェクト）
 - 生成した画像はベクターのHTML/CSSレイアウトの「背景」や「挿絵」として重ね合わせることで、破綻のない高品質なデザインを実現する。
 
-## 6. 推奨CLIツールの利用と高解像度検証
-- PDFの生成・コンパイルは、ユーザーの指定環境（`npx`, `uv`, `go`, `gws`）に沿ったCLIコマンドで実行可能な形式を提示すること。
-  - **HTML/CSS**: `npx @vivliostyle/cli build <html-file> -o <pdf-file>` または `uv run weasyprint <html-file> <pdf-file>`
-  - **Typst**: `npx typst-cli compile <typ-file> <pdf-file>`
-- **画像検証時の解像度担保（4Kディスプレイ・300dpi相当）**:
-  - 生成されたPDFを目視確認する際、文字潰れを防ぐため高解像度でPNGを出力すること（macOSの場合: `qlmanage -t -s 3508 -o <dir> <pdf-file>` または Swift PDFKitレンダリングにより A4 300dpi相当の 2480×3508px でレンダリング可能）。
+## 6. 推奨CLIツールの利用と高解像度検証（flyer.py / uv）
+- 頻出するビルド・検査・プレビュー・QR生成、および**URL一次情報の構造化抽出**の作業は、内製ツール [`flyer.py`](file:///skills/event-tokutenkai/scripts/flyer.py)（または `uv run python skills/event-tokutenkai/scripts/flyer.py`）を用いて高速・確実に実行すること。macOS 固有コマンド（`qlmanage`, `mdls`）への依存を排除し、クロスプラットフォームかつミリ秒単位の高速処理を実現する。
+  - **公式URLからの決定論的情報抽出・構造化（必須先行ステップ）**:
+    - `uv run python skills/event-tokutenkai/scripts/flyer.py extract "<URL>" -o event_summary.md --json event_data.json`
+    - AIのその場の即興解釈に頼らず、ブロック要素・見出し構造を解析して「公演概要・組分け・タイムテーブル・商品・入場案内・特典会くじ内訳・撮可制限・注意事項」を網羅的・決定論的に抽出・正規化。
+  - **ビルド・検証・プレビューの一括実行（パイプライン）**:
+    - `uv run python skills/event-tokutenkai/scripts/flyer.py all <input.html> [-o <output.pdf>] [--preview <output.png>] [--dpi 300]`
+    - ビルド ➔ ページ数検証（1ページ厳守判定） ➔ 300dpi 高解像度 PNG 生成 をワンステップで完結。
+  - **個別PDFビルド**:
+    - `uv run python skills/event-tokutenkai/scripts/flyer.py build <input.html> -o <output.pdf> [--engine vivliostyle|weasyprint|typst]`
+    - 単体での直接実行:
+      - **HTML/CSS**: `npx @vivliostyle/cli build <html-file> -o <pdf-file>` または `uv run weasyprint <html-file> <pdf-file>`
+      - **Typst**: `npx typst-cli compile <typ-file> <pdf-file>`
+  - **PDFページ数・寸法の検証（1ページ厳守チェック）**:
+    - `uv run python skills/event-tokutenkai/scripts/flyer.py pages <pdf-file> --expect 1`
+    - PyMuPDF により総ページ数と用紙サイズ（mm/A4判定）を瞬時に取得し、A4フライヤーが1枚に収まっているかを厳格にアサート。
+  - **画像検証時の高解像度PNGプレビュー生成（300dpi / 4K相当）**:
+    - `uv run python skills/event-tokutenkai/scripts/flyer.py render <pdf-file> -o <output.png> --dpi 300`
+    - PyMuPDF を利用し、A4 300dpi相当（2481×3508px）の高精細PNGを瞬時に出力。
+  - **印刷用ベクターSVG QRコード生成**:
+    - `uv run python skills/event-tokutenkai/scripts/flyer.py qr "<URL>" -o qr.svg`
+    - 外部Node.jsツールに頼らず、ベクターSVGのQRコードを直接生成。
 
 ## 7. イベント現場即応のための情報構造化原則
 
-- **会場レイアウト図（フロアマップ）の「入場案内枠」統合**:
+- **一次情報の構造化抽出ツール先行実行原則（AI独自判断による拾い漏れ・解釈揺れの防止）**:
+  - イベント告知URLや案内テキストを受け取った際、**AIが自身の場当たり的な判断で情報を拾い集めてはならない**。担当エージェントごとに着眼点やフォーマットがブレて、重要なレギュレーション（購入上限、ループ可否、優先観覧集合時間、撮可制限、注意事項等）の脱落や重複が発生するためである。
+  - 必ず最初に `flyer.py extract <URL> -o event_summary.md --json event_data.json` を実行し、決定論的に整理されたスキーマ（Markdown / JSON）を出力・確認した上で、その構造化データを単一の情報源（Single Source of Truth）としてフライヤーHTMLのコーディングに着手すること。
   - 会場フロア図（ステージ、優先観覧エリア、女性専用エリア、入場導線等）は、開催場所よりも **【観覧エリア入場案内（整理番号順入場）】の枠内に配置** すること。入場順、女性専用エリア、車椅子スペース、入場導線などの図面情報は、実際の入場集合案内の文脈と直接リンクして初めて現場で活きる。
   - D2（`d2` CLI）やベクターSVG（`floor_map.svg`）として自作・再構成し、印刷時にも文字が一切潰れないベクター品質を担保すること。
 - **長文行間とレギュレーションのタグ・ピルバッジ化**:
