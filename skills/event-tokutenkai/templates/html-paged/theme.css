@@ -4,35 +4,76 @@
    ========================================================================== */
 
 :root {
-  /* カラーセット */
-  --color-primary: #1a73e8;       /* メインカラー（ロゴ、見出し、強調罫線） */
-  --color-primary-dark: #1557b0;  /* メインカラー（濃） */
-  --color-secondary: #ea4335;     /* アクセントカラー（注意、リボン、強調バッジ） */
-  --color-text-main: #202124;     /* 本文文字色 */
-  --color-text-muted: #5f6368;    /* 補足説明文字色 */
-  --color-bg-body: #ffffff;       /* 全体背景色 */
-  --color-bg-sub: #f8f9fa;        /* 表ヘッダーや枠背景色 */
-  --color-border: #dadce0;        /* 境界線・区切り線 */
+  /* 印刷物理サイズ（A4縦） */
+  --page-width: 210mm;
+  --page-height: 297mm;
+  --page-padding-v: 6mm;
+  --page-padding-h: 7mm;
 
-  /* 余白・スペーシング */
-  --page-margin: 15mm;            /* ページの余白（四方） */
-  --space-xs: 2mm;
-  --space-sm: 4mm;
-  --space-md: 8mm;
-  --space-lg: 12mm;
+  /* カラーセット（ブランド・テーマカラー） */
+  --color-primary: #1a73e8;          /* メインアクセントカラー（見出し、主要バッジ） */
+  --color-primary-dark: #1557b0;     /* メインカラー（濃・タイトル・強調文字） */
+  --color-primary-light: #e8f0fe;    /* メインカラー（淡・背景ハイライト） */
+  --color-secondary: #e11d48;        /* アラート・注目アクセント（注意、赤バッジ） */
+  --color-secondary-light: #ffe4e6;  /* アラート淡背景 */
+  --color-gold: #f59e0b;             /* 特典会・プレミアムアクセント */
+
+  --color-text-main: #1e293b;        /* 本文文字色 */
+  --color-text-sub: #475569;         /* 補足説明文字色 */
+  --color-text-muted: #64748b;       /* 注釈・注記文字色 */
+  
+  --color-bg-body: #f8fafc;          /* 全体背景（背景画像未指定時のフォールバック） */
+  --color-card-bg: #ffffff;          /* カードソリッド背景色（※透過漏れ防止） */
+  --color-bg-sub: #f1f5f9;           /* 表ヘッダー・薄いグレー背景 */
+  --color-border: #cbd5e1;           /* 境界線・区切り線 */
+  --color-border-bold: #94a3b8;      /* カード外枠ボーダー */
 
   /* フォント指定 */
-  --font-base: "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", sans-serif;
-  --font-heading: "Noto Sans JP", sans-serif;
+  --font-body: "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Noto Sans JP", sans-serif;
+  --font-num: "Helvetica Neue", Arial, sans-serif;
 
-  /* 文字サイズ */
-  --text-size-sm: 9pt;
-  --text-size-base: 10.5pt;
-  --text-size-lg: 14pt;
-  --text-size-xl: 20pt;
-  --text-size-title: 28pt;
+  /* 余白・スペーシング */
+  --space-xs: 1.5mm;
+  --space-sm: 3mm;
+  --space-md: 6mm;
+  --space-lg: 10mm;
+}
 
-  /* 行送り */
-  --line-height-base: 1.6;
-  --line-height-tight: 1.25;
+/* ==========================================================================
+   メンバーカラーチップ定義サンプル
+   公式プロフィール等でカラーが定義されている場合は各メンバー色を設定
+   ========================================================================== */
+.member-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2mm 1.4mm;
+  border-radius: 1mm;
+  font-size: 6.2pt;
+  font-weight: 700;
+  line-height: 1.25;
+  background: #f1f5f9;
+  color: #334155;
+  border: 0.5pt solid #cbd5e1;
+}
+
+/* メンバーカラー設定例 */
+.m-color-red    { background: #fee2e2; color: #b91c1c; border: 0.5pt solid #fca5a5; }
+.m-color-blue   { background: #dbeafe; color: #1d4ed8; border: 0.5pt solid #93c5fd; }
+.m-color-yellow { background: #fef9c3; color: #a16207; border: 0.5pt solid #fde047; }
+.m-color-green  { background: #dcfce7; color: #15803d; border: 0.5pt solid #86efac; }
+.m-color-pink   { background: #fdf4ff; color: #a21caf; border: 0.5pt solid #f5d0fe; }
+.m-color-purple { background: #f3e8ff; color: #6b21a8; border: 0.5pt solid #d8b4fe; }
+
+/* メンバーカラーなし（未設定）グループ用 組分け・チームチップ */
+.team-chip {
+  display: inline-flex;
+  align-items: center;
+  background: #f1f5f9;
+  color: #334155;
+  border: 0.6pt solid #94a3b8;
+  font-size: 6.5pt;
+  font-weight: 800;
+  padding: 0.2mm 1.5mm;
+  border-radius: 1mm;
 }

@@ -2,107 +2,223 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>サービスご案内チラシ</title>
+  <title>イベント＆特典会 告知フライヤー テンプレート</title>
   <!-- Google Fonts: Noto Sans JP -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
   <!-- テーマ定義（デザイントークン）とレイアウト -->
   <link rel="stylesheet" href="theme.css">
   <link rel="stylesheet" href="layout.css">
 </head>
 <body>
 
-  <!-- ドキュメントヘッダー -->
-  <header class="doc-header">
-    <div>
-      <h1 class="doc-title">次世代デザイン・ソリューション</h1>
-      <p class="doc-subtitle">プログラマブルDTPによる高品質印刷ドキュメント</p>
+<div class="poster-wrapper">
+
+  <!-- ========================================================================
+       1. ヘッダー（タイトル ＆ 出演者 ＆ 会場情報 ＆ 日時バッジ）
+       ※ヘッダーにはAIバッジを置かず、来場者最重要情報（タイトル・出演者・会場・日時）に集中
+       ======================================================================== -->
+  <header class="poster-header">
+    <div class="header-left-col">
+      <div class="header-badge-row">
+        <span class="header-tag-pill">SPECIAL RELEASE EVENT</span>
+        <span class="header-sub-tag">観覧無料！ミニライブ ＆ 特典会</span>
+      </div>
+      <h1 class="header-main-title">
+        ニューシングル発売記念リリースイベント
+      </h1>
+      
+      <!-- 出演者チップ一覧（メンバーカラーまたは組分けチップ） -->
+      <div class="header-members-line">
+        <span style="font-weight: 800; color: var(--color-primary-dark);">出演：</span>
+        <span class="member-chip m-color-red">メンバーA</span>
+        <span class="member-chip m-color-blue">メンバーB</span>
+        <span class="member-chip m-color-yellow">メンバーC</span>
+        <span class="member-chip m-color-green">メンバーD</span>
+        <span class="member-chip m-color-pink">メンバーE</span>
+        <span class="member-chip m-color-purple">メンバーF</span>
+        <!-- ※メンバーカラー未設定グループの場合は .team-chip を使用 -->
+      </div>
+
+      <!-- 開催場所行（タイムラインからヘッダー内に集約・統合） -->
+      <div class="header-loc-row">
+        <span class="loc-badge">📍 開催場所</span>
+        <span class="loc-name">〇〇ホール 1F イベントスペース</span>
+        <span class="loc-addr">（東京都〇〇区〇〇1-2-3）</span>
+        <span class="loc-note">※開場12:30／集合12:15／早朝待機・徹夜禁止</span>
+      </div>
     </div>
-    <div class="doc-badge">NEW RELEASE</div>
+
+    <!-- 日時・会場バッジ -->
+    <div class="header-date-badge">
+      <div class="date-badge-year">2026年 AUTUMN</div>
+      <div class="date-badge-day">10.15 <span style="font-size: 11pt;">(日)</span></div>
+      <div class="date-badge-venue">📍 〇〇ホール 1F</div>
+    </div>
   </header>
 
-  <!-- 2カラムコンテンツ -->
-  <div class="grid-2col">
-    <!-- 左カラム: イラストと概要 -->
-    <div class="card">
-      <h2 class="card-title">特長とメリット</h2>
-      <!-- 後から色や形状を編集できるインラインベクターSVGイラスト -->
-      <div class="vector-illustration">
-        <svg viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="var(--color-primary)" />
-              <stop offset="100%" stop-color="var(--color-primary-dark)" />
-            </linearGradient>
-          </defs>
-          <rect x="10" y="20" width="80" height="80" rx="8" fill="url(#primaryGrad)" />
-          <path d="M30 60 L45 75 L70 45" stroke="#ffffff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-          <rect x="110" y="20" width="80" height="80" rx="8" fill="var(--color-bg-sub)" stroke="var(--color-primary)" stroke-width="2"/>
-          <circle cx="150" cy="50" r="16" fill="var(--color-secondary)" />
-          <rect x="125" y="75" width="50" height="8" rx="4" fill="var(--color-border)" />
-          <rect x="210" y="20" width="80" height="80" rx="8" fill="url(#primaryGrad)" />
-          <polygon points="250,35 265,70 235,70" fill="#ffffff" />
-        </svg>
+  <!-- ========================================================================
+       2. 時系列タイムライン（時系列順の厳守 ＆ 統一時刻枠）
+       ======================================================================== -->
+  <main class="timeline-container">
+
+    <!-- STEP 1: 対象商品販売 -->
+    <div class="card-step-standard">
+      <div class="time-col-unified">
+        <span class="time-col-val">10:30〜</span>
+        <span class="time-col-label">販売開始</span>
       </div>
-      <p>
-        AIとコードを組み合わせることで、文字の崩れや曖昧さを排除し、
-        いつでもテキスト・配色・余白を変更可能な印刷用PDFを生成できます。
-      </p>
+      <div class="standard-content-row">
+        <div>
+          <div class="standard-content-title">🛍️ 対象商品 販売：ニューシングル「〇〇」</div>
+          <div style="font-size: 7.2pt; color: var(--color-text-sub); margin-top: 0.5mm;">
+            価格：<strong>¥1,200</strong> (税込) ／ ご購入ごとに<strong>「特典券」</strong>＋<strong>「優先入場券」</strong>先着配布（1会計上限あり）。
+          </div>
+        </div>
+        <div style="text-align: right; color: var(--color-text-sub); white-space: nowrap;">
+          <strong>場所：</strong>特設カウンター ／ <strong>決済：</strong>現金・クレカ・各種キャッシュレス
+        </div>
+      </div>
     </div>
 
-    <!-- 右カラム: プラン詳細 -->
-    <div class="card">
-      <h2 class="card-title">主な機能</h2>
-      <ul style="padding-left: 5mm; margin-top: 2mm;">
-        <li><strong>完全ベクター出力:</strong> 拡大しても文字や線が一切劣化しません。</li>
-        <li><strong>テーマ一括変更:</strong> CSS変数を書き換えるだけで全体のトーン＆マナーを更新。</li>
-        <li><strong>正確なサイズ設計:</strong> A4/B5/mm指定、トンボ・断ち落としに対応。</li>
-        <li><strong>CLI自動化:</strong> <code>npx</code> や <code>uv</code> から1コマンドでビルド可能。</li>
+    <!-- STEP 2: 優先入場 ＆ 会場レイアウト（フロアマップSVG埋め込み） -->
+    <div class="card-step-map">
+      <div class="time-col-unified">
+        <span class="time-col-val">12:30〜</span>
+        <span class="time-col-label">開場・整列</span>
+      </div>
+      <div class="map-content-row">
+        <div class="map-text-col">
+          <div class="standard-content-title" style="display: flex; align-items: center; justify-content: space-between;">
+            <span>🎫 優先観覧エリア入場 ＆ 会場レイアウト案内</span>
+            <span style="background: var(--color-primary-light); color: var(--color-primary-dark); font-size: 6.8pt; font-weight: 800; padding: 0.3mm 1.8mm; border-radius: 1mm;">
+              一般フリー観覧あり
+            </span>
+          </div>
+          <div style="font-size: 7.0pt; color: var(--color-text-sub); margin-top: 0.8mm; line-height: 1.38;">
+            ・<strong>優先観覧エリア</strong>：整理番号順にご案内。観覧エリア前方一部に<strong>「女性・子ども用エリア」</strong>を設置。<br>
+            ・<strong>フリー入場</strong>：優先入場終了後、スペースに余裕がある場合のみご案内（配券状況により実施なしの場合あり）。
+          </div>
+        </div>
+        <div class="map-figure-col">
+          <!-- 会場レイアウト図SVG（ベクター） -->
+          <svg viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
+            <rect x="0" y="0" width="160" height="80" fill="#f8fafc" rx="4"/>
+            <rect x="20" y="5" width="120" height="15" fill="#1e293b" rx="2"/>
+            <text x="80" y="15" fill="#ffffff" font-size="7" font-weight="bold" text-anchor="middle">STAGE（ステージ）</text>
+            <rect x="25" y="24" width="110" height="30" fill="#dbeafe" stroke="#93c5fd" stroke-width="1" rx="2"/>
+            <text x="80" y="41" fill="#1e40af" font-size="6.5" font-weight="bold" text-anchor="middle">優先観覧エリア（整理番号順）</text>
+            <rect x="25" y="57" width="110" height="18" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1" rx="2"/>
+            <text x="80" y="68" fill="#475569" font-size="6" text-anchor="middle">一般フリー観覧エリア</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: ミニライブ（主役①） -->
+    <div class="card-step-live">
+      <div class="time-col-unified" style="background: var(--color-primary-light); border-right-color: var(--color-primary);">
+        <span class="time-col-val" style="color: var(--color-primary-dark);">13:00〜</span>
+        <span class="time-col-label" style="background: var(--color-primary); color: #ffffff;">LIVE START</span>
+      </div>
+      <div class="live-body-layout">
+        <div class="live-text-area">
+          <div class="live-main-title">🎤 スペシャル・ミニライブ（観覧無料）</div>
+          <div style="font-size: 7.2pt; color: var(--color-text-sub); margin-top: 0.6mm;">
+            新曲を含む全4曲を披露予定！ ライブ中には<strong>「静止画撮影可能（撮可）TIME」</strong>を特別実施！<br>
+            <span style="font-size: 6.8pt; color: var(--color-secondary); font-weight: 700;">※撮可TIME以外のライブ中の録音・録画・撮影は一切禁止です。フラッシュ・三脚等は使用できません。</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: 特典会（主役②・最大区画） -->
+    <div class="card-step-tokuten">
+      <div class="tokuten-header-bar">
+        <span style="font-weight: 800; font-size: 8.5pt;">🎁 13:45〜 リリース記念 特典会（撮影会・お話し会）</span>
+        <span style="font-size: 6.8pt; background: rgba(255,255,255,0.25); padding: 0.3mm 2mm; border-radius: 1mm;">
+          完全手ぶら参加（荷物はカゴへ）
+        </span>
+      </div>
+      <div class="tokuten-body">
+        <table class="table-tokuten">
+          <thead>
+            <tr>
+              <th style="width: 14%;">進行順</th>
+              <th style="width: 28%;">特典会メニュー</th>
+              <th style="width: 18%;">必要特典券</th>
+              <th style="width: 40%;">内容・レギュレーション</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>第1部</strong></td>
+              <td><strong>全員お見送り会</strong></td>
+              <td>特典券 <strong>1枚</strong></td>
+              <td>長机を挟んでメンバー全員の前を順番に進み、笑顔でお見送りいたします。</td>
+            </tr>
+            <tr>
+              <td><strong>第2部</strong></td>
+              <td><strong>個別2ショット撮影会</strong></td>
+              <td>特典券 <strong>2枚</strong></td>
+              <td>ご希望メンバー1名とお客様との2ショット撮影（スタッフがお客様のスマホで撮影）。</td>
+            </tr>
+            <tr>
+              <td><strong>第3部</strong></td>
+              <td><strong>個別お話し会</strong></td>
+              <td>特典券 <strong>2枚</strong></td>
+              <td>ご希望メンバー1名と対面でお話しいただけます（ストップウォッチ計時）。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ========================================================================
+       3. ボトムグリッド（注意事項 ＆ 公式詳細ベクターQRブロック）
+       ======================================================================== -->
+  <section class="bottom-grid">
+    <!-- 注意事項（セマンティックな ul/li によるぶら下がりインデント） -->
+    <div class="bottom-col-rules">
+      <div class="bottom-block-title">
+        <span>⚠️ イベント参加における注意事項・マナー</span>
+      </div>
+      <ul class="bottom-list-rules">
+        <li><strong>手荷物管理：</strong>会場内にロッカーはありません。手荷物は各自管理をお願いします。</li>
+        <li><strong>観覧マナー：</strong>過度なジャンプ、リフト、モッシュ、周囲の視界を遮る行為は禁止です。</li>
+        <li><strong>施設への配慮：</strong>近隣店舗・商業施設への迷惑行為、早朝待機・座り込みは固くお断りします。</li>
+        <li><strong>体調管理：</strong>こまめな水分補給を行い、体調不良時はお近くのスタッフへお声がけください。</li>
       </ul>
     </div>
-  </div>
 
-  <!-- 印刷用ベクター表組み -->
-  <section>
-    <h2 class="card-title" style="margin-top: 4mm;">料金・仕様一覧</h2>
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>プラン名</th>
-          <th>対象サイズ</th>
-          <th>納期</th>
-          <th class="num">価格 (税抜)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>ライトプラン</strong></td>
-          <td>A4 片面 / デジタルPDF</td>
-          <td>最短即日</td>
-          <td class="num">¥20,000</td>
-        </tr>
-        <tr>
-          <td><strong>スタンダードプラン</strong></td>
-          <td>A4 両面 / 商業印刷（トンボ付）</td>
-          <td>3営業日</td>
-          <td class="num">¥45,000</td>
-        </tr>
-        <tr>
-          <td><strong>プロフェッショナル</strong></td>
-          <td>複数ページ カタログ / 断ち落とし</td>
-          <td>7営業日</td>
-          <td class="num">¥98,000</td>
-        </tr>
-      </tbody>
-    </table>
+    <!-- 公式詳細QRコードブロック -->
+    <div class="bottom-col-qr">
+      <div class="bottom-block-title" style="justify-content: center; width: 100%;">
+        <span>📱 公式詳細情報</span>
+      </div>
+      <div class="qr-container">
+        <!-- 【最重要】imgタグに直接 padding, border を付与しないこと！ -->
+        <img src="qr.svg" class="qr-image" alt="公式イベント詳細ページQRコード">
+        <div class="qr-caption">
+          <span class="qr-alert">必ず元サイトを確認</span>
+          <span class="qr-label">公式詳細・最新情報</span>
+          <a href="https://example.com/event/" class="qr-link">example.com/event/</a>
+        </div>
+      </div>
+    </div>
   </section>
 
-  <!-- フッター -->
-  <footer class="doc-footer">
-    <div>株式会社デザイン・システムズ / お問い合わせ: info@example.com</div>
-    <div>Page 1 of 1</div>
+  <!-- ========================================================================
+       4. フッター免責バー（AI自動生成・非公式案内の集約明記）
+       ======================================================================== -->
+  <footer class="footer-disclaimer">
+    <span class="footer-disclaimer-tag">【AI生成・非公式】</span>本資料はAIにより自動生成された非公式の参考まとめです。主催・運営公式の案内ではありません。誤記や変更の可能性があるため、<strong>正しい最新情報は必ず公式サイトをご確認ください。</strong>
   </footer>
+
+</div>
 
 </body>
 </html>
