@@ -28,6 +28,9 @@
   --color-border: #cbd5e1;           /* 境界線・区切り線 */
   --color-border-bold: #94a3b8;      /* カード外枠ボーダー */
 
+  /* 背景画像（AI生成またはSVG/CSSパターン） */
+  --bg-image: none;                  /* 例: url("bg-autumn.jpg") */
+
   /* フォント指定 */
   --font-body: "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-display: "Noto Sans JP", sans-serif;

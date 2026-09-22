@@ -29,6 +29,10 @@ html, body {
 
 body {
   background-color: var(--color-bg-body);
+  background-image: var(--bg-image, none);
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
   display: flex;
   flex-direction: column;
 }
