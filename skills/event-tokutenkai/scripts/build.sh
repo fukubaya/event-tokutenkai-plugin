@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# Build Script for Print Design PDF
+# Build Script for Event & Tokutenkai Flyer PDF
 # 支持: Vivliostyle (npx), WeasyPrint (uv), Typst (npx)
 # ==============================================================================
 

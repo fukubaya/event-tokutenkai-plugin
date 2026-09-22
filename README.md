@@ -1,70 +1,71 @@
-# Print Design Plugin for Antigravity CLI
+# Event & Tokutenkai Flyer Plugin for Antigravity CLI
 
-印刷（PDF）を前提としたチラシ、ポスター、帳票、表組みなどを、**「後から文字やフォント、配色を自由に編集でき、印刷に耐えうる高品質ベクターPDFを出力する（Design as Code）」** ための Antigravity CLI プラグインです。
+アイドルやアーティストの**リリースイベント（リリイベ）、ミニライブ、特典会（撮影会・お話し会・動画撮影等）**の告知フライヤーや案内資料を作成するための Antigravity CLI プラグインです。
+
+公式サイトや告知ページ（一次情報）から「タイムテーブル」「購入レギュレーション（点数制限・ループ可否）」「会場フロアマップ」「撮可TIMEと撮影会の峻別」「メンバーのイメージカラー」などを厳密かつ的確に構造化し、後から文字やフォント、配色を自由に編集できる印刷用ベクターPDF（A4）および高精細PNG（4K解像度対応）をコードベース（Design as Code）で作成・ビルドします。
 
 ---
 
-## 特徴と要件への対応
+## 主な特徴とドメイン機能
 
-* ✍️ **文字・文章・フォント・イラストの後編集**:
-  * ラスタ画像ではなく、HTML/CSS または Typst コードとして管理。
-  * テキスト修正やフォント差し替え、SVGイラストの変更がいつでも可能。
-* 🖨️ **印刷に耐えうるベクターPDF出力**:
-  * 文字や罫線が拡大してもぼやけない完全ベクター形式。
-  * 商業印刷向けのトンボ（crop marks）、断ち落とし（bleed: 3mm）に対応。
-* 📐 **厳密な印刷サイズ指定**:
-  * CSSの `@page { size: A4; margin: 15mm; }` や Typst の `#set page(paper: "a4", margin: 15mm)` でミリ単位のサイズ制御が可能。
-* 🎨 **カラーセット・余白の一括変更（デザイントークン）**:
-  * CSS変数（`--color-primary`, `--page-margin` 等）や Typst 変数により、1箇所の数値を変更するだけで全体のトーン＆マナーを瞬時に切り替え。
-* ⚡ **指定CLIツール（`uv`, `npx`）での実行**:
-  * Node.js環境: `npx @vivliostyle/cli build` または `npx @myriaddreamin/typst-ts-cli compile`
-  * Python環境: `uv run weasyprint`
-  * 事前インストール不要でワンライナー実行可能。
+* 🎤 **イベント・特典会ドメイン知識の体系的適用**:
+  * **撮可（撮影可能）TIMEと特典会（撮影会）の厳格な峻別**: ライブ本編中の特例撮影時間（撮可TIME）と、特典券を消費する個別/グループ撮影会を別枠として明確に分離。
+  * **購入レギュレーションの即応タグ配置**: 1会計の上限点数、対象品番（`BTRC-XXXX` 等）と盤種、買い増し並び直し（ループ）の可否・解除アナウンス手段を目立つアラートタグとして配置。
+  * **一次情報にない事実の推測禁止（事実の厳格性）**: 告知に書かれていない機材制限（「一眼レフ可」等）を勝手に推測・断定せず、公式注意事項（手荷物自己管理、マスク着用義務等）を過不足なく忠実に記載。
+  * **メンバーイメージカラーの調査とデザイン反映**: 公式プロフィール等からメンバー固有のイメージカラーを抽出し、出演者一覧やレーン案内にカラーチップとして適用。
+* 📐 **縦長フロアマップ（会場図面）と入場案内の空間統合**:
+  * ステージを上部に配した縦長比率（アスペクト比 3:4 程度）で会場図を再構成し、並列する優先観覧・整理番号入場案内の横幅を確保。
+* 🎨 **デザイントークンによる複数世界観の即時展開**:
+  * セマンティックHTMLとデザイントークン（CSS変数）を分離し、和モダン、サイバーポップ、スタイリッシュなど複数のトーン＆マナーを瞬時に切り替え可能。
+* 🖨️ **完全ベクターPDFと4K解像度PNG出力**:
+  * A4サイズ（210×297mm）1枚に美しく収まる組版。
+  * 拡大しても文字や罫線がボケないベクターPDF、および4Kディスプレイやスマートフォンでも鮮明に読める高精細PNG（2480×3508px）を出力。
+* ⚡ **ゼロインストールCLI（`npx`, `uv`）による即時ビルド**:
+  * `npx @vivliostyle/cli` や `uv run weasyprint`、`npx @myriaddreamin/typst-ts-cli` により、環境を汚さずワンライナーでPDF生成。
 
 ---
 
 ## ディレクトリ構成
 
 ```text
-print-design-plugin/
+event-tokutenkai-plugin/
 ├── plugin.json               # プラグインマニフェスト
 ├── README.md                 # プラグイン説明書
 ├── rules/
-│   └── AGENTS.md             # 印刷物デザイン時の行動ルール（AI一発出しの禁止、トークン分離）
+│   └── AGENTS.md             # イベント・特典会デザイン行動原則
 └── skills/
-    └── print-design/
-        ├── SKILL.md          # デザイン〜PDFビルド手順ガイド
+    └── event-tokutenkai/
+        ├── SKILL.md          # タイムテーブル・レギュレーション構築＆PDFビルドガイド
         ├── scripts/
         │   └── build.sh      # 統一ビルドスクリプト
         └── templates/
             ├── html-paged/   # HTML/CSS Paged Media テンプレート
             │   ├── index.html
-            │   ├── theme.css # デザイントークン（色・余白・フォント）
-            │   └── layout.css# @page、グリッド、表組みスタイル
+            │   ├── theme.css # デザイントークン（色・余白・メンバーカラー）
+            │   └── layout.css# @page、タイムライン、フロアマップ、テーブル
             └── typst/        # Typst テンプレート
                 └── flyer.typ # 高速・高精度組版ソース
 ```
 
 ---
 
-## プラグインの登録・有効化
-
-本プラグインを Antigravity CLI で使用するには、以下のいずれかの方法で配置・登録します。
+## インストール方法
 
 ### 方法1: グローバルプラグインとして登録（推奨）
-ユーザー設定ディレクトリ `~/.gemini/config/plugins/` にシンボリックリンクを貼るか配置します。
+
+ユーザー設定ディレクトリ `~/.gemini/config/plugins/` にクローンします。
 
 ```bash
-mkdir -p ~/.gemini/config/plugins
-ln -s ~/.gemini/config/plugins/event-tokutenkai-plugin ~/.gemini/config/plugins/print-design-plugin
+git clone https://github.com/fukubaya/event-tokutenkai-plugin.git ~/.gemini/config/plugins/event-tokutenkai-plugin
 ```
 
 ### 方法2: 特定のプロジェクト（ワークスペース）で使う場合
-プロジェクトルートの `.agents/plugins/` 配下に配置またはリンクします。
+
+プロジェクトルートの `.agents/plugins/` 配下にクローンします。
 
 ```bash
 mkdir -p <project-root>/.agents/plugins
-ln -s ~/.gemini/config/plugins/event-tokutenkai-plugin <project-root>/.agents/plugins/event-tokutenkai-plugin
+git clone https://github.com/fukubaya/event-tokutenkai-plugin.git <project-root>/.agents/plugins/event-tokutenkai-plugin
 ```
 
 ---
@@ -97,11 +98,24 @@ npx -y @myriaddreamin/typst-ts-cli compile flyer.typ output.pdf
 
 ```bash
 # HTML + Vivliostyle
-./skills/print-design/scripts/build.sh html-vivliostyle index.html output.pdf
+./skills/event-tokutenkai/scripts/build.sh html-vivliostyle index.html output.pdf
 
 # HTML + WeasyPrint
-./skills/print-design/scripts/build.sh html-weasyprint index.html output.pdf
+./skills/event-tokutenkai/scripts/build.sh html-weasyprint index.html output.pdf
 
 # Typst
-./skills/print-design/scripts/build.sh typst flyer.typ output.pdf
+./skills/event-tokutenkai/scripts/build.sh typst flyer.typ output.pdf
 ```
+
+### 4. 4K解像度（300dpi相当）PNGプレビューの生成 (macOS)
+
+```bash
+# PDFから 2480x3508px の高精細PNGをレンダリング
+qlmanage -t -s 3508 -o . output.pdf
+```
+
+---
+
+## ライセンス
+
+MIT License

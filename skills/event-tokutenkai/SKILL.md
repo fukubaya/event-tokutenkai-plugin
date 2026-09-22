@@ -1,12 +1,12 @@
 ---
-name: print-design
+name: event-tokutenkai
 description: >-
-  Build, style, and compile print-ready documents such as flyers, tables, forms, and posters with editable typography, design tokens (colors and spacing), vector graphics, and precise page sizes using HTML/CSS (Vivliostyle/WeasyPrint) or Typst via npx or uv CLIs.
+  Guides the creation and compilation of print-ready flyers and information design for idol/artist events, release events (ririebe), and tokutenkai (meet-and-greets, photo sessions). Use when designing event schedules, floor maps, regulation guides, and A4 flyers using HTML/CSS (Vivliostyle/WeasyPrint) or Typst via npx or uv CLIs.
 ---
 
-# Print Design & Programmable DTP Skill
+# Event & Tokutenkai Information Flyer Skill
 
-このスキルは、チラシ・ポスター・帳票・表組みなど「後からテキストやフォントを編集でき、印刷に耐えうる高品質なPDFを出力したい」場合に、コードベース（HTML/CSS または Typst）でデザインを作成・ビルドするためのワークフローを提供します。
+このスキルは、アイドル・アーティストのリリースイベント（リリイベ）、ライブ、特典会（撮影会・お話し会・お渡し会）などにおいて、タイムテーブル、購入レギュレーション、会場フロアマップ、参加注意事項を正確に整理し、印刷・WEB配信用フライヤー（A4ベクターPDF・高精細PNG）をコードベース（HTML/CSS または Typst）で作成・ビルドするためのワークフローを提供します。
 
 ---
 
