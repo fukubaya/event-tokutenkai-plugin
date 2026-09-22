@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>サービスご案内チラシ</title>
+  <!-- Google Fonts: Noto Sans JP -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <!-- テーマ定義（デザイントークン）とレイアウト -->
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="layout.css">
+</head>
+<body>
+
+  <!-- ドキュメントヘッダー -->
+  <header class="doc-header">
+    <div>
+      <h1 class="doc-title">次世代デザイン・ソリューション</h1>
+      <p class="doc-subtitle">プログラマブルDTPによる高品質印刷ドキュメント</p>
+    </div>
+    <div class="doc-badge">NEW RELEASE</div>
+  </header>
+
+  <!-- 2カラムコンテンツ -->
+  <div class="grid-2col">
+    <!-- 左カラム: イラストと概要 -->
+    <div class="card">
+      <h2 class="card-title">特長とメリット</h2>
+      <!-- 後から色や形状を編集できるインラインベクターSVGイラスト -->
+      <div class="vector-illustration">
+        <svg viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="primaryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="var(--color-primary)" />
+              <stop offset="100%" stop-color="var(--color-primary-dark)" />
+            </linearGradient>
+          </defs>
+          <rect x="10" y="20" width="80" height="80" rx="8" fill="url(#primaryGrad)" />
+          <path d="M30 60 L45 75 L70 45" stroke="#ffffff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="110" y="20" width="80" height="80" rx="8" fill="var(--color-bg-sub)" stroke="var(--color-primary)" stroke-width="2"/>
+          <circle cx="150" cy="50" r="16" fill="var(--color-secondary)" />
+          <rect x="125" y="75" width="50" height="8" rx="4" fill="var(--color-border)" />
+          <rect x="210" y="20" width="80" height="80" rx="8" fill="url(#primaryGrad)" />
+          <polygon points="250,35 265,70 235,70" fill="#ffffff" />
+        </svg>
+      </div>
+      <p>
+        AIとコードを組み合わせることで、文字の崩れや曖昧さを排除し、
+        いつでもテキスト・配色・余白を変更可能な印刷用PDFを生成できます。
+      </p>
+    </div>
+
+    <!-- 右カラム: プラン詳細 -->
+    <div class="card">
+      <h2 class="card-title">主な機能</h2>
+      <ul style="padding-left: 5mm; margin-top: 2mm;">
+        <li><strong>完全ベクター出力:</strong> 拡大しても文字や線が一切劣化しません。</li>
+        <li><strong>テーマ一括変更:</strong> CSS変数を書き換えるだけで全体のトーン＆マナーを更新。</li>
+        <li><strong>正確なサイズ設計:</strong> A4/B5/mm指定、トンボ・断ち落としに対応。</li>
+        <li><strong>CLI自動化:</strong> <code>npx</code> や <code>uv</code> から1コマンドでビルド可能。</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 印刷用ベクター表組み -->
+  <section>
+    <h2 class="card-title" style="margin-top: 4mm;">料金・仕様一覧</h2>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>プラン名</th>
+          <th>対象サイズ</th>
+          <th>納期</th>
+          <th class="num">価格 (税抜)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>ライトプラン</strong></td>
+          <td>A4 片面 / デジタルPDF</td>
+          <td>最短即日</td>
+          <td class="num">¥20,000</td>
+        </tr>
+        <tr>
+          <td><strong>スタンダードプラン</strong></td>
+          <td>A4 両面 / 商業印刷（トンボ付）</td>
+          <td>3営業日</td>
+          <td class="num">¥45,000</td>
+        </tr>
+        <tr>
+          <td><strong>プロフェッショナル</strong></td>
+          <td>複数ページ カタログ / 断ち落とし</td>
+          <td>7営業日</td>
+          <td class="num">¥98,000</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- フッター -->
+  <footer class="doc-footer">
+    <div>株式会社デザイン・システムズ / お問い合わせ: info@example.com</div>
+    <div>Page 1 of 1</div>
+  </footer>
+
+</body>
+</html>

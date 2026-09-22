@@ -1,0 +1,38 @@
+/* ==========================================================================
+   Design Tokens / Theme Configuration
+   カラーパレット、余白、フォントなどの設定を一元管理するファイル
+   ========================================================================== */
+
+:root {
+  /* カラーセット */
+  --color-primary: #1a73e8;       /* メインカラー（ロゴ、見出し、強調罫線） */
+  --color-primary-dark: #1557b0;  /* メインカラー（濃） */
+  --color-secondary: #ea4335;     /* アクセントカラー（注意、リボン、強調バッジ） */
+  --color-text-main: #202124;     /* 本文文字色 */
+  --color-text-muted: #5f6368;    /* 補足説明文字色 */
+  --color-bg-body: #ffffff;       /* 全体背景色 */
+  --color-bg-sub: #f8f9fa;        /* 表ヘッダーや枠背景色 */
+  --color-border: #dadce0;        /* 境界線・区切り線 */
+
+  /* 余白・スペーシング */
+  --page-margin: 15mm;            /* ページの余白（四方） */
+  --space-xs: 2mm;
+  --space-sm: 4mm;
+  --space-md: 8mm;
+  --space-lg: 12mm;
+
+  /* フォント指定 */
+  --font-base: "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", sans-serif;
+  --font-heading: "Noto Sans JP", sans-serif;
+
+  /* 文字サイズ */
+  --text-size-sm: 9pt;
+  --text-size-base: 10.5pt;
+  --text-size-lg: 14pt;
+  --text-size-xl: 20pt;
+  --text-size-title: 28pt;
+
+  /* 行送り */
+  --line-height-base: 1.6;
+  --line-height-tight: 1.25;
+}

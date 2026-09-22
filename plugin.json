@@ -1,0 +1,9 @@
+{
+  "name": "print-design-plugin",
+  "version": "1.0.0",
+  "description": "Antigravity CLI plugin for programmable, print-ready document design (flyers, tables, posters) using HTML/CSS and Typst with design tokens and CLI compilation (uv, npx).",
+  "author": {
+    "name": "fukubaya"
+  },
+  "license": "MIT"
+}
