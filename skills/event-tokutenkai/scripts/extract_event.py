@@ -369,8 +369,14 @@ class EventExtractor:
                     res["meeting_time"] = m_t.group(1)
 
             if any(k in line for k in ["整理番号付き優先観覧エリア券", "優先観覧エリア券"]):
-                if any(k in line for k in ["ランダム", "先着", "1枚まで", "配布"]):
-                    res["ticket_rule"] = line.lstrip("※・- ")
+                if any(k in line for k in ["ランダム", "先着", "1枚まで", "ご購入の方", "配布"]):
+                    clean_t = line.lstrip("※・- ")
+                    clean_t = re.sub(r"[\(（※]?定員に達し次第[、,\s]*終了[いたしますとなります]*[\)）]?", "", clean_t)
+                    clean_t = re.sub(r"[\(（※]?無?なくなり次第[、,\s]*終了[いたしますとなります]*[\)）]?", "", clean_t)
+                    clean_t = clean_t.strip("・- 　/※")
+                    if clean_t and not any(clean_t.startswith(p) for p in ["「整理番号付き優先観覧エリア券」の配布は", "配布は定員", "配布は無くなり"]):
+                        if not res["ticket_rule"] or len(clean_t) > len(res["ticket_rule"]):
+                            res["ticket_rule"] = clean_t
 
             if "一般観覧" in line or "フリー観覧" in line or "観覧は無料" in line:
                 res["free_viewing"] = line.lstrip("※・- ")
@@ -396,12 +402,25 @@ class EventExtractor:
                 res["execution_order"] = line.strip()
 
             # 特典会大メニュー (例: ①帰りの会(お見送り会), ②推し運検定(ランダムくじ特典会))
-            m_menu = re.match(r"^([①②③④⑤⑥⑦⑧⑨⑩\d]+[\.\)]?\s*[^\n：:]{3,30}?)(?:[：:]\s*(.+))?$", line)
+            m_menu = re.match(r"^([①②③④⑤⑥⑦⑧⑨⑩\d]+[\.\)]?)\s*([^\n：:]{3,30}?)(?:[：:]\s*(.+))?$", line)
             if m_menu:
-                title = m_menu.group(1).strip()
-                desc = m_menu.group(2) or ""
+                order_raw = m_menu.group(1).strip()
+                title = m_menu.group(2).strip()
+                desc = m_menu.group(3) or ""
+                # 数字への正規化
+                order_num = ""
+                for circ_ch, d_num in zip("①②③④⑤⑥⑦⑧⑨⑩", "12345678910"):
+                    if circ_ch in order_raw:
+                        order_num = d_num
+                        break
+                if not order_num:
+                    m_d = re.search(r"\d+", order_raw)
+                    if m_d:
+                        order_num = m_d.group(0)
+
                 if any(k in title for k in ["帰りの会", "お見送り", "推し運検定", "撮影", "shot", "ショット", "お話し", "サイン"]):
                     res["menus"].append({
+                        "order": order_num,
                         "name": title,
                         "description": desc,
                         "required_sets": "",
@@ -625,7 +644,8 @@ class EventExtractor:
             md.append("### 特典会メニュー")
             for m in tokuten.get("menus"):
                 req = f"（{m['required_sets']}）" if m.get("required_sets") else ""
-                md.append(f"- **{m.get('name')}** {req}")
+                ord_badge = f"[#{m['order']}] " if m.get("order") else ""
+                md.append(f"- **{ord_badge}{m.get('name')}** {req}")
         if tokuten.get("kuji_items"):
             md.append("### くじ賞品内訳（推し運検定等）")
             md.append("| 賞品内容 | 当選個数 | レギュレーション・指名条件 |")

@@ -1,9 +1,9 @@
 /* ==========================================================================
    Event & Tokutenkai Flyer Layout Stylesheet
-   印刷サイズ（A4）、フルブリード、時系列タイムライン、フロアマップ、QRコード、免責バー
+   印刷サイズ（A4縦）、フルブリード、時系列タイムライン、フロアマップ、QRコード、免責バー
    ========================================================================== */
 
-/* 印刷ページ基本設定（フルブリード背景対応） */
+/* 印刷ページ基本設定 */
 @page {
   size: A4 portrait;
   margin: 0;
@@ -19,12 +19,21 @@ html, body {
   width: var(--page-width);
   height: var(--page-height);
   font-family: var(--font-body);
-  font-size: 7.8pt;
-  line-height: 1.35;
+  font-size: 7.2pt;
+  line-height: 1.32;
   color: var(--color-text-main);
   -webkit-font-smoothing: antialiased;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
+}
+
+/* インラインSVGアイコン */
+.inline-icon {
+  width: 1.15em;
+  height: 1.15em;
+  vertical-align: -0.2em;
+  display: inline-block;
+  margin-right: 2px;
 }
 
 body {
@@ -37,7 +46,7 @@ body {
   flex-direction: column;
 }
 
-/* フライヤー全体のコンテンツラッパー */
+/* 全体ラッパー */
 .poster-wrapper {
   width: 100%;
   height: 100%;
@@ -49,17 +58,16 @@ body {
 
 /* ==========================================================================
    1. ヘッダー（タイトル ＆ 出演者 ＆ 会場情報 ＆ 日時バッジ）
-   ※「AI自動生成（非公式）」などのバッジはヘッダーに配置せず、フッター免責バーに一本化
    ========================================================================== */
 .poster-header {
   background: var(--color-card-bg);
-  border: 1.6pt solid var(--color-border-bold);
-  border-radius: 3mm;
-  padding: 2.2mm 3.5mm;
+  border: 1.5pt solid var(--color-border-bold);
+  border-radius: 2.8mm;
+  padding: 2.2mm 3mm;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 3mm;
+  gap: 2.5mm;
 }
 
 .header-left-col {
@@ -73,16 +81,16 @@ body {
 .header-badge-row {
   display: flex;
   align-items: center;
-  gap: 2mm;
+  gap: 1.5mm;
 }
 
 .header-tag-pill {
   background: var(--color-primary-dark);
   color: #ffffff;
-  font-size: 7pt;
+  font-size: 6.8pt;
   font-weight: 800;
-  padding: 0.5mm 2.2mm;
-  border-radius: 1mm;
+  padding: 0.4mm 2mm;
+  border-radius: 0.8mm;
   letter-spacing: 0.04em;
   display: inline-block;
 }
@@ -90,25 +98,25 @@ body {
 .header-sub-tag {
   background: var(--color-primary-light);
   border: 0.6pt solid var(--color-primary);
-  color: var(--color-primary);
-  font-size: 6.8pt;
+  color: var(--color-primary-dark);
+  font-size: 6.5pt;
   font-weight: 800;
-  padding: 0.4mm 2mm;
-  border-radius: 1mm;
+  padding: 0.3mm 1.8mm;
+  border-radius: 0.8mm;
 }
 
 .header-main-title {
   font-family: var(--font-display);
-  font-size: 16.5pt;
+  font-size: 14pt;
   font-weight: 900;
   color: var(--color-primary-dark);
-  line-height: 1.15;
+  line-height: 1.18;
   letter-spacing: -0.01em;
 }
 
-/* 出演者一覧行（チップ・タグ表示） */
+/* 出演者一覧行（組分けチップ） */
 .header-members-line {
-  font-size: 6.8pt;
+  font-size: 6.5pt;
   font-weight: 700;
   color: var(--color-text-sub);
   display: flex;
@@ -118,27 +126,70 @@ body {
   margin-top: 0.2mm;
 }
 
-/* 開催場所行（ヘッダー統合：独立カード廃止） */
+/* 組分けチップ（スタプラ研究生/スタアカ：公式組分けチップ） */
+.team-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6mm;
+  font-size: 6.3pt;
+  font-weight: 800;
+  padding: 0.3mm 1.5mm;
+  border-radius: 0.8mm;
+  line-height: 1.2;
+}
+
+.team-chip-pinecone {
+  background: var(--color-pinecone-bg);
+  color: var(--color-pinecone-text);
+  border: 0.6pt solid var(--color-pinecone-border);
+}
+
+.team-chip-acorn {
+  background: var(--color-acorn-bg);
+  color: var(--color-acorn-text);
+  border: 0.6pt solid var(--color-acorn-border);
+}
+
+.member-name-tag {
+  display: inline-block;
+  background: #ffffff;
+  color: var(--color-text-main);
+  border: 0.5pt solid var(--color-border);
+  border-radius: 0.6mm;
+  padding: 0.2mm 1.2mm;
+  font-size: 6.3pt;
+  font-weight: 700;
+}
+
+.team-members-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8mm;
+  margin-right: 1.5mm;
+}
+
+/* 開催場所行（ヘッダー統合） */
 .header-loc-row {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 1.5mm;
+  gap: 1.2mm;
   background: var(--color-bg-sub);
   border: 0.6pt solid var(--color-border);
-  padding: 0.8mm 2mm;
-  border-radius: 1.2mm;
-  font-size: 6.8pt;
-  margin-top: 0.5mm;
+  padding: 0.7mm 1.8mm;
+  border-radius: 1mm;
+  font-size: 6.3pt;
+  line-height: 1.25;
+  margin-top: 0.4mm;
 }
 
 .loc-badge {
   background: var(--color-primary);
   color: #ffffff;
   font-weight: 800;
-  font-size: 6.4pt;
-  padding: 0.3mm 1.5mm;
-  border-radius: 0.8mm;
+  font-size: 6.0pt;
+  padding: 0.2mm 1.4mm;
+  border-radius: 0.6mm;
 }
 
 .loc-name {
@@ -155,56 +206,56 @@ body {
   font-weight: 700;
 }
 
-/* 右側：日時バッジ */
+/* 日時バッジ */
 .header-date-badge {
   flex-shrink: 0;
   background: var(--color-primary-dark);
   color: #ffffff;
-  border-radius: 2.5mm;
-  padding: 2mm 3.5mm;
+  border-radius: 2.2mm;
+  padding: 2mm 3.2mm;
   text-align: center;
-  min-width: 32mm;
+  min-width: 30mm;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
 .date-badge-year {
-  font-size: 6.5pt;
+  font-size: 6.2pt;
   font-weight: 700;
   letter-spacing: 0.05em;
-  opacity: 0.9;
+  opacity: 0.92;
 }
 
 .date-badge-day {
   font-family: var(--font-num);
-  font-size: 15pt;
+  font-size: 14pt;
   font-weight: 900;
   line-height: 1.1;
 }
 
 .date-badge-venue {
-  font-size: 6.4pt;
+  font-size: 6.0pt;
   font-weight: 700;
-  margin-top: 0.5mm;
+  margin-top: 0.4mm;
   background: rgba(255, 255, 255, 0.2);
-  padding: 0.3mm 1.2mm;
-  border-radius: 0.8mm;
+  padding: 0.3mm 1mm;
+  border-radius: 0.6mm;
 }
 
 /* ==========================================================================
-   2. 時系列タイムライン（統一時刻枠 ＆ 隙間ゼロレイアウト）
+   2. 時系列タイムライン
    ========================================================================== */
 .timeline-container {
   display: flex;
   flex-direction: column;
-  gap: 1.8mm;
-  margin: 1.8mm 0;
+  gap: 1.6mm;
+  margin: 1.2mm 0;
 }
 
-/* 共通統一時刻カラム（紙面全体で幅・フォントを統一） */
+/* 共通統一時刻カラム */
 .time-col-unified {
-  width: 25mm;
+  width: 23mm;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -213,62 +264,91 @@ body {
   text-align: center;
   background: var(--color-bg-sub);
   border-right: 1.2pt solid var(--color-border);
-  padding: 1.5mm 1mm;
+  padding: 1.2mm 1mm;
 }
 
 .time-col-val {
   font-family: var(--font-num);
-  font-size: 10.5pt;
+  font-size: 10pt;
   font-weight: 900;
   line-height: 1.1;
   color: var(--color-text-main);
 }
 
 .time-col-label {
-  font-size: 6.2pt;
+  font-size: 5.8pt;
   font-weight: 800;
-  margin-top: 0.5mm;
-  padding: 0.2mm 1.2mm;
-  border-radius: 0.8mm;
-  background: rgba(0, 0, 0, 0.05);
+  margin-top: 0.4mm;
+  padding: 0.2mm 1mm;
+  border-radius: 0.6mm;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--color-text-main);
 }
 
-/* 各種カードスタイル（※box-shadow禁止、ソリッド背景＋ボーダー） */
-.card-step-standard {
+/* STEP 1: 物販 */
+.card-step-goods {
   background: var(--color-card-bg);
   border: 1.2pt solid var(--color-border);
-  border-radius: 2.2mm;
+  border-radius: 2mm;
   display: flex;
   overflow: hidden;
 }
 
-.standard-content-row {
+.goods-content-row {
   flex: 1;
-  padding: 1.8mm 3mm;
+  padding: 1.5mm 2.8mm;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8mm;
+}
+
+.goods-header-line {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 2mm;
 }
 
-.standard-content-title {
-  font-size: 8.4pt;
+.goods-title {
+  font-size: 8.2pt;
   font-weight: 800;
   color: var(--color-primary-dark);
+  display: flex;
+  align-items: center;
+  gap: 1.2mm;
 }
 
-/* STEP 2: 入場案内 ＆ 会場フロアマップ枠 */
+.goods-rule-pill {
+  background: var(--color-secondary-light);
+  border: 0.6pt solid var(--color-secondary);
+  color: var(--color-secondary);
+  font-size: 6.0pt;
+  font-weight: 800;
+  padding: 0.2mm 1.5mm;
+  border-radius: 0.8mm;
+}
+
+.goods-details-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2mm;
+  font-size: 6.5pt;
+  color: var(--color-text-sub);
+  line-height: 1.3;
+}
+
+/* STEP 2: 優先入場 ＆ 会場レイアウト案内 */
 .card-step-map {
   background: var(--color-card-bg);
   border: 1.2pt solid var(--color-border);
-  border-radius: 2.2mm;
+  border-radius: 2mm;
   display: flex;
   overflow: hidden;
 }
 
 .map-content-row {
   flex: 1;
-  padding: 1.8mm 3mm;
+  padding: 1.5mm 2.8mm;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -277,19 +357,68 @@ body {
 
 .map-text-col {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8mm;
+}
+
+.map-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2mm;
+}
+
+.map-title {
+  font-size: 8.2pt;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+
+.map-tag {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-size: 6.0pt;
+  font-weight: 800;
+  padding: 0.2mm 1.5mm;
+  border-radius: 0.8mm;
+  border: 0.5pt solid var(--color-primary);
+}
+
+.map-info-list {
+  font-size: 6.4pt;
+  color: var(--color-text-sub);
+  line-height: 1.32;
+  list-style: none;
+  padding-left: 0;
+}
+
+.map-info-list li {
+  position: relative;
+  padding-left: 1.1em;
+  margin-top: 0.4mm;
+}
+
+.map-info-list li::before {
+  content: "・";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--color-primary);
+  font-weight: 800;
 }
 
 .map-figure-col {
   flex-shrink: 0;
-  width: 48mm;
-  height: 24mm;
+  width: 44mm;
+  height: 29mm;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #ffffff;
   border: 0.6pt solid var(--color-border);
   border-radius: 1.5mm;
-  padding: 1mm;
+  padding: 0.8mm;
 }
 
 .floor-map-img {
@@ -298,34 +427,65 @@ body {
   display: block;
 }
 
-/* STEP 3: ミニライブ枠（主役①） */
+/* STEP 3: ミニライブ（主役①） */
 .card-step-live {
   background: #ffffff;
   border: 1.5pt solid var(--color-primary);
-  border-radius: 2.2mm;
+  border-radius: 2mm;
   display: flex;
   overflow: hidden;
 }
 
 .live-body-layout {
   flex: 1;
-  padding: 2mm 3.5mm;
+  padding: 1.6mm 2.8mm;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 2mm;
+  gap: 2.5mm;
+}
+
+.live-text-area {
+  flex: 1;
 }
 
 .live-main-title {
-  font-size: 10.5pt;
+  font-size: 9.5pt;
   font-weight: 900;
   color: var(--color-primary-dark);
+  display: flex;
+  align-items: center;
+  gap: 1.5mm;
 }
 
-/* STEP 4: 特典会枠（主役②・最大区画） */
+.live-free-badge {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  border: 0.6pt solid var(--color-primary);
+  font-size: 6.2pt;
+  font-weight: 800;
+  padding: 0.2mm 1.5mm;
+  border-radius: 0.8mm;
+}
+
+.live-desc {
+  font-size: 6.6pt;
+  color: var(--color-text-sub);
+  margin-top: 0.5mm;
+  line-height: 1.28;
+}
+
+.live-photo-alert {
+  font-size: 6.3pt;
+  color: var(--color-secondary);
+  font-weight: 700;
+  margin-top: 0.3mm;
+}
+
+/* STEP 4: 特典会（主役②・最大区画） */
 .card-step-tokuten {
   background: #ffffff;
-  border: 1.8pt solid var(--color-primary-dark);
+  border: 1.6pt solid var(--color-primary-dark);
   border-radius: 2.5mm;
   display: flex;
   flex-direction: column;
@@ -335,83 +495,229 @@ body {
 .tokuten-header-bar {
   background: var(--color-primary-dark);
   color: #ffffff;
-  padding: 1.5mm 3.5mm;
+  padding: 1.4mm 3mm;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.tokuten-body {
-  padding: 2mm 3.5mm;
+.tokuten-header-title {
+  font-weight: 800;
+  font-size: 8.4pt;
+  display: flex;
+  align-items: center;
+  gap: 1.5mm;
 }
 
-/* 特典会テーブル（行順序は実際の進行順と100%一致） */
+.tokuten-header-tag {
+  font-size: 6.2pt;
+  background: rgba(255, 255, 255, 0.22);
+  padding: 0.2mm 1.8mm;
+  border-radius: 0.8mm;
+}
+
+.tokuten-body {
+  padding: 1.6mm 2.8mm;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4mm;
+}
+
+/* チームレーン案内行 */
+.tokuten-lanes-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2mm;
+}
+
+.lane-box {
+  border: 0.8pt solid var(--color-border);
+  border-radius: 1.2mm;
+  padding: 1mm 1.8mm;
+  background: var(--color-bg-sub);
+  display: flex;
+  align-items: center;
+  gap: 1.5mm;
+}
+
+.lane-box-title {
+  font-weight: 800;
+  font-size: 6.6pt;
+  white-space: nowrap;
+}
+
+.lane-box-members {
+  font-size: 6.2pt;
+  font-weight: 700;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8mm;
+}
+
+/* 特典会テーブル */
 .table-tokuten {
   width: 100%;
   border-collapse: collapse;
-  font-size: 7.2pt;
-  margin-top: 1mm;
+  font-size: 6.8pt;
 }
 
 .table-tokuten th {
   background: var(--color-bg-sub);
   color: var(--color-text-main);
   font-weight: 800;
-  padding: 1mm 2mm;
+  padding: 0.8mm 1.6mm;
   border: 0.5pt solid var(--color-border);
   text-align: left;
 }
 
 .table-tokuten td {
-  padding: 1.2mm 2mm;
+  padding: 1mm 1.6mm;
   border: 0.5pt solid var(--color-border);
   vertical-align: middle;
 }
 
 .table-tokuten tr:nth-child(even) td {
-  background: #fafafa;
+  background: #fdfdfd;
+}
+
+/* 推し運検定 内訳サブテーブル */
+.kuji-subtable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.8mm;
+  font-size: 6.2pt;
+  background: #ffffff;
+}
+
+.kuji-subtable th {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-weight: 800;
+  padding: 0.5mm 1.2mm;
+  border: 0.4pt solid var(--color-border);
+}
+
+.kuji-subtable td {
+  padding: 0.6mm 1.2mm;
+  border: 0.4pt solid var(--color-border);
+}
+
+/* 特典会イラストサムネイルストリップ */
+.tokuten-visuals-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5mm;
+  background: var(--color-bg-sub);
+  border: 0.5pt solid var(--color-border);
+  border-radius: 1.2mm;
+  padding: 1mm 1.5mm;
+}
+
+.tokuten-visual-item {
+  display: flex;
+  align-items: center;
+  gap: 1mm;
+  background: #ffffff;
+  border: 0.4pt solid var(--color-border);
+  border-radius: 1mm;
+  padding: 0.6mm 1.2mm;
+  flex: 1;
+}
+
+.tokuten-thumb {
+  width: 13mm;
+  height: 10mm;
+  object-fit: cover;
+  border-radius: 0.6mm;
+  display: block;
+}
+
+.tokuten-thumb-text {
+  font-size: 5.8pt;
+  line-height: 1.2;
+}
+
+.tokuten-thumb-title {
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+
+.tokuten-thumb-sub {
+  color: var(--color-text-sub);
+}
+
+/* レギュレーション・禁止事項タグ群 */
+.tokuten-rules-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1mm;
+  font-size: 6.0pt;
+  background: #ffffff;
+  border: 0.6pt solid var(--color-secondary);
+  border-radius: 1mm;
+  padding: 0.8mm 1.6mm;
+}
+
+.rule-alert-label {
+  background: var(--color-secondary);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 5.8pt;
+  padding: 0.2mm 1.2mm;
+  border-radius: 0.5mm;
+  white-space: nowrap;
+}
+
+.rule-pill-item {
+  background: var(--color-secondary-light);
+  color: #991b1b;
+  font-weight: 700;
+  padding: 0.2mm 1mm;
+  border-radius: 0.5mm;
+  white-space: nowrap;
 }
 
 /* ==========================================================================
-   3. ボトムグリッド（注意事項 ＆ 公式詳細QRコード）
+   3. ボトムグリッド（注意事項 ＆ 公式ベクターQRコード）
    ========================================================================== */
 .bottom-grid {
   display: grid;
-  grid-template-columns: 1fr 42mm;
-  gap: 2.5mm;
+  grid-template-columns: 1fr 38mm;
+  gap: 2mm;
   background: var(--color-card-bg);
   border: 1.2pt solid var(--color-border);
-  border-radius: 2.5mm;
-  padding: 2.2mm 3mm;
+  border-radius: 2mm;
+  padding: 1.8mm 2.5mm;
 }
 
 .bottom-block-title {
-  font-size: 7.4pt;
+  font-size: 7.0pt;
   font-weight: 800;
   color: var(--color-text-main);
   display: flex;
   align-items: center;
   gap: 1mm;
-  margin-bottom: 1mm;
-  padding-bottom: 0.4mm;
-  border-bottom: 0.8pt solid var(--color-border);
+  margin-bottom: 0.8mm;
+  padding-bottom: 0.3mm;
+  border-bottom: 0.6pt solid var(--color-border);
 }
 
-/* 箇条書き：ぶら下がりインデントの徹底（<ul><li>） */
 .bottom-list-rules {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.6mm;
+  gap: 0.5mm;
 }
 
 .bottom-list-rules li {
   position: relative;
   padding-left: 1.1em;
-  font-size: 6.5pt;
-  line-height: 1.35;
+  font-size: 6.2pt;
+  line-height: 1.3;
   color: var(--color-text-sub);
 }
 
@@ -420,11 +726,11 @@ body {
   position: absolute;
   left: 0;
   top: 0;
-  color: var(--color-text-muted);
+  color: var(--color-primary);
   font-weight: 800;
 }
 
-/* 公式詳細ベクターQRコードブロック */
+/* QRコードブロック */
 .bottom-col-qr {
   display: flex;
   flex-direction: column;
@@ -437,16 +743,16 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.6mm;
+  gap: 0.5mm;
   background: #ffffff;
-  padding: 1mm;
+  padding: 0.8mm;
   border: 0.5pt solid var(--color-border);
-  border-radius: 1.5mm;
+  border-radius: 1.2mm;
+  width: 100%;
 }
 
-/* 【最重要・絶対遵守】
-   imgタグ自体には padding, border, border-radius を絶対に付与しないこと！
-   Chromium/Skia PDF の丸め誤差による縦ストローク縮退・スダレ線化バグを防止 */
+/* 【極めて重要・絶対禁止】
+   imgタグ自体には padding, border, border-radius を絶対に付与しないこと！ */
 .qr-image {
   width: 15.5mm;
   height: 15.5mm;
@@ -463,45 +769,45 @@ body {
 }
 
 .qr-alert {
-  font-size: 5.4pt;
+  font-size: 5.2pt;
   font-weight: 800;
   color: var(--color-secondary);
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
 .qr-label {
-  font-size: 5.6pt;
+  font-size: 5.4pt;
   font-weight: 800;
   color: var(--color-primary-dark);
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
 .qr-link {
-  font-size: 5.2pt;
+  font-size: 5.0pt;
   font-weight: 700;
   color: var(--color-primary);
   text-decoration: underline;
-  line-height: 1.25;
+  line-height: 1.2;
   word-break: break-all;
 }
 
 /* ==========================================================================
-   4. フッター免責バー（AI自動生成・非公式案内の集約明記）
+   4. フッター免責バー
    ========================================================================== */
 .footer-disclaimer {
-  background: #f1f5f9;
+  background: var(--color-bg-sub);
   border: 0.5pt solid var(--color-border);
-  border-radius: 1.2mm;
-  padding: 0.8mm 2.5mm;
-  font-size: 5.8pt;
+  border-radius: 1mm;
+  padding: 0.6mm 2mm;
+  font-size: 5.6pt;
   line-height: 1.25;
   color: var(--color-text-muted);
   text-align: center;
-  margin-top: 1mm;
+  margin-top: 0.8mm;
 }
 
 .footer-disclaimer-tag {
   font-weight: 800;
-  color: #dc2626;
-  margin-right: 1mm;
+  color: var(--color-secondary);
+  margin-right: 0.8mm;
 }
