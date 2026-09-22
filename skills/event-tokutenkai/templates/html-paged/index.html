@@ -43,12 +43,12 @@
       <!-- 出演者チップ一覧（メンバーカラーまたは組分けチップ） -->
       <div class="header-members-line">
         <span style="font-weight: 800; color: var(--color-primary-dark);">出演：</span>
-        <span class="member-chip m-color-red">メンバーA</span>
-        <span class="member-chip m-color-blue">メンバーB</span>
-        <span class="member-chip m-color-yellow">メンバーC</span>
-        <span class="member-chip m-color-green">メンバーD</span>
-        <span class="member-chip m-color-pink">メンバーE</span>
-        <span class="member-chip m-color-purple">メンバーF</span>
+        <span class="member-chip m-red">メンバーA (赤)</span>
+        <span class="member-chip m-blue">メンバーB (青)</span>
+        <span class="member-chip m-yellow">メンバーC (黄)</span>
+        <span class="member-chip m-green">メンバーD (緑)</span>
+        <span class="member-chip m-pink">メンバーE (桃)</span>
+        <span class="member-chip m-purple">メンバーF (紫)</span>
         <!-- ※メンバーカラー未設定グループの場合は .team-chip を使用 -->
       </div>
 
@@ -70,7 +70,7 @@
   </header>
 
   <!-- ========================================================================
-       2. 時系列タイムライン（時系列順の厳守 ＆ 統一時刻枠）
+       2. 時系列タイムライン（時系列順の厳守 ＆ 2部制並記集約）
        ======================================================================== -->
   <main class="timeline-container">
 
@@ -93,103 +93,160 @@
       </div>
     </div>
 
-    <!-- STEP 2: 優先入場 ＆ 会場レイアウト（フロアマップSVG埋め込み） -->
+    <!-- STEP 2: 優先入場 ＆ 会場レイアウト（フロアマップSVG埋め込み・2部制並記） -->
     <div class="card-step-map">
       <div class="time-col-unified">
-        <span class="time-col-val">12:30〜</span>
+        <span class="time-col-val multi-time">12:30 / 15:30</span>
         <span class="time-col-label">開場・整列</span>
       </div>
-      <div class="map-content-row">
-        <div class="map-text-col">
+      <div class="entry-layout-row">
+        <div class="entry-text-col">
           <div class="standard-content-title" style="display: flex; align-items: center; justify-content: space-between;">
             <span>🎫 優先観覧エリア入場 ＆ 会場レイアウト案内</span>
             <span style="background: var(--color-primary-light); color: var(--color-primary-dark); font-size: 6.8pt; font-weight: 800; padding: 0.3mm 1.8mm; border-radius: 1mm;">
               一般フリー観覧あり
             </span>
           </div>
-          <div style="font-size: 7.0pt; color: var(--color-text-sub); margin-top: 0.8mm; line-height: 1.38;">
-            ・<strong>優先観覧エリア</strong>：整理番号順にご案内。観覧エリア前方一部に<strong>「女性・子ども用エリア」</strong>を設置。<br>
-            ・<strong>フリー入場</strong>：優先入場終了後、スペースに余裕がある場合のみご案内（配券状況により実施なしの場合あり）。
+          <div style="font-size: 7.0pt; color: var(--color-text-sub); margin-top: 0.6mm; line-height: 1.35;">
+            ・<strong>優先観覧エリア入場</strong>：各部開演15分前集合（【1部】12:30 / 【2部】15:30）。整理番号順にご案内。<br>
+            ・<strong>女性専用エリア</strong>：優先エリア内に設置。整理券所持の方にご案内（※配置は当日ご確認ください）。<br>
+            ・<strong>フリー入場</strong>：各部開演10分前に集合。優先入場終了後、スペース余裕時のみご案内。
           </div>
         </div>
-        <div class="map-figure-col">
-          <!-- 会場レイアウト図SVG（ベクター） -->
-          <svg viewBox="0 0 160 80" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
-            <rect x="0" y="0" width="160" height="80" fill="#f8fafc" rx="4"/>
-            <rect x="20" y="5" width="120" height="15" fill="#1e293b" rx="2"/>
-            <text x="80" y="15" fill="#ffffff" font-size="7" font-weight="bold" text-anchor="middle">STAGE（ステージ）</text>
-            <rect x="25" y="24" width="110" height="30" fill="#dbeafe" stroke="#93c5fd" stroke-width="1" rx="2"/>
-            <text x="80" y="41" fill="#1e40af" font-size="6.5" font-weight="bold" text-anchor="middle">優先観覧エリア（整理番号順）</text>
-            <rect x="25" y="57" width="110" height="18" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1" rx="2"/>
-            <text x="80" y="68" fill="#475569" font-size="6" text-anchor="middle">一般フリー観覧エリア</text>
+        <div class="entry-map-col">
+          <!-- 会場レイアウト図SVG（縦長ベクター構成） -->
+          <svg viewBox="0 0 140 100" xmlns="http://www.w3.org/2000/svg" class="map-figure">
+            <rect x="0" y="0" width="140" height="100" fill="#f8fafc" rx="4"/>
+            <!-- ステージ -->
+            <rect x="15" y="4" width="110" height="18" fill="#1e293b" rx="2"/>
+            <text x="70" y="16" fill="#ffffff" font-size="7.5" font-weight="bold" text-anchor="middle">STAGE（ステージ）</text>
+            <!-- 優先エリア & 女性専用エリア -->
+            <rect x="15" y="26" width="70" height="38" fill="#dbeafe" stroke="#93c5fd" stroke-width="0.8" rx="2"/>
+            <text x="50" y="47" fill="#1e40af" font-size="6.5" font-weight="bold" text-anchor="middle">優先観覧エリア</text>
+            <rect x="88" y="26" width="37" height="38" fill="#fce7f3" stroke="#f472b6" stroke-width="0.8" rx="2"/>
+            <text x="106.5" y="43" fill="#be185d" font-size="6.0" font-weight="bold" text-anchor="middle">女性専用</text>
+            <text x="106.5" y="51" fill="#be185d" font-size="5.5" font-weight="bold" text-anchor="middle">エリア</text>
+            <!-- 一般フリー観覧エリア -->
+            <rect x="15" y="68" width="110" height="26" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="0.8" rx="2"/>
+            <text x="70" y="83" fill="#475569" font-size="6.5" font-weight="bold" text-anchor="middle">一般フリー観覧エリア</text>
           </svg>
         </div>
       </div>
     </div>
 
-    <!-- STEP 3: ミニライブ（主役①） -->
+    <!-- STEP 3: ミニライブ（主役①・2部制並記） -->
     <div class="card-step-live">
       <div class="time-col-unified" style="background: var(--color-primary-light); border-right-color: var(--color-primary);">
-        <span class="time-col-val" style="color: var(--color-primary-dark);">13:00〜</span>
+        <span class="time-col-val multi-time" style="color: var(--color-primary-dark);">13:00 / 16:00</span>
         <span class="time-col-label" style="background: var(--color-primary); color: #ffffff;">LIVE START</span>
       </div>
       <div class="live-body-layout">
         <div class="live-text-area">
-          <div class="live-main-title">🎤 スペシャル・ミニライブ（観覧無料）</div>
+          <div class="live-main-title">🎤 スペシャル・ミニライブ（観覧無料・各部約30分）</div>
           <div style="font-size: 7.2pt; color: var(--color-text-sub); margin-top: 0.6mm;">
-            新曲を含む全4曲を披露予定！ ライブ中には<strong>「静止画撮影可能（撮可）TIME」</strong>を特別実施！<br>
+            【1部】13:00〜 ／ 【2部】16:00〜 開演！ ライブ中には<strong>「静止画撮影可能（撮可）TIME」</strong>を特別実施！<br>
             <span style="font-size: 6.8pt; color: var(--color-secondary); font-weight: 700;">※撮可TIME以外のライブ中の録音・録画・撮影は一切禁止です。フラッシュ・三脚等は使用できません。</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- STEP 4: 特典会（主役②・最大区画） -->
+    <!-- STEP 4: 特典会（主役②・2部制差分ダブルテーブル・隙間ない詳細記述） -->
     <div class="card-step-tokuten">
       <div class="tokuten-header-bar">
-        <span style="font-weight: 800; font-size: 8.5pt;">🎁 13:45〜 リリース記念 特典会（撮影会・お話し会）</span>
-        <span style="font-size: 6.8pt; background: rgba(255,255,255,0.25); padding: 0.3mm 2mm; border-radius: 1mm;">
-          整列順に実施（2レーン並行進行）
-        </span>
+        <span style="font-weight: 800; font-size: 8.5pt;">🎁 各部ミニライブ終了後〜 特典会レギュレーション</span>
+        <div class="tokuten-rules-strip">
+          <span class="tokuten-rule-pill">🚫 接触禁止</span>
+          <span class="tokuten-rule-pill">🚫 物持たせ禁止</span>
+          <span class="tokuten-rule-pill">🚫 しゃがみ禁止</span>
+          <span class="tokuten-rule-pill">📱 スマホ限定</span>
+        </div>
       </div>
       <div class="tokuten-body">
-        <table class="table-tokuten">
-          <thead>
-            <tr>
-              <th style="width: 5%; text-align: center;">#</th>
-              <th style="width: 16%;">特典会メニュー</th>
-              <th style="width: 12%;">必要特典券</th>
-              <th style="width: 67%;">内容・レギュレーション</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td style="text-align: center; font-weight: 800;">1</td>
-              <td><strong>全員お見送り会</strong></td>
-              <td>特典券 <strong>1枚</strong></td>
-              <td>メンバー全員が笑顔でお見送りいたします。</td>
-            </tr>
-            <tr>
-              <td style="text-align: center; font-weight: 800;">2</td>
-              <td><strong>個別2ショット撮影会</strong></td>
-              <td>特典券 <strong>2枚</strong></td>
-              <td>
-                希望メンバー1名と2ショット撮影。スタッフがお客様のスマートフォンで撮影します。
-                <div style="margin-top: 0.8mm; display: flex; align-items: center; gap: 1.2mm;">
-                  <span class="rule-pill-item"><img src="assets/icons/smartphone-only.svg" class="inline-icon" alt="スマホ"> スマホ限定</span>
-                  <span class="rule-pill-item"><img src="assets/icons/no-touch.svg" class="inline-icon" alt="接触禁止"> 接触禁止</span>
-                  <span class="rule-pill-item"><img src="assets/icons/no-video.svg" class="inline-icon" alt="録画禁止"> 画面録画・LivePhoto禁止</span>
+        
+        <!-- 2部制左右差分ダブルテーブル -->
+        <div class="tokutenkai-double-table">
+          
+          <!-- 1部 特典会 -->
+          <div class="session-box">
+            <div class="session-title-bar">
+              <span class="session-badge">【1部】特典会メニュー</span>
+              <span class="session-time">1部ライブ終了後（列途切れ次第終了）</span>
+            </div>
+            <div class="menu-list">
+              <div class="menu-item-row">
+                <span class="ticket-tag">特典券 1枚</span>
+                <div class="menu-item-desc">
+                  <span class="menu-name">全員お見送り会</span>
+                  <span class="pill-tag pill-green">立ち止まり不可</span>
+                  <div class="menu-detail-text">出演メンバー全員によるお見送り。手ぶらで連続して前にお進みください。</div>
                 </div>
-              </td>
-            </tr>
-            <tr>
-              <td style="text-align: center; font-weight: 800;">3</td>
-              <td><strong>個別お話し会</strong></td>
-              <td>特典券 <strong>2枚</strong></td>
-              <td>希望メンバー1名と対面でお話しいただけます（タイマー計時）。</td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
+              <div class="menu-item-row">
+                <span class="ticket-tag">特典券 2枚</span>
+                <div class="menu-item-desc">
+                  <span class="menu-name">個別2ショット撮影会</span>
+                  <span class="pill-tag pill-blue">スタッフが撮影</span>
+                  <div class="menu-detail-text">
+                    希望メンバー1名と2ショット撮影。足元マーク厳守。<br>
+                    <span class="laser-lane-tag pill-blue">第1レーン: メンバーA・B</span>
+                    <span class="laser-lane-tag pill-orange">第2レーン: メンバーC・D</span>
+                    <span class="laser-lane-tag pill-purple">第3レーン: メンバーE・F</span>
+                  </div>
+                </div>
+              </div>
+              <div class="menu-item-row">
+                <span class="ticket-tag">特典券 3枚</span>
+                <div class="menu-item-desc">
+                  <span class="menu-name">動画撮影付き全員お見送り会</span>
+                  <span class="pill-tag pill-red">動画のみOK</span>
+                  <div class="menu-detail-text">スタッフの合図で最前列から録画開始。スマホを片手に持ち歩きながら進みます。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2部 特典会 -->
+          <div class="session-box">
+            <div class="session-title-bar">
+              <span class="session-badge">【2部】特典会メニュー</span>
+              <span class="session-time">2部ライブ終了後（列途切れ次第終了）</span>
+            </div>
+            <div class="menu-list">
+              <div class="menu-item-row">
+                <span class="ticket-tag">特典券 1枚</span>
+                <div class="menu-item-desc">
+                  <span class="menu-name">全員お見送り会</span>
+                  <span class="pill-tag pill-green">立ち止まり不可</span>
+                  <div class="menu-detail-text">出演メンバー全員によるお見送り。手ぶらで連続して前にお進みください。</div>
+                </div>
+              </div>
+              <div class="menu-item-row">
+                <span class="ticket-tag">特典券 1枚</span>
+                <div class="menu-item-desc">
+                  <span class="menu-name">個別お話し会</span>
+                  <span class="pill-tag pill-amber">1枚15秒・まとめ出し可</span>
+                  <div class="menu-detail-text">ご希望のメンバー1名と机越しに対面トーク（タイマー計時・最大5枚までまとめ出し可）。</div>
+                </div>
+              </div>
+              <div class="menu-item-row">
+                <span class="ticket-tag">特典券 2枚</span>
+                <div class="menu-item-desc">
+                  <span class="menu-name">個別2ショット撮影会</span>
+                  <span class="pill-tag pill-blue">スタッフが撮影</span>
+                  <div class="menu-detail-text">
+                    希望メンバー1名と2ショット撮影。足元マーク厳守。<br>
+                    <span class="laser-lane-tag pill-blue">第1: メンバーA・B</span>
+                    <span class="laser-lane-tag pill-orange">第2: メンバーC・D</span>
+                    <span class="laser-lane-tag pill-purple">第3: メンバーE・F</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
       </div>
     </div>
 

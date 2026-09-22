@@ -65,6 +65,14 @@
   --space-sm: 3mm;
   --space-md: 6mm;
   --space-lg: 10mm;
+
+  /* 2部制ダブルテーブル用トークン */
+  --session-box-bg: #f8fafc;
+  --session-box-border: #cbd5e1;
+  --session-badge-bg: var(--color-primary-dark);
+  --ticket-tag-bg: #fee2e2;
+  --ticket-tag-text: #b91c1c;
+  --ticket-tag-border: #fca5a5;
 }
 
 /* ==========================================================================

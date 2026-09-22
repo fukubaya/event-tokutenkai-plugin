@@ -168,6 +168,42 @@ body {
   margin-right: 1.5mm;
 }
 
+/* 公式メンバーカラーチップ（能動的調査によるカラー反映） */
+.member-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2mm 1.5mm;
+  border-radius: 0.8mm;
+  font-size: 6.3pt;
+  font-weight: 800;
+  line-height: 1.2;
+  border: 0.6pt solid currentColor;
+  white-space: nowrap;
+}
+
+/* 代表的メンバーカラープリセット */
+.m-red, .m-color-red         { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+.m-blue, .m-color-blue       { background: #e0f2fe; color: #0284c7; border-color: #38bdf8; }
+.m-yellow, .m-color-yellow   { background: #fef9c3; color: #a16207; border-color: #fde047; }
+.m-green, .m-color-green     { background: #dcfce7; color: #15803d; border-color: #86efac; }
+.m-pink, .m-color-pink       { background: #fce7f3; color: #be185d; border-color: #f472b6; }
+.m-purple, .m-color-purple   { background: #f3e8ff; color: #7e22ce; border-color: #c084fc; }
+.m-orange, .m-color-orange   { background: #ffedd5; color: #c2410c; border-color: #fb923c; }
+.m-lightblue, .m-color-lightblue { background: #e0f7fa; color: #00838f; border-color: #26c6da; }
+.m-mint, .m-color-mint       { background: #d1fae5; color: #065f46; border-color: #6ee7b7; }
+.m-lavender, .m-color-lavender { background: #ede9fe; color: #5b21b6; border-color: #a78bfa; }
+.m-white, .m-color-white     { background: #f8fafc; color: #334155; border-color: #cbd5e1; }
+.m-black, .m-color-black     { background: #18181b; color: #ffffff; border-color: #3f3f46; }
+
+/* メンバー注記チップ（欠席・不参加等） */
+.member-note-chip {
+  display: inline-block;
+  font-size: 6.0pt;
+  color: var(--color-text-muted, #64748b);
+  margin-left: 1mm;
+}
+
+
 /* 開催場所行（ヘッダー統合・名前の圧倒的強調） */
 .header-loc-row {
   display: flex;
@@ -297,9 +333,26 @@ body {
   font-weight: 900;
   line-height: 1.1;
   color: var(--color-text-main);
+  letter-spacing: -0.01em;
 }
 
-.time-col-label {
+/* 2部制並記時刻（例: 13:15 / 16:15） */
+.time-col-val.multi-time,
+.time-col-val:has(.multi-part-time) {
+  font-size: 8.2pt;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.time-badge-val {
+  font-family: var(--font-num, sans-serif);
+  font-size: 10.5pt;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+}
+
+.time-col-label, .time-badge-sub {
   font-size: 5.8pt;
   font-weight: 800;
   margin-top: 0.3mm;
@@ -440,19 +493,24 @@ body {
   flex-shrink: 0;
 }
 
-.map-content-row {
+.map-content-row,
+.entry-layout-row {
   flex: 1;
   padding: 1.1mm 2.4mm;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: stretch;
   gap: 2.5mm;
+  width: 100%;
 }
 
-.map-text-col {
-  flex: 1;
+.map-text-col,
+.entry-text-col {
+  flex: 1 1 58%;
+  min-width: 0;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: 0.6mm;
 }
 
@@ -532,10 +590,11 @@ body {
   font-weight: 800;
 }
 
-.map-figure-col {
-  flex-shrink: 0;
-  width: 44mm;
-  height: 29mm;
+.map-figure-col,
+.entry-map-col {
+  flex: 0 0 40%;
+  max-width: 40%;
+  min-width: 38mm;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -545,9 +604,11 @@ body {
   padding: 0.8mm;
 }
 
-.floor-map-img {
-  max-width: 100%;
-  max-height: 100%;
+.floor-map-img,
+.map-figure {
+  width: 100%;
+  height: auto;
+  max-height: 48mm;
   display: block;
 }
 
@@ -951,6 +1012,165 @@ body {
   color: var(--color-text-sub);
   white-space: nowrap;
 }
+
+/* ==========================================================================
+   2部制（複数回公演）差分ダブルテーブル（左右独立書き分け）
+   ========================================================================== */
+.tokutenkai-double-table {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.2mm;
+  width: 100%;
+}
+
+.session-box {
+  background: var(--session-box-bg, var(--color-bg-sub, #f8fafc));
+  border: 0.8pt solid var(--session-box-border, var(--color-border, #cbd5e1));
+  border-radius: 1.6mm;
+  padding: 1.4mm 2.0mm;
+  display: flex;
+  flex-direction: column;
+}
+
+.session-title-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.2mm;
+  padding-bottom: 0.8mm;
+  border-bottom: 0.6pt solid var(--color-border, #e2e8f0);
+}
+
+.session-badge {
+  font-size: 7.4pt;
+  font-weight: 900;
+  color: #ffffff;
+  background: var(--session-badge-bg, var(--color-primary-dark, #1e3a8a));
+  padding: 0.4mm 2.0mm;
+  border-radius: 0.8mm;
+  white-space: nowrap;
+}
+
+.session-time {
+  font-size: 6.4pt;
+  font-weight: 700;
+  color: var(--color-text-sub, #475569);
+  white-space: nowrap;
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.0mm;
+  flex: 1 1 auto;
+}
+
+.menu-item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.4mm;
+  font-size: 6.8pt;
+  line-height: 1.34;
+  padding: 0.8mm 0;
+  border-bottom: 0.5pt dashed var(--color-border, #e2e8f0);
+}
+
+.menu-item-row:last-child {
+  border-bottom: none;
+}
+
+.ticket-tag {
+  flex-shrink: 0;
+  width: 14mm;
+  text-align: center;
+  padding: 0.4mm 0;
+  border-radius: 0.6mm;
+  font-size: 6.3pt;
+  font-weight: 900;
+  background: var(--ticket-tag-bg, #fee2e2);
+  color: var(--ticket-tag-text, #b91c1c);
+  border: 0.5pt solid var(--ticket-tag-border, #fca5a5);
+}
+
+.ticket-free {
+  background: #dcfce7;
+  color: #15803d;
+  border-color: #86efac;
+}
+
+.menu-item-desc {
+  flex: 1;
+  min-width: 0;
+}
+
+.menu-name {
+  font-weight: 800;
+  color: var(--color-text-main);
+  margin-right: 1.2mm;
+}
+
+.menu-detail-text {
+  font-size: 6.2pt;
+  color: var(--color-text-sub);
+  margin-top: 0.3mm;
+  line-height: 1.3;
+}
+
+.menu-detail-list {
+  margin: 0.3mm 0 0;
+  padding-left: 1.0em;
+  font-size: 6.2pt;
+  color: var(--color-text-sub);
+}
+
+/* レーングリッド・タグ */
+.laser-lane-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 5.9pt;
+  font-weight: 800;
+  padding: 0.2mm 1.2mm;
+  border-radius: 0.6mm;
+  margin-top: 0.4mm;
+  margin-right: 0.8mm;
+  white-space: nowrap;
+}
+
+.pill-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 5.9pt;
+  font-weight: 800;
+  padding: 0.2mm 1.2mm;
+  border-radius: 0.6mm;
+  white-space: nowrap;
+}
+
+.pill-blue   { background: #e0f2fe; color: #0284c7; border: 0.5pt solid #7dd3fc; }
+.pill-green  { background: #dcfce7; color: #15803d; border: 0.5pt solid #86efac; }
+.pill-amber  { background: #fef3c7; color: #b45309; border: 0.5pt solid #fde047; }
+.pill-red    { background: #fee2e2; color: #b91c1c; border: 0.5pt solid #fca5a5; }
+.pill-purple { background: #f3e8ff; color: #7e22ce; border: 0.5pt solid #d8b4fe; }
+.pill-orange { background: #ffedd5; color: #c2410c; border: 0.5pt solid #fdba74; }
+
+.tokuten-rules-strip {
+  display: flex;
+  align-items: center;
+  gap: 1.2mm;
+  flex-wrap: wrap;
+}
+
+.tokuten-rule-pill {
+  font-size: 6.2pt;
+  font-weight: 800;
+  padding: 0.3mm 1.6mm;
+  border-radius: 0.6mm;
+  background: #fef2f2;
+  color: #991b1b;
+  border: 0.5pt solid #fecaca;
+  white-space: nowrap;
+}
+
 
 /* ==========================================================================
    3. ボトムグリッド（注意事項 ＆ 公式ベクターQRコード：下部寄せ配置）

@@ -197,17 +197,27 @@ class EventExtractor:
         return res
 
     def _extract_cast(self) -> Dict[str, Any]:
-        """出演者、組分け・チーム分けの抽出"""
+        """出演者、組分け・チーム分けの抽出およびメンバーカラー調査指示"""
         res: Dict[str, Any] = {
             "group_name": "",
             "members": [],
             "teams": [],
+            "color_research_required": True,
+            "member_color_guidance": "公式サイト・SNS・プロフィールを能動的に調査し、各メンバーのイメージカラー（背景色・文字色・枠線）を特定して.member-chipに反映してください（※スタプラ研究生等未設定グループを除く）。",
         }
 
         # グループ名判定
         full_text = self.cleaned_text
         if "スタープラネットアイドルアカデミー" in full_text or "スタアカ" in full_text:
             res["group_name"] = "スタープラネットアイドルアカデミー (スタアカ)"
+            res["color_research_required"] = False
+            res["member_color_guidance"] = "スタプラ研究生/スタアカは個人メンバーカラー未設定のため、公式組分け（松ぼっくり組・どんぐり組）の.team-chipを使用してください。"
+        elif "ばってん少女隊" in full_text:
+            res["group_name"] = "ばってん少女隊"
+        elif "RE-GE" in full_text:
+            res["group_name"] = "RE-GE"
+        elif "Straight Angeli" in full_text:
+            res["group_name"] = "Straight Angeli"
         elif "ukka" in full_text:
             res["group_name"] = "ukka"
         elif "TEAM SHACHI" in full_text:
@@ -244,11 +254,16 @@ class EventExtractor:
 
         return res
 
-    def _extract_timetable(self) -> List[Dict[str, Any]]:
-        """タイムテーブルの抽出（時系列順の厳格保持）"""
+    def _extract_timetable(self) -> Dict[str, Any]:
+        """タイムテーブルの抽出（時系列順の厳格保持 ＆ 2部制並記集約対応）"""
         items: List[Dict[str, Any]] = []
         # 時刻パターン: 10:30〜物販開始, 12:25〜(予定) 優先観覧エリア...
         tt_pattern = re.compile(r"^(\d{1,2}:\d{2})\s*(?:〜|~|-)?\s*(\d{1,2}:\d{2})?\s*(?:\(予定\))?\s*(.+)")
+
+        full_text = self.cleaned_text
+        has_part1 = "1部" in full_text or "第1部" in full_text
+        has_part2 = "2部" in full_text or "第2部" in full_text
+        is_multi_part = has_part1 and has_part2
 
         for line in self.lines:
             m = tt_pattern.match(line)
@@ -282,7 +297,44 @@ class EventExtractor:
                 dedup_items.append(it)
 
         dedup_items.sort(key=lambda x: x["time"])
-        return dedup_items
+
+        # 2部制の場合の共通タイムライン並記集約案の生成
+        consolidated_items = []
+        if is_multi_part:
+            # 優先入場、ミニライブ等のペアリング探索
+            p1_entry = next((it for it in dedup_items if any(k in it["title"] for k in ["優先", "入場", "開場"]) and "1部" in (it["title"] + it["detail"])), None)
+            p2_entry = next((it for it in dedup_items if any(k in it["title"] for k in ["優先", "入場", "開場"]) and "2部" in (it["title"] + it["detail"])), None)
+            
+            p1_live = next((it for it in dedup_items if any(k in it["title"] for k in ["ライブ", "LIVE", "開演"]) and "1部" in (it["title"] + it["detail"])), None)
+            p2_live = next((it for it in dedup_items if any(k in it["title"] for k in ["ライブ", "LIVE", "開演"]) and "2部" in (it["title"] + it["detail"])), None)
+
+            # 物販等、部共通のアイテム
+            for it in dedup_items:
+                if any(k in it["title"] for k in ["販売", "予約", "グッズ", "CD", "物販"]):
+                    consolidated_items.append(it)
+                    break
+
+            if p1_entry and p2_entry:
+                consolidated_items.append({
+                    "time": f"{p1_entry['time']} / {p2_entry['time']}",
+                    "end_time": "",
+                    "title": "観覧エリアご案内 ＆ 会場レイアウト（優先入場）",
+                    "detail": "各部開演15分前集合・整理番号順入場",
+                })
+            
+            if p1_live and p2_live:
+                consolidated_items.append({
+                    "time": f"{p1_live['time']} / {p2_live['time']}",
+                    "end_time": "",
+                    "title": "ミニライブ開演（観覧無料）",
+                    "detail": f"1部 {p1_live['time']}〜 / 2部 {p2_live['time']}〜",
+                })
+
+        return {
+            "items": dedup_items,
+            "is_multi_part": is_multi_part,
+            "consolidated_items": consolidated_items,
+        }
 
     def _extract_products(self) -> Dict[str, Any]:
         """CD・グッズ・対象商品、購入上限、ループルールの抽出"""
@@ -347,7 +399,7 @@ class EventExtractor:
         return res
 
     def _extract_admission(self) -> Dict[str, Any]:
-        """入場・観覧エリアルールの抽出"""
+        """入場・観覧エリアルールおよび会場フロアマップ要否の抽出"""
         res: Dict[str, Any] = {
             "has_priority_area": False,
             "meeting_time": "",
@@ -356,12 +408,19 @@ class EventExtractor:
             "free_viewing": "",
             "female_area": False,
             "handicap_area": False,
+            "floor_map_required": False,
+            "floor_map_guidance": "",
         }
 
         full_text = self.cleaned_text
         res["has_priority_area"] = "優先観覧エリア" in full_text
-        res["female_area"] = "女性専用" in full_text or "女性優先" in full_text
+        res["female_area"] = "女性専用" in full_text or "女性優先" in full_text or "女性限定" in full_text
         res["handicap_area"] = "車椅子" in full_text or "お身体の不自由" in full_text
+
+        # エリア図の要否判定（優先エリア、女性専用、車椅子、入場順等の記述がある場合は必須）
+        if res["has_priority_area"] or res["female_area"] or res["handicap_area"] or "ファミリー" in full_text or "入場順" in full_text or "レイアウト" in full_text:
+            res["floor_map_required"] = True
+            res["floor_map_guidance"] = "ステージ、優先観覧エリア、女性専用エリア、入場導線等を含む縦長ベクターフロアマップ（floor_map.svg）を作成し、入場案内枠の右側（.entry-layout-row > .entry-map-col）に配置してください。"
 
         for line in self.lines:
             if "集合" in line or "整列" in line or "入場開始" in line:
@@ -388,12 +447,23 @@ class EventExtractor:
         return res
 
     def _extract_tokutenkai(self) -> Dict[str, Any]:
-        """特典会メニュー、くじ内訳、実施順の抽出"""
+        """特典会メニュー、くじ内訳、実施順、および1部/2部差分ダブルテーブル判定の抽出"""
+        full_text = self.cleaned_text
+        has_part1 = "1部" in full_text or "第1部" in full_text
+        has_part2 = "2部" in full_text or "第2部" in full_text
+        
+        # 特典会内で1部・2部の書き分けがあるか
+        is_multi_part_tokutenkai = has_part1 and has_part2 and any(k in full_text for k in ["【1部】", "【2部】", "1部特典会", "2部特典会", "第1部 特典会", "第2部 特典会"])
+
         res: Dict[str, Any] = {
             "execution_order": "",
+            "is_multi_part": is_multi_part_tokutenkai,
             "menus": [],
+            "part1_menus": [],
+            "part2_menus": [],
             "kuji_items": [],
             "general_rules": [],
+            "tokutenkai_guidance": "特典会の枠が空きすぎないよう、参加手順（呼び出し順、録画開始タイミング、足元マーク、交代制、まとめ出し制限等）の具体的情報を隙間なく記述してください。",
         }
 
         in_kuji_section = False
@@ -648,7 +718,7 @@ class EventExtractor:
                 md.append(f"  - {an}")
         md.append("")
 
-        md.append("## 2. 出演者・組分け（チップ用データ）")
+        md.append("## 2. 出演者・組分け・メンバーカラー（ヘッダー用データ）")
         if cast.get("group_name"):
             md.append(f"- **グループ**: {cast.get('group_name')}")
         if cast.get("teams"):
@@ -657,18 +727,43 @@ class EventExtractor:
                 m_str = "、".join(tm.get("members", []))
                 md.append(f"  - **{tm.get('team_name')}**: {m_str}")
         elif cast.get("members"):
-            md.append(f"- **出演者**: {'、'.join(cast.get('members'))}")
+            md.append(f"- **出演メンバー一覧**: {'、'.join(cast.get('members'))}")
+
+        if cast.get("color_research_required"):
+            md.append("")
+            md.append(f"> [!IMPORTANT]\n> **【要能動的調査】公式メンバーカラーの調査と反映**:\n> {cast.get('member_color_guidance')}\n> 公式サイト・プロフィール・公式SNS等を調査し、各メンバー固有のカラーコード（背景色・文字色・枠線）を特定して `.member-chip` に反映してください。")
+        else:
+            md.append("")
+            md.append(f"> [!NOTE]\n> {cast.get('member_color_guidance')}")
         md.append("")
 
-        md.append("## 3. タイムテーブル（時系列順）")
-        if tt:
+        md.append("## 3. タイムテーブル（時系列順 ＆ 2部制集約）")
+        tt_items = tt.get("items", []) if isinstance(tt, dict) else tt
+        is_multi = tt.get("is_multi_part", False) if isinstance(tt, dict) else False
+        cons_items = tt.get("consolidated_items", []) if isinstance(tt, dict) else []
+
+        if is_multi and cons_items:
+            md.append("> [!TIP]\n> **【2部制集約推奨】紙面縦スペースの最大活用**:\n> 1部・2部共通のタイムライン（優先入場、ミニライブ等）は時刻を並記（例: `13:15 / 16:15 優先エリア入場`）して1つのカードに集約してください。貴重な縦スペースを節約し、特典会枠を最大化できます。")
+            md.append("")
+            md.append("### 推奨：並記集約タイムライン案")
             md.append("| 時刻 | 内容 | 補足 |")
             md.append("| :--- | :--- | :--- |")
-            for it in tt:
+            for it in cons_items:
                 t_str = it["time"]
-                if it["end_time"]:
+                if it.get("end_time"):
                     t_str += f"〜{it['end_time']}"
-                md.append(f"| {t_str} | {it['title']} | {it['detail']} |")
+                md.append(f"| {t_str} | {it['title']} | {it.get('detail', '')} |")
+            md.append("")
+            md.append("### 全時系列タイムライン（詳細）")
+
+        if tt_items:
+            md.append("| 時刻 | 内容 | 補足 |")
+            md.append("| :--- | :--- | :--- |")
+            for it in tt_items:
+                t_str = it["time"]
+                if it.get("end_time"):
+                    t_str += f"〜{it['end_time']}"
+                md.append(f"| {t_str} | {it['title']} | {it.get('detail', '')} |")
         else:
             md.append("（タイムテーブル明記なし）")
         md.append("")
@@ -695,7 +790,7 @@ class EventExtractor:
                 md.append(f"  - {pe}")
         md.append("")
 
-        md.append("## 5. 入場＆優先観覧エリア案内")
+        md.append("## 5. 入場＆優先観覧エリア案内 ＆ 会場フロアマップ")
         md.append(f"- **優先観覧エリア**: {'あり' if adm.get('has_priority_area') else 'なし'}")
         if adm.get("meeting_time"):
             md.append(f"- **整列・入場開始**: {adm.get('meeting_time')}")
@@ -705,9 +800,20 @@ class EventExtractor:
             md.append(f"- **フリー観覧**: {adm.get('free_viewing')}")
         md.append(f"- **女性専用エリア**: {'あり' if adm.get('female_area') else 'なし / 記載なし'}")
         md.append(f"- **車椅子エリア**: {'あり' if adm.get('handicap_area') else 'なし / 記載なし'}")
+
+        if adm.get("floor_map_required"):
+            md.append("")
+            md.append(f"> [!IMPORTANT]\n> **【エリア図必須】会場フロアマップ（縦長ベクターSVG `floor_map.svg`）の配置**:\n> {adm.get('floor_map_guidance')}")
         md.append("")
 
         md.append("## 6. 特典会メニュー・レギュレーション・実施順")
+        if tokuten.get("is_multi_part"):
+            md.append("> [!TIP]\n> **【1部・2部差分ダブルテーブル適用推奨】**:\n> 1部と2部で特典会メニューやレーン分けに差分があるため、左右2カラムのダブルテーブル（`.tokutenkai-double-table` > `.session-box`）で書き分けてください。")
+            md.append("")
+        
+        md.append(f"> [!NOTE]\n> **【特典会情報密度最大化原則】**:\n> {tokuten.get('tokutenkai_guidance', '')}")
+        md.append("")
+
         if tokuten.get("execution_order"):
             md.append(f"- **実施順序**: {tokuten.get('execution_order')}")
         if tokuten.get("menus"):
