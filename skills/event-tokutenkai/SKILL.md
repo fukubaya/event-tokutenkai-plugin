@@ -233,6 +233,17 @@ npx @myriaddreamin/typst-ts-cli compile flyer.typ output.pdf
     - ハイタッチ会、私物サイン、個別動画撮影など特殊な特典会画像を新たに生成する場合は、既存アセットと世界観・スタイルを揃えるため、`reference-characters.jpg` および `reference-props.jpg` を必ず `ImagePaths` に渡して `generate_image` を実行してください。
     - **プロンプト指定の要点**:
       `Isometric cute flat vector illustration matching the exact art style and character designs in reference images. Clean composition, white background, bright colors, sticker icon clipart style. Completely EMPTY hands for fans (NO microphones, NO penlights, NO bags).`
+* **箇条書きの組版原則（`<ul><li>` によるぶら下がりインデントの徹底）**:
+  - 箇条書きを `<p>` や `<div>` 内で「・」と `<br>` を使って記述してはなりません。2行目以降の文字が「・」の下に回り込み、文頭の区切りが視覚的に埋もれてしまいます。
+  - 必ずセマンティックな `<ul><li>` 構造を用い、CSS でぶら下がりインデント（`padding-left: 1.05em;`、`li::before { content: "・"; position: absolute; left: 0; }`）を適用します。2行目以降のテキストが「・」の右側に垂直に整列することで、速読性と組版の品位が劇的に向上します。
+* **AI生成資料における「非公式・AI自動生成」の明記と元サイト確認の義務付け原則**:
+  - AIによって生成されたフライヤーや告知資料は、美麗な組版であるほど「公式発表」と誤認される重大なリスクがあり、万一の誤りや急な変更があった場合に現場トラブルを招く恐れがあります。
+  - したがって、AIが作成するすべてのイベント案内資料・フライヤーには、以下の**免責表記と元サイト確認の案内を必ず盛り込みます**:
+    1. **ヘッダー等での即時識別**: 「🤖 AI生成（非公式）」等のタグやバッジを紙面先頭に配置し、非公式資料であることを一目で理解できるようにします。
+    2. **フッターでの明確な免責事項**: フッター枠や注意事項欄に「⚠️ 【AI生成資料・非公式】本資料はAIにより自動生成された非公式の参考まとめです。主催・運営公式の案内ではありません。誤記や変更の可能性があるため、正しい最新情報は必ず公式サイトをご確認ください。」と強調表記します。
+    3. **公式元サイトへの誘導（ベクターQRコード＋URLテキスト）**: 公式詳細ページへのSVG QRコードを配置し、その直下に「公式詳細・最新情報 / 必ず元サイトを確認 / 公式ドメイン」を明記します。
+    4. **リポジトリ・ドキュメント（README等）での明記**: 配布物やGitHubリポジトリの `README.md` にも、AI自動生成による非公式参考資料である旨と、元サイトへのリンクを明記します。
+
 
 
 
