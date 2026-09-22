@@ -226,16 +226,18 @@ npx @myriaddreamin/typst-ts-cli compile flyer.typ output.pdf
     4. **お見送り会の列参加と長机による接触防止**: お見送り会は参加者が列（キューライン）になって次々と連続して進みます。また、メンバーと参加者の間には長机が物理的な仕切りとして並べられ、直接接触できないように厳格に区切られています。
   - **同梱されている共通イラストアセット**:
     - `reference-characters.jpg`: リファレンス用キャラクターシート（メンバー、ファン、スタッフの正面・背面・表情。ファンは手ぶら）
-    - `reference-props.jpg`: リファレンス用備品セット（長机、パイプ椅子、荷物置きカゴ、スマホ、カメラ、色紙、チケット）
+    - `reference-props.jpg`: リファレンス用備品セット（長机、パイプ椅子、荷物置きカゴ、スマホ、カメラ、色紙、ストップウォッチ、アクリル板撤廃）
+    - `reference-goods.jpg`: リファレンス用特典会アイテム・グッズセット（生写真5枚組＆茶封筒、落書きチェキ、CDジュエルケース＆盤面、Mカード、告知ポスター、発光ペンライト、Tシャツ、マフラータオル、特典券）
     - `tokuten-sendoff.jpg`: 全員お見送り会（お手振り会。長机で区切られ、手ぶらのファンが列になって連続して進む）
-    - `tokuten-2shot.jpg`: 2ショット撮影会（スタッフ撮影、手ぶらポーズ）
+    - `tokuten-2shot.jpg`: 2ショット撮影会（スタッフがファンのスマホで撮影、手ぶらポーズ、荷物カゴあり）
     - `tokuten-video-sendoff.jpg`: 動画撮影付きお見送り会（長机の仕切り、ファンが列になってスマホ動画撮影しながら進む）
     - `tokuten-talk.jpg`: 個別お話し会（机越し対面・アクリル板なし、ストップウォッチ計測スタッフ）
-    - `tokuten-group-shot.jpg`: ユニット集合撮影 / グループショット（メンバー複数名＋手ぶらファン1名）
+    - `tokuten-group-shot.jpg`: ユニット集合撮影 / グループショット（メンバー複数名＋手ぶらファン1名、スタッフ撮影）
     - `tokuten-back-oshi-2shot.jpg`: 後ろ向き推し 2shot（メンバーは後ろ向きで衣装・髪型を見せ、手ぶらファンは前向き）
-    - `tokuten-autograph.jpg`: サイン会（メンバー着席・机でサイン、ファン直立対面・手ぶら、スタッフ同席）
+    - `tokuten-autograph.jpg`: サイン会（メンバー着席・机でサイン、ファン直立対面・手ぶら、スタッフ同席、荷物カゴあり）
+    - `tokuten-handover.jpg`: CD手渡し会・お渡し会（長机越しに対面、メンバーが両手でCDを手渡し、手ぶらファンが両手で受け取る、スタッフ立ち会い）
   - **特殊な特典会の都度生成ガイド（リファレンス参照必須）**:
-    - ハイタッチ会、私物サイン、個別動画撮影など特殊な特典会画像を新たに生成する場合は、既存アセットと世界観・スタイルを揃えるため、`reference-characters.jpg` および `reference-props.jpg` を必ず `ImagePaths` に渡して `generate_image` を実行してください。
+    - ハイタッチ会、私物サイン、個別動画撮影など特殊な特典会画像を新たに生成する場合は、既存アセットと世界観・スタイルを揃えるため、`reference-characters.jpg`、`reference-props.jpg`、`reference-goods.jpg` を必ず `ImagePaths` に渡して `generate_image` を実行してください。
     - **プロンプト指定の要点**:
       `Isometric cute flat vector illustration matching the exact art style and character designs in reference images. Clean composition, white background, bright colors, sticker icon clipart style. Completely EMPTY hands for fans (NO microphones, NO penlights, NO bags).`
 * **箇条書きの組版原則（`<ul><li>` によるぶら下がりインデントの徹底）**:
