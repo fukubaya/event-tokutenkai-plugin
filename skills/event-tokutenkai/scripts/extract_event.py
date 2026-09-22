@@ -92,8 +92,9 @@ class EventExtractor:
 
         # コンテンツ抽出
         content_elem = (
-            soup.find("main")
+            soup.find(class_=re.compile(r"entry-content|post-content", re.I))
             or soup.find("article")
+            or soup.find("main")
             or soup.find(class_=re.compile(r"schedule|detail|entry|post|event|content", re.I))
             or soup.body
         )
@@ -103,6 +104,36 @@ class EventExtractor:
         raw_text = content_elem.get_text()
         self.lines = [re.sub(r"\s+", " ", l).strip() for l in raw_text.splitlines() if l.strip()]
         self.cleaned_text = "\n".join(self.lines)
+
+    def dump_text(self, selector: Optional[str] = None) -> str:
+        """指定セレクタまたは本文全体のテキストを抽出して返す"""
+        self.fetch_or_read()
+        soup = BeautifulSoup(self.raw_html, "html.parser")
+        for tag in soup(["script", "style", "nav", "footer", "header", "noscript", "aside"]):
+            tag.decompose()
+
+        block_tags = ["br", "p", "div", "li", "tr", "th", "td", "h1", "h2", "h3", "h4", "h5", "h6", "section", "article"]
+        for tag in soup.find_all(block_tags):
+            tag.insert_before("\n")
+            tag.insert_after("\n")
+
+        if selector:
+            target = soup.select_one(selector)
+        else:
+            target = (
+                soup.find(class_=re.compile(r"entry-content|post-content", re.I))
+                or soup.find("article")
+                or soup.find("main")
+                or soup.find(class_=re.compile(r"schedule|detail|entry|post|event|content", re.I))
+                or soup.body
+                or soup
+            )
+        if not target:
+            target = soup
+
+        raw_text = target.get_text()
+        lines = [re.sub(r"[ \t]+", " ", l).strip() for l in raw_text.splitlines() if l.strip()]
+        return "\n".join(lines)
 
     def extract(self) -> Dict[str, Any]:
         """構造化イベントデータを抽出"""
@@ -142,26 +173,34 @@ class EventExtractor:
         for idx, line in enumerate(self.lines):
             # タイトル
             if not res["event_name"]:
-                m = re.search(r"(?:タイトル|イベント名)[：:]\s*[「『\"]?([^\n」』\"]+)[」』\"]?", line)
+                m = re.search(r"(?:【?(?:タイトル|イベント名)】?)[：:]\s*[「『\"]?([^\n」』\"]+)[」』\"]?", line)
                 if m:
                     res["event_name"] = m.group(1).strip()
+                elif "「" in line and "」" in line and any(k in line for k in ["Live", "LIVE", "Party", "リリース", "ツアー", "フェス", "公演"]):
+                    m_title = re.search(r"「([^」]+)」", line)
+                    if m_title:
+                        res["event_name"] = m_title.group(1).strip()
 
-            # 日程 (例: 2026年9月27日(日), 2026.09.27(日))
-            if not res["date"]:
-                m = re.search(r"(\d{4})[年\.\-/](\d{1,2})[月\.\-/](\d{1,2})日?\s*[\(（]([日月火水木金土祝・]+)[\)）]", line)
-                if m:
-                    y, m_val, d = int(m.group(1)), int(m.group(2)), int(m.group(3))
+            # 日程 (例: 2026年9月27日(日), 2026.09.27(日), 2026年9月23日(水・祝))
+            m_day = re.search(r"(\d{4})[年\.\-/](\d{1,2})[月\.\-/](\d{1,2})日?\s*[\(（]([日月火水木金土祝・\s]+)[\)）]", line)
+            if m_day:
+                y, m_val, d = int(m_day.group(1)), int(m_day.group(2)), int(m_day.group(3))
+                res["date"] = f"{y:04d}-{m_val:02d}-{d:02d}"
+                res["day_of_week"] = m_day.group(4).strip()
+            elif not res["date"]:
+                m_plain = re.search(r"(\d{4})[年\.\-/](\d{1,2})[月\.\-/](\d{1,2})", line)
+                if m_plain:
+                    y, m_val, d = int(m_plain.group(1)), int(m_plain.group(2)), int(m_plain.group(3))
                     res["date"] = f"{y:04d}-{m_val:02d}-{d:02d}"
-                    res["day_of_week"] = m.group(4)
-                else:
-                    m2 = re.search(r"(\d{4})[年\.\-/](\d{1,2})[月\.\-/](\d{1,2})", line)
-                    if m2:
-                        y, m_val, d = int(m2.group(1)), int(m2.group(2)), int(m2.group(3))
-                        res["date"] = f"{y:04d}-{m_val:02d}-{d:02d}"
 
             # 会場
             if not res["venue_name"]:
-                m = re.search(r"^会場[：:]\s*(.+)", line)
+                m = re.search(r"^(?:【?(?:会場|場所)】?)[：:]\s*(.+)", line)
+                if not m and line.strip() in ["【会場】", "【場所】", "会場", "場所"]:
+                    # 次の行を会場とする
+                    if idx + 1 < len(self.lines):
+                        v_next = self.lines[idx + 1].strip()
+                        m = re.match(r"^(.+)", v_next)
                 if m:
                     v_raw = m.group(1).strip()
                     # 住所分離
@@ -171,7 +210,7 @@ class EventExtractor:
                         v_raw = v_raw[: m_addr.start()].strip()
                     
                     # 施設名とフロアの分離
-                    m_fl = re.search(r"^(.+?(?:パルコ|ビル|タワー|プラザ|モール|会館|劇場|ホール|LOFT|店))\s*(.*)$", v_raw)
+                    m_fl = re.search(r"^(.+?(?:パルコ|ビル|タワー|プラザ|モール|会館|劇場|ホール|LOFT|STUDIO|店))\s*(.*)$", v_raw)
                     if m_fl:
                         res["venue_name"] = m_fl.group(1).strip()
                         res["venue_floor"] = m_fl.group(2).strip()
@@ -190,9 +229,33 @@ class EventExtractor:
                     res["access_notes"].append(clean_l)
 
         # ページタイトルからのフォールバック
-        if not res["event_name"] and self.page_title:
-            parts = re.split(r"[|｜\-–—]", self.page_title)
-            res["event_name"] = parts[0].strip()
+        clean_title = self.page_title
+        # サイト名（例: - Straight Angeli）を末尾から削除
+        clean_title = re.sub(r"\s+[-–—|｜]\s+[^|–—\-]+$", "", clean_title).strip()
+        # 更新プレフィックス（例: 9/22更新）を削除
+        clean_title = re.sub(r"^\d{1,2}/\d{1,2}更新\s*", "", clean_title).strip()
+
+        # タイトルから会場（＠会場）を抽出
+        if not res["venue_name"] and "＠" in clean_title:
+            t_part, v_part = clean_title.split("＠", 1)
+            v_part = v_part.strip()
+            m_fl = re.search(r"^(.+?(?:パルコ|ビル|タワー|プラザ|モール|会館|劇場|ホール|LOFT|店))\s*(.*)$", v_part)
+            if m_fl:
+                res["venue_name"] = m_fl.group(1).strip()
+                res["venue_floor"] = m_fl.group(2).strip()
+            else:
+                res["venue_name"] = v_part
+
+        if not res["event_name"] and clean_title:
+            m_quote = re.search(r"「([^」]+)」", clean_title)
+            if m_quote:
+                res["event_name"] = m_quote.group(1).strip()
+            else:
+                # ＠より前
+                if "＠" in clean_title:
+                    res["event_name"] = clean_title.split("＠", 1)[0].strip()
+                else:
+                    res["event_name"] = clean_title
 
         return res
 
@@ -243,9 +306,20 @@ class EventExtractor:
                     if mem not in res["members"]:
                         res["members"].append(mem)
 
-        # 出演者行パターン (例: 出演：メンバー1, メンバー2)
+        # 出演者行パターン (例: 出演：メンバー1, メンバー2 または 出演\nStraight Angeli\n(メンバー1・メンバー2))
         if not res["members"]:
-            for line in self.lines:
+            for idx, line in enumerate(self.lines):
+                if line.strip() in ["出演", "出演者", "MEMBERS", "【出演】", "【出演者】"]:
+                    for offset in range(1, 4):
+                        if idx + offset < len(self.lines):
+                            next_l = self.lines[idx + offset].strip()
+                            if "(" in next_l or "（" in next_l:
+                                m_inner = re.search(r"[\(（]([^\)）]+)[\)）]", next_l)
+                                if m_inner:
+                                    res["members"] = [mem.strip() for mem in re.split(r"[・,、/／\s]+", m_inner.group(1)) if mem.strip()]
+                                    break
+                    if res["members"]:
+                        break
                 m = re.match(r"^(?:出演|出演者|MEMBERS)[：:]\s*(.+)", line)
                 if m:
                     m_list = [mem.strip() for mem in re.split(r"[・,、/／\s]+", m.group(1)) if mem.strip()]
@@ -472,6 +546,18 @@ class EventExtractor:
             if "→" in line and any(k in line for k in ["会", "検定", "撮影", "ショット", "お話し"]):
                 res["execution_order"] = line.strip()
 
+            # 特典券N枚パターン (例: 特典券1枚：お見送り会, 特典券3枚：2ショット撮影会)
+            m_ticket = re.match(r"^(?:特典券|参加券)\s*(\d+)枚\s*[：:]\s*(.+)", line)
+            if m_ticket:
+                t_count = m_ticket.group(1)
+                t_title = m_ticket.group(2).strip()
+                res["menus"].append({
+                    "order": str(len(res["menus"]) + 1),
+                    "name": t_title,
+                    "description": f"特典券{t_count}枚",
+                    "required_sets": f"{t_count}枚",
+                })
+
             # 特典会大メニュー (例: ①帰りの会(お見送り会), ②推し運検定(ランダムくじ特典会))
             m_menu = re.match(r"^([①②③④⑤⑥⑦⑧⑨⑩\d]+[\.\)]?)\s*([^\n：:]{3,30}?)(?:[：:]\s*(.+))?$", line)
             if m_menu:
@@ -538,11 +624,11 @@ class EventExtractor:
 
             # 特典会禁止事項・現場ルール
             if any(k in line for k in ["ふれる行為", "座らせる行為", "小道具", "画面録画", "Live Photos", "BeReal", "加工アプリ"]):
-                clean_r = line.lstrip("※・- ")
+                clean_r = line.lstrip("※・- ★")
                 if clean_r not in res["general_rules"]:
                     res["general_rules"].append(clean_r)
             if any(k in line for k in ["スマートフォンで行います", "スマホ限定", "手ぶら", "荷物置き場"]):
-                clean_r = line.lstrip("※・- ")
+                clean_r = line.lstrip("※・- ★")
                 if clean_r not in res["general_rules"]:
                     res["general_rules"].append(clean_r)
 
@@ -562,11 +648,17 @@ class EventExtractor:
             res["has_photo_time"] = True
             for line in self.lines:
                 if any(k in line for k in ["撮可", "撮影可能"]):
-                    res["condition"] = line.lstrip("※・- ")
-                if any(k in line for k in ["スマートフォンのみ", "スマホ限定", "一眼レフ可"]):
-                    res["allowed_devices"] = line.lstrip("※・- ")
-                if any(k in line for k in ["三脚", "一脚", "フラッシュ", "セルカ棒", "脚立"]):
-                    res["prohibited"].append(line.lstrip("※・- "))
+                    clean_c = line.lstrip("※・- 〇★")
+                    if "撮影可能タイムについて" not in clean_c and not res["condition"]:
+                        res["condition"] = clean_c
+                if any(k in line for k in ["スマートフォンのみ", "スマホ限定", "一眼レフ可", "一眼レフなど", "動画・写真"]):
+                    clean_dev = line.lstrip("※・- 〇★")
+                    if clean_dev not in res["allowed_devices"]:
+                        res["allowed_devices"] = (res["allowed_devices"] + " / " + clean_dev).strip(" / ")
+                if any(k in line for k in ["三脚", "一脚", "フラッシュ", "セルカ棒", "脚立", "自撮り棒", "頭上"]):
+                    clean_p = line.lstrip("※・- 〇★")
+                    if clean_p not in res["prohibited"]:
+                        res["prohibited"].append(clean_p)
         elif "指示がない場合" in full_text:
             # メンバー・スタッフの指示がある場合は撮影可（指示時のみ可・原則禁止）
             res["has_photo_time"] = "conditional"
@@ -909,13 +1001,28 @@ def main():
 """,
     )
     parser.add_argument("source", help="抽出元の URL または ローカル HTML/テキストファイル")
-    parser.add_argument("-o", "--output", help="出力先 Markdown ファイルパス (省略時: 標準出力)")
+    parser.add_argument("-o", "--output", help="出力先ファイルパス (省略時: 標準出力)")
     parser.add_argument("--json", help="出力先 JSON ファイルパス")
     parser.add_argument("-q", "--quiet", action="store_true", help="進捗メッセージを抑制")
+    parser.add_argument("--dump", "--dump-text", action="store_true", help="HTMLから本文テキストを整形ダンプする")
+    parser.add_argument("-s", "--selector", help="ダンプ時の CSS セレクタ指定 (省略時: 本文自動判定)")
 
     args = parser.parse_args()
 
     extractor = EventExtractor(args.source)
+
+    if args.dump:
+        text = extractor.dump_text(selector=args.selector)
+        if args.output:
+            out_path = Path(args.output)
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            out_path.write_text(text, encoding="utf-8")
+            if not args.quiet:
+                print(f"📄 Dumped text saved to: {out_path}")
+        else:
+            print(text)
+        return 0
+
     if not args.quiet:
         print(f"==> Extracting event information from: {args.source}")
 

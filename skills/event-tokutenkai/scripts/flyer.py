@@ -250,7 +250,12 @@ def cmd_qr(args: argparse.Namespace) -> int:
     url = args.url
     out_file = Path(args.output) if args.output else Path("qr.svg")
 
-    factory = qrcode.image.svg.SvgPathImage
+    if hasattr(qrcode.image.svg, "SvgFillImage"):
+        factory = qrcode.image.svg.SvgFillImage
+    elif hasattr(qrcode.image.svg, "SvgImage"):
+        factory = qrcode.image.svg.SvgImage
+    else:
+        factory = qrcode.image.svg.SvgPathImage
     qr = qrcode.QRCode(
         version=args.version,
         error_correction=qrcode.constants.ERROR_CORRECT_M,
@@ -353,6 +358,23 @@ def cmd_extract(args: argparse.Namespace) -> int:
 
 
 # ----------------------------------------------------------------------
+# 7. dump コマンド
+# ----------------------------------------------------------------------
+def cmd_dump(args: argparse.Namespace) -> int:
+    script_dir = Path(__file__).resolve().parent
+    extract_script = script_dir / "extract_event.py"
+
+    cmd = ["uv", "run", "python", str(extract_script), args.source, "--dump"]
+    if args.output:
+        cmd.extend(["-o", args.output])
+    if args.selector:
+        cmd.extend(["-s", args.selector])
+
+    res = subprocess.run(cmd)
+    return res.returncode
+
+
+# ----------------------------------------------------------------------
 # メイン エントリポイント
 # ----------------------------------------------------------------------
 def main():
@@ -364,19 +386,22 @@ def main():
   # 1. URL から情報を抽出し、要約 Markdown と JSON を生成
   uv run python flyer.py extract "https://starplanet-academy.com/schedule/item-359/" -o event_summary.md --json event_data.json
 
-  # 2. ビルド・検証・プレビューを一括実行 (推奨)
+  # 2. URL または HTML から整形テキストをダンプ
+  uv run python flyer.py dump "https://straight-angeli.com/schedule/item-1170/"
+
+  # 3. ビルド・検証・プレビューを一括実行 (推奨)
   uv run python flyer.py all index.html
 
-  # 3. PDF をビルド
+  # 4. PDF をビルド
   uv run python flyer.py build index.html -o flyer.pdf
 
-  # 4. ページ数・寸法の検証 (1ページチェック)
+  # 5. ページ数・寸法の検証 (1ページチェック)
   uv run python flyer.py pages flyer.pdf --expect 1
 
-  # 5. 高解像度 PNG プレビューを生成 (300dpi)
+  # 6. 高解像度 PNG プレビューを生成 (300dpi)
   uv run python flyer.py render flyer.pdf -o flyer.png --dpi 300
 
-  # 6. ベクター SVG QR コードを生成
+  # 7. ベクター SVG QR コードを生成
   uv run python flyer.py qr "https://example.com" -o qr.svg
 """,
     )
@@ -443,6 +468,13 @@ def main():
     p_extract.add_argument("--json", help="出力先 JSON ファイルパス")
     p_extract.add_argument("-q", "--quiet", action="store_true", help="進捗メッセージを抑制")
     p_extract.set_defaults(func=cmd_extract)
+
+    # --- Subcommand: dump ---
+    p_dump = subparsers.add_parser("dump", help="URL または HTML ファイルから本文テキストを整形ダンプ")
+    p_dump.add_argument("source", help="対象の URL または ローカル HTML ファイル")
+    p_dump.add_argument("-o", "--output", help="出力先テキストファイルパス (省略時: 標準出力)")
+    p_dump.add_argument("-s", "--selector", help="抽出対象の CSS セレクタ (省略時: 本文自動判定)")
+    p_dump.set_defaults(func=cmd_dump)
 
     parsed_args = parser.parse_args()
     return parsed_args.func(parsed_args)
