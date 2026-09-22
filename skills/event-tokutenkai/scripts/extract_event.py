@@ -22,6 +22,7 @@ import re
 import shutil
 import subprocess
 import sys
+import urllib.parse
 import urllib.request
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -56,6 +57,7 @@ class EventExtractor:
         self.lines: List[str] = []
         self.cleaned_text = ""
         self.page_title = ""
+        self.attached_images: List[Dict[str, str]] = []
 
     def fetch_or_read(self) -> None:
         """URL またはファイルからコンテンツを取得"""
@@ -74,7 +76,7 @@ class EventExtractor:
             self.raw_html = p.read_text(encoding="utf-8", errors="replace")
 
     def parse_content(self) -> None:
-        """HTML をブロック要素境界で適切に改行分割して行リストを構築"""
+        """HTML をブロック要素境界で適切に改行分割して行リストを構築し、添付画像を収集"""
         soup = BeautifulSoup(self.raw_html, "html.parser")
 
         if soup.title and soup.title.string:
@@ -83,12 +85,6 @@ class EventExtractor:
         # 不要タグの除去
         for tag in soup(["script", "style", "nav", "footer", "header", "noscript", "aside"]):
             tag.decompose()
-
-        # 改行・ブロック要素の前後に改行を明示的に挿入
-        block_tags = ["br", "p", "div", "li", "tr", "th", "td", "h1", "h2", "h3", "h4", "h5", "h6", "section", "article"]
-        for tag in soup.find_all(block_tags):
-            tag.insert_before("\n")
-            tag.insert_after("\n")
 
         # コンテンツ抽出
         content_elem = (
@@ -100,6 +96,70 @@ class EventExtractor:
         )
         if not content_elem:
             content_elem = soup
+
+        # 添付画像の収集（<img> タグおよび画像リンク）
+        seen_urls = set()
+        self.attached_images = []
+
+        # 1. <img> タグ
+        for img in content_elem.find_all("img"):
+            src = img.get("src") or img.get("data-src") or img.get("data-original")
+            if not src:
+                srcset = img.get("srcset")
+                if srcset:
+                    src = srcset.split(",")[0].strip().split(" ")[0]
+            if not src:
+                continue
+
+            # プロトコル相対URL補完
+            if src.startswith("//"):
+                full_url = "https:" + src
+            elif self.source.startswith("http://") or self.source.startswith("https://"):
+                full_url = urllib.parse.urljoin(self.source, src)
+            else:
+                full_url = src
+
+            # 小さなアイコンやダミー画像・SNS共有ボタンの除外
+            if any(skip in full_url.lower() for skip in ["spacer.gif", "blank.png", "icon_", "share_", "twitter", "line", "facebook", "pinterest", "pin/create", "gravatar"]):
+                continue
+
+            if full_url not in seen_urls:
+                seen_urls.add(full_url)
+                alt = (img.get("alt") or "").strip()
+                self.attached_images.append({
+                    "url": full_url,
+                    "alt": alt,
+                })
+
+        # 2. <a> タグ内の画像直リンク（フライヤーや高解像度フロア図等）
+        for a in content_elem.find_all("a", href=re.compile(r"\.(png|jpe?g|webp)(\?.*)?$", re.I)):
+            href = a.get("href")
+            if not href:
+                continue
+            if href.startswith("//"):
+                full_url = "https:" + href
+            elif self.source.startswith("http://") or self.source.startswith("https://"):
+                full_url = urllib.parse.urljoin(self.source, href)
+            else:
+                full_url = href
+
+            if any(skip in full_url.lower() for skip in ["spacer.gif", "blank.png", "icon_", "share_", "twitter", "line", "facebook", "pinterest", "pin/create", "gravatar"]):
+                continue
+
+            if full_url not in seen_urls:
+                seen_urls.add(full_url)
+                alt = a.get_text().strip() or "添付画像リンク"
+                self.attached_images.append({
+                    "url": full_url,
+                    "alt": alt,
+                })
+
+
+        # 改行・ブロック要素の前後に改行を明示的に挿入
+        block_tags = ["br", "p", "div", "li", "tr", "th", "td", "h1", "h2", "h3", "h4", "h5", "h6", "section", "article"]
+        for tag in soup.find_all(block_tags):
+            tag.insert_before("\n")
+            tag.insert_after("\n")
 
         raw_text = content_elem.get_text()
         self.lines = [re.sub(r"\s+", " ", l).strip() for l in raw_text.splitlines() if l.strip()]
@@ -155,8 +215,48 @@ class EventExtractor:
             "photo_time": self._extract_photo_time(),
             "regulations_and_notes": self._extract_notes(),
             "style_and_typography": self._extract_style_and_typography(),
+            "attached_images": self._extract_attached_images(),
         }
         return data
+
+    def _extract_attached_images(self) -> Dict[str, Any]:
+        """公式添付画像の分類と精読ガイダンスの抽出"""
+        classified = []
+        for img in self.attached_images:
+            url = img["url"]
+            alt = img["alt"]
+            url_lower = url.lower()
+            alt_lower = alt.lower()
+
+            inferred = "other"
+            label = "公式画像"
+
+            if any(k in url_lower or k in alt_lower for k in ["floor", "map", "guide", "layout", "hmv", "フロア", "マップ", "配置", "導線"]):
+                inferred = "floor_map"
+                label = "会場フロアマップ・レイアウト図"
+            elif any(k in url_lower or k in alt_lower for k in ["time", "schedule", "table", "flow", "タイムテーブル", "スケジュール", "進行表"]):
+                inferred = "timetable"
+                label = "タイムテーブル・進行表"
+            elif any(k in url_lower or k in alt_lower for k in ["tokuten", "kuji", "privilege", "特典", "くじ", "撮影会", "お話し会", "お見送り"]):
+                inferred = "tokutenkai"
+                label = "特典会案内・レギュレーション"
+            elif any(k in url_lower or k in alt_lower for k in ["flyer", "poster", "banner", "main", "visual", "フライヤー", "ポスター", "告知"]):
+                inferred = "flyer"
+                label = "告知フライヤー・キービジュアル"
+
+            classified.append({
+                "url": url,
+                "alt": alt,
+                "type": inferred,
+                "label": label,
+            })
+
+        return {
+            "images": classified,
+            "count": len(classified),
+            "guidance": "公式添付画像（特にタイムテーブル進行表・フロアマップ・告知フライヤー）には、本文テキストに書かれていない特記事項（撮可TIMEの条件、じゃんけん大会、新規/復帰特典、レーン交代順、注意事項等）が含まれているケースが極めて多いため、必ず画像解析ツールやブラウザで目視・精読し、100%忠実にフライヤーへ反映してください。",
+        }
+
 
     def _extract_overview(self) -> Dict[str, Any]:
         """公演名、日時、会場、アクセスの抽出"""
@@ -984,7 +1084,21 @@ class EventExtractor:
                 md.append(f"  - フォントスタック: `{tp.get('font_stack')}`")
             md.append("")
 
+        # 10. 公式添付画像一覧（要精読・画像解析）
+        images_info = data.get("attached_images", {})
+        imgs = images_info.get("images", [])
+        if imgs:
+            md.append("## 10. 公式添付画像一覧（要精読・画像解析）")
+            md.append(f"> [!IMPORTANT]\n> **【公式添付画像の精読・完全反映原則】**:\n> {images_info.get('guidance')}")
+            md.append("")
+            md.append("| 用途・種別 | 画像URL | 代替テキスト (alt) |")
+            md.append("| :--- | :--- | :--- |")
+            for im in imgs:
+                md.append(f"| **{im.get('label')}** (`{im.get('type')}`) | [{Path(im['url'].split('?')[0]).name}]({im['url']}) | {im.get('alt') or '-'} |")
+            md.append("")
+
         return "\n".join(md)
+
 
 
 def main():
