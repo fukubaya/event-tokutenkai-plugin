@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="100%" height="100%" style="display: block; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;">
+  <!-- 背景全体（メローペ広場・屋外オープンスペース） -->
+  <rect x="0" y="0" width="200" height="120" fill="#f8fafc" stroke="#cbd5e1" stroke-width="0.8" rx="3"/>
+
+  <!-- 上部：ステージエリア -->
+  <rect x="12" y="5" width="176" height="18" fill="#2563eb" rx="2.5"/>
+  <text x="100" y="17" fill="#ffffff" font-size="6.2" font-weight="900" text-anchor="middle" letter-spacing="0.06em">STAGE（メローペ広場 特設ステージ）</text>
+
+  <!-- 観覧エリア概念図（実際の配置は当日現地で決定される旨を明記） -->
+  <!-- 優先観覧エリア（ステージ前方・女性限定エリア設置） -->
+  <rect x="12" y="26" width="176" height="34" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.1" stroke-dasharray="3,2" rx="2"/>
+  
+  <!-- 女性限定エリア（優先エリア内） -->
+  <rect x="15" y="29" width="56" height="28" fill="#fce7f3" stroke="#ec4899" stroke-width="0.9" rx="1.8"/>
+  <text x="43" y="42" fill="#be185d" font-size="4.6" font-weight="900" text-anchor="middle">女性限定エリア</text>
+  <text x="43" y="48.5" fill="#9d174d" font-size="3.0" font-weight="700" text-anchor="middle">※優先入場券をお持ちの方</text>
+  <text x="43" y="53.5" fill="#9d174d" font-size="2.8" font-weight="700" text-anchor="middle">（整理番号順にご案内）</text>
+
+  <!-- 優先観覧エリア中央・右側 -->
+  <text x="128" y="41" fill="#1e40af" font-size="5.4" font-weight="900" text-anchor="middle">優先観覧エリア（整理番号順）</text>
+  <text x="128" y="47.5" fill="#2563eb" font-size="3.2" font-weight="700" text-anchor="middle">【整理番号付き優先観覧エリア入場券】</text>
+  <text x="128" y="53.5" fill="#475569" font-size="3.0" font-weight="700" text-anchor="middle">開演15分前集合（1部 13:15 / 2部 16:15）</text>
+
+  <!-- 注意喚起バナー（配置未定・現地確認原則） -->
+  <rect x="12" y="63" width="176" height="7.5" fill="#fffbeb" stroke="#f59e0b" stroke-width="0.7" rx="1.2"/>
+  <text x="100" y="68.2" fill="#b45309" font-size="3.1" font-weight="900" text-anchor="middle">※各エリアの正確な位置（左右・前後）は当日会場の案内看板・係員の指示をご確認ください</text>
+
+  <!-- 並列配置：HAJIMAREエリア ＆ ファミリーエリア（固定配置ではないことを明示） -->
+  <g transform="translate(0, 3)">
+    <!-- HAJIMAREエリア -->
+    <rect x="12" y="71" width="86" height="23" fill="#fef3c7" stroke="#f59e0b" stroke-width="0.9" stroke-dasharray="2,2" rx="2"/>
+    <text x="55" y="80" fill="#b45309" font-size="4.2" font-weight="900" text-anchor="middle">HAJIMAREエリア</text>
+    <text x="55" y="86" fill="#92400e" font-size="3.0" font-weight="700" text-anchor="middle">3歳〜高校生限定（優先券不要/付添不可）</text>
+    <text x="55" y="91" fill="#b45309" font-size="2.7" font-weight="700" text-anchor="middle">※優先入場後にご案内（当日設置判断）</text>
+
+    <!-- ファミリーエリア -->
+    <rect x="102" y="71" width="86" height="23" fill="#ecfdf5" stroke="#10b981" stroke-width="0.9" stroke-dasharray="2,2" rx="2"/>
+    <text x="145" y="80" fill="#047857" font-size="4.2" font-weight="900" text-anchor="middle">ファミリーエリア</text>
+    <text x="145" y="86" fill="#065f46" font-size="3.0" font-weight="700" text-anchor="middle">小学生以下＋保護者様1名まで</text>
+    <text x="145" y="91" fill="#047857" font-size="2.7" font-weight="700" text-anchor="middle">※HAJIMAREと同一区画の場合あり</text>
+  </g>
+
+  <!-- 最下部：一般フリー観覧 ＆ 後方マウンテンひろば注意 -->
+  <rect x="12" y="100" width="112" height="15" fill="#f1f5f9" stroke="#94a3b8" stroke-width="0.8" rx="1.8"/>
+  <text x="68" y="107.5" fill="#334155" font-size="3.8" font-weight="900" text-anchor="middle">一般フリー観覧エリア（観覧無料）</text>
+  <text x="68" y="112.5" fill="#64748b" font-size="2.8" font-weight="700" text-anchor="middle">開演10分前集合（収容余裕時のみ実施／混雑時入場制限あり）</text>
+
+  <!-- 後方マウンテンひろば注意枠 -->
+  <rect x="128" y="100" width="60" height="15" fill="#fee2e2" stroke="#ef4444" stroke-width="0.9" rx="1.8"/>
+  <text x="158" y="106.5" fill="#b91c1c" font-size="3.4" font-weight="900" text-anchor="middle">※ マウンテンひろば</text>
+  <text x="158" y="111.5" fill="#dc2626" font-size="2.8" font-weight="800" text-anchor="middle">（お子様遊び場 / 滞留厳禁）</text>
+</svg>

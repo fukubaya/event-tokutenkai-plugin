@@ -1,0 +1,97 @@
+# D2 Floor Map Template: 縦型ネスト構成（上: Stage ➔ 優先(女性限定等) ➔ ファミリー等 ➔ 下: フリー）
+# ステラタウン大宮等の屋外オープンスペース・複合エリア向け
+direction: down
+
+wrapper: " " {
+  grid-columns: 1
+  grid-rows: 4
+  style.fill: transparent
+  style.stroke: transparent
+  horizontal-gap: 6
+  vertical-gap: 6
+
+  stage: "STAGE (特設ステージ)" {
+    style: {
+      fill: "#2563eb"
+      stroke: "#1d4ed8"
+      font-color: "#ffffff"
+      font-size: 14
+      bold: true
+      border-radius: 4
+    }
+  }
+
+  priority_row: " " {
+    grid-columns: 2
+    grid-rows: 1
+    horizontal-gap: 6
+    vertical-gap: 6
+    style.fill: transparent
+    style.stroke: transparent
+
+    female: "女性限定エリア\n(整理番号順)" {
+      style: {
+        fill: "#fce7f3"
+        stroke: "#ec4899"
+        font-color: "#be185d"
+        font-size: 11
+        bold: true
+        border-radius: 4
+      }
+    }
+
+    priority: "優先観覧エリア\n(整理番号順)" {
+      style: {
+        fill: "#eff6ff"
+        stroke: "#3b82f6"
+        font-color: "#1e40af"
+        font-size: 12
+        bold: true
+        border-radius: 4
+      }
+    }
+  }
+
+  sub_row: " " {
+    grid-columns: 2
+    grid-rows: 1
+    horizontal-gap: 6
+    vertical-gap: 6
+    style.fill: transparent
+    style.stroke: transparent
+
+    youth: "新規 / 学生エリア\n(優先券不要)" {
+      style: {
+        fill: "#fef3c7"
+        stroke: "#f59e0b"
+        font-color: "#b45309"
+        font-size: 11
+        bold: true
+        border-radius: 4
+      }
+    }
+
+    family: "ファミリーエリア\n(小学生以下+保護者)" {
+      style: {
+        fill: "#ecfdf5"
+        stroke: "#10b981"
+        font-color: "#047857"
+        font-size: 11
+        bold: true
+        border-radius: 4
+      }
+    }
+  }
+
+  free: "一般フリー観覧エリア (観覧無料 / 混雑時制限あり)" {
+    style: {
+      fill: "#f1f5f9"
+      stroke: "#94a3b8"
+      stroke-dash: 4
+      font-color: "#334155"
+      font-size: 11
+      bold: true
+      border-radius: 4
+    }
+  }
+}

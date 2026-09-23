@@ -814,6 +814,43 @@ class EventExtractor:
                 if clean_r not in res["general_rules"]:
                     res["general_rules"].append(clean_r)
 
+        # 特典券システム2大分類（共通券消費型 vs メニュー別専用券型）の判定
+        is_menu_specific = False
+        if any("対象商品" in m.get("required_sets", "") for m in res["menus"]):
+            is_menu_specific = True
+        elif any(k in full_text for k in ["グルショ券", "2shot券", "ソロ券", "お手振り券", "専用券", "希望の特典券", "特典券を選", "希望する特典券", "参加券を1枚お選び"]):
+            is_menu_specific = True
+
+        if is_menu_specific:
+            res["ticket_system"] = "menu_specific"
+            res["ticket_system_name"] = "メニュー別専用券型（商品購入点数で専用券を引換 / 参加時は各専用券1枚）"
+            res["ticket_system_guidance"] = (
+                "【超重要・混同厳禁】本イベントはメニューごとに専用券が分かれており、参加時はどのメニューも『専用券1枚』で参加します。"
+                "商品購入点数（例: 2枚購入でグルショ券）を『特典券の枚数』と混同して『券2枚』と書かないでください。"
+                "テーブルでは『必要券: 専用券1枚 (要: 商品2枚購入)』のように明確に区別して記載してください。"
+            )
+            for m in res["menus"]:
+                req_sets = m.get("required_sets", "")
+                m_num = re.search(r"(\d+)枚", req_sets)
+                prod_count = m_num.group(1) if m_num else "1"
+                m["ticket_required"] = "専用券 1枚"
+                m["product_required"] = f"対象商品{prod_count}枚"
+                m["display_badge"] = f"専用券 1枚 (商品{prod_count}枚)"
+        else:
+            res["ticket_system"] = "common_pool"
+            res["ticket_system_name"] = "共通券消費型（購入点数に応じて同一の特典券が付与され、メニューごとに必要枚数を消費）"
+            res["ticket_system_guidance"] = (
+                "本イベントは共通の特典券を購入枚数に応じて消費する形式です（例: 1枚で握手、2枚で2shot、3枚で全員撮影）。"
+                "各メニューで必要な特典券消費枚数（例: 1枚、2枚、3枚）を明確に記載してください。"
+            )
+            for m in res["menus"]:
+                req_sets = m.get("required_sets", "")
+                m_num = re.search(r"(\d+)枚", req_sets)
+                t_count = m_num.group(1) if m_num else "1"
+                m["ticket_required"] = f"特典券 {t_count}枚"
+                m["product_required"] = "-"
+                m["display_badge"] = f"券{t_count}枚"
+
         return res
 
     def _extract_photo_time(self) -> Dict[str, Any]:
@@ -1085,17 +1122,26 @@ class EventExtractor:
             md.append("> [!TIP]\n> **【1部・2部差分ダブルテーブル適用推奨】**:\n> 1部と2部で特典会メニューやレーン分けに差分があるため、左右2カラムのダブルテーブル（`.tokutenkai-double-table` > `.session-box`）で書き分けてください。")
             md.append("")
         
+        t_sys_name = tokuten.get("ticket_system_name", "共通券消費型")
+        t_sys_guidance = tokuten.get("ticket_system_guidance", "")
+        md.append(f"> [!IMPORTANT]\n> **【特典券システム分類】: {t_sys_name}**\n> {t_sys_guidance}")
+        md.append("")
+
         md.append(f"> [!NOTE]\n> **【特典会情報密度最大化原則】**:\n> {tokuten.get('tokutenkai_guidance', '')}")
         md.append("")
 
         if tokuten.get("execution_order"):
             md.append(f"- **実施順序**: {tokuten.get('execution_order')}")
         if tokuten.get("menus"):
-            md.append("### 特典会メニュー")
+            md.append("### 特典会メニュー一覧")
+            md.append("| # | メニュー | 必要参加券 | 商品購入条件 (レート) | イラストバッジ推奨表記 |")
+            md.append("| :-: | :--- | :--- | :--- | :--- |")
             for m in tokuten.get("menus"):
-                req = f"（{m['required_sets']}）" if m.get("required_sets") else ""
-                ord_badge = f"[#{m['order']}] " if m.get("order") else ""
-                md.append(f"- **{ord_badge}{m.get('name')}** {req}")
+                ord_badge = m.get("order", "-")
+                t_req = m.get("ticket_required", "-")
+                p_req = m.get("product_required", "-")
+                b_badge = m.get("display_badge", "-")
+                md.append(f"| {ord_badge} | {m.get('name')} | **{t_req}** | {p_req} | `{b_badge}` |")
         if tokuten.get("kuji_items"):
             md.append("### くじ賞品内訳（推し運検定等）")
             md.append("| 賞品内容 | 当選個数 | レギュレーション・指名条件 |")

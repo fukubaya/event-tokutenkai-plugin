@@ -399,8 +399,8 @@ def _is_d2_available() -> bool:
     return shutil.which("d2") is not None
 
 
-def _compile_d2(input_path: Path, output_path: Path, theme: int = 0, pad: int = 10) -> int:
-    """d2 CLI を呼び出して SVG を生成"""
+def _compile_d2(input_path: Path, output_path: Path, theme: int = 0, pad: int = 0) -> int:
+    """d2 CLI を呼び出して SVG を生成（--pad 0 で無駄な外枠余白を排除）"""
     if not _is_d2_available():
         print("❌ Error: 'd2' CLI is not found in PATH.", file=sys.stderr)
         print("   Install D2: 'brew install d2' (macOS) or 'curl -fsSL https://d2lang.com/install.sh | sh'", file=sys.stderr)
@@ -458,7 +458,7 @@ def cmd_all(args: argparse.Namespace) -> int:
                 svg_out = d2_file.with_suffix(".svg")
                 # SVGが存在しないか、d2ファイルが更新されている場合にコンパイル
                 if not svg_out.exists() or d2_file.stat().st_mtime > svg_out.stat().st_mtime:
-                    _compile_d2(d2_file, svg_out, theme=getattr(args, "d2_theme", 0), pad=10)
+                    _compile_d2(d2_file, svg_out, theme=getattr(args, "d2_theme", 0), pad=getattr(args, "d2_pad", 0))
                 else:
                     print(f"   (cached) {svg_out.name} is up to date.")
 
@@ -645,7 +645,7 @@ def main():
     p_d2.add_argument("input", help="入力 D2 スクリプトファイル (.d2)")
     p_d2.add_argument("-o", "--output", help="出力先 SVG ファイルパス (省略時: <input>.svg)")
     p_d2.add_argument("--theme", type=int, default=0, help="D2 テーマ番号 (デフォルト: 0 [ライトテーマ])")
-    p_d2.add_argument("--pad", type=int, default=10, help="余白パディング (デフォルト: 10)")
+    p_d2.add_argument("--pad", type=int, default=0, help="余白パディング (デフォルト: 0 [外枠余白なし])")
     p_d2.set_defaults(func=cmd_d2)
 
     # --- Subcommand: all ---
@@ -667,6 +667,7 @@ def main():
     p_all.add_argument("--no-fallback", action="store_true", help="Vivliostyle失敗時のWeasyPrintフォールバックを無効化")
     p_all.add_argument("--no-d2", action="store_true", help="同ディレクトリ内 *.d2 の自動コンパイルをスキップ")
     p_all.add_argument("--d2-theme", type=int, default=0, help="D2 テーマ番号 (デフォルト: 0 [ライト])")
+    p_all.add_argument("--d2-pad", type=int, default=0, help="D2 余白パディング (デフォルト: 0)")
     p_all.set_defaults(func=cmd_all)
 
     # --- Subcommand: extract ---
