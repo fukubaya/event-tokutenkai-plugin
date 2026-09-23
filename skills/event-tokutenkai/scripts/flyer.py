@@ -240,7 +240,96 @@ def cmd_render(args: argparse.Namespace) -> int:
 
 
 # ----------------------------------------------------------------------
-# 4. qr コマンド
+# 4. check-space (dead space detection) コマンド
+# ----------------------------------------------------------------------
+def cmd_check_space(args: argparse.Namespace) -> int:
+    if pymupdf is None:
+        print("Error: PyMuPDF is not installed.", file=sys.stderr)
+        return 1
+
+    pdf_path = Path(args.pdf)
+    if not pdf_path.exists():
+        print(f"Error: PDF file '{pdf_path}' not found.", file=sys.stderr)
+        return 1
+
+    try:
+        doc = pymupdf.open(pdf_path)
+    except Exception as e:
+        print(f"Error opening PDF: {e}", file=sys.stderr)
+        return 1
+
+    if len(doc) == 0:
+        print(f"Error: PDF '{pdf_path}' has no pages.", file=sys.stderr)
+        return 1
+
+    page = doc[0]
+    page_h = page.rect.height
+    page_w = page.rect.width
+    threshold_pt = args.max_gap / 0.352778  # mm to pt
+
+    # テキストブロックの抽出
+    blocks = page.get_text("blocks")
+    content_boxes = []
+    for b in blocks:
+        text = b[4].strip()
+        if text:
+            content_boxes.append((b[1], b[3], text.replace("\n", " ")[:35]))
+
+    # 背景以外の画像（イラスト、QRコード等）の抽出
+    for info in page.get_image_info():
+        r = info.get("bbox")
+        if r:
+            w = r[2] - r[0]
+            h = r[3] - r[1]
+            if w < page_w * 0.8 or h < page_h * 0.8:
+                content_boxes.append((r[1], r[3], "[Image/Graphic]"))
+
+    content_boxes.sort(key=lambda x: x[0])
+
+    print(f"🔍 Whitespace & Dead-Space Inspection: {pdf_path}")
+    print(f"   Page Height: {page_h:.1f} pt ({page_h * 0.352778:.1f} mm)")
+    print(f"   Max Gap Threshold: {args.max_gap:.1f} mm ({threshold_pt:.1f} pt)")
+
+    prev_bottom = 0.0
+    gaps = []
+    for top, bottom, desc in content_boxes:
+        if top > prev_bottom:
+            gap = top - prev_bottom
+            if gap >= 8.5:  # ~3mm以上を記録
+                gaps.append((prev_bottom, top, gap, desc))
+        prev_bottom = max(prev_bottom, bottom)
+
+    if prev_bottom < page_h:
+        gap = page_h - prev_bottom
+        if gap >= 8.5:
+            gaps.append((prev_bottom, page_h, gap, "[Page Bottom]"))
+
+    significant_gaps = [g for g in gaps if g[2] >= threshold_pt]
+    max_gap = max([g[2] for g in gaps], default=0.0)
+    max_gap_mm = max_gap * 0.352778
+
+    notable_gaps = [g for g in gaps if g[2] >= 14.17]  # 5mm以上
+    print(f"   Detected Notable Gaps (>= 5.0mm): {len(notable_gaps)}")
+    for g_start, g_end, gap, next_elem in gaps:
+        if gap >= 14.17:  # 5mm以上
+            g_mm = gap * 0.352778
+            mark = "⚠️ [EXCESSIVE]" if gap >= threshold_pt else "ℹ️"
+            print(f"   {mark} Gap: {g_mm:5.1f} mm ({gap:5.1f} pt) at y={g_start * 0.352778:5.1f} - {g_end * 0.352778:5.1f} mm -> before: {next_elem}")
+
+    print(f"   Maximum Vertical Gap: {max_gap_mm:.1f} mm ({max_gap:.1f} pt)")
+    if significant_gaps:
+        print(f"   Result: WARNING ({len(significant_gaps)} gap(s) exceeded threshold of {args.max_gap:.1f} mm!)", file=sys.stderr)
+        print(f"   [TIP] デッドスペース（空白領域）が発生しています。カード内の文字サイズ、行間、パディングを拡大するか、詳細情報・Q&A等を追加して紙面を均等に満たしてください。", file=sys.stderr)
+        if args.strict:
+            return 1
+    else:
+        print(f"   Result: PASS (No excessive dead space detected. Space is well-utilized!)")
+
+    return 0
+
+
+# ----------------------------------------------------------------------
+# 5. qr コマンド
 # ----------------------------------------------------------------------
 def cmd_qr(args: argparse.Namespace) -> int:
     if qrcode is None:
@@ -276,7 +365,7 @@ def cmd_qr(args: argparse.Namespace) -> int:
 
 
 # ----------------------------------------------------------------------
-# 5. all (パイプライン) コマンド
+# 6. all (パイプライン) コマンド
 # ----------------------------------------------------------------------
 def cmd_all(args: argparse.Namespace) -> int:
     input_path = Path(args.input)
@@ -314,9 +403,20 @@ def cmd_all(args: argparse.Namespace) -> int:
             print("❌ Step 2 (Verification) failed with strict mode enabled. Aborting.", file=sys.stderr)
             return res
         else:
-            print("⚠️  Step 2 (Verification) returned warning, continuing preview generation...")
+            print("⚠️  Step 2 (Verification) returned warning, continuing...")
 
-    # Step 3: Render Preview PNG
+    # Step 3: Check Whitespace & Dead Space
+    check_args = argparse.Namespace(
+        pdf=str(pdf_out),
+        max_gap=getattr(args, "max_gap", 25.0),
+        strict=args.strict,
+    )
+    res_check = cmd_check_space(check_args)
+    if res_check != 0 and args.strict:
+        print("❌ Step 3 (Space Verification) failed with strict mode enabled. Aborting.", file=sys.stderr)
+        return res_check
+
+    # Step 4: Render Preview PNG
     if not args.no_preview:
         render_args = argparse.Namespace(
             pdf=str(pdf_out),
@@ -326,7 +426,7 @@ def cmd_all(args: argparse.Namespace) -> int:
         )
         res = cmd_render(render_args)
         if res != 0:
-            print("❌ Step 3 (Render preview) failed!", file=sys.stderr)
+            print("❌ Step 4 (Render preview) failed!", file=sys.stderr)
             return res
 
     print("==================================================================")
@@ -435,6 +535,13 @@ def main():
     p_render.add_argument("--page", default="1", help="レンダリング対象ページ ('1', '2', または 'all') (デフォルト: 1)")
     p_render.set_defaults(func=cmd_render)
 
+    # --- Subcommand: check-space ---
+    p_check = subparsers.add_parser("check-space", aliases=["space", "gaps"], help="PDF 内の余白・デッドスペース（垂直ギャップ）を自動検出・検証")
+    p_check.add_argument("pdf", help="検査対象の PDF ファイル")
+    p_check.add_argument("--max-gap", type=float, default=20.0, help="許容される最大垂直ギャップ mm (デフォルト: 20.0mm)")
+    p_check.add_argument("--strict", action="store_true", help="許容値超過時に非ゼロ終了")
+    p_check.set_defaults(func=cmd_check_space)
+
     # --- Subcommand: qr ---
     p_qr = subparsers.add_parser("qr", help="URL から印刷用ベクター SVG QR コードを生成")
     p_qr.add_argument("url", help="埋め込む URL")
@@ -445,7 +552,7 @@ def main():
     p_qr.set_defaults(func=cmd_qr)
 
     # --- Subcommand: all ---
-    p_all = subparsers.add_parser("all", help="ビルド → ページ数検証 → 高解像度プレビュー生成を一気通貫で実行")
+    p_all = subparsers.add_parser("all", help="ビルド → ページ数検証 → 余白検査 → 高解像度プレビュー生成を一気通貫で実行")
     p_all.add_argument("input", help="入力ファイル (.html または .typ)")
     p_all.add_argument("-o", "--output", help="出力PDFファイルパス (省略時: <input>.pdf)")
     p_all.add_argument("--preview", help="出力プレビューPNGファイルパス (省略時: <input>.png)")
@@ -457,7 +564,8 @@ def main():
         help="組版エンジン (デフォルト: auto)",
     )
     p_all.add_argument("--expect", type=int, default=1, help="期待するページ数 (デフォルト: 1)")
-    p_all.add_argument("--strict", action="store_true", help="ページ数不一致時に処理を中断してエラー終了")
+    p_all.add_argument("--strict", action="store_true", help="ページ数不一致や余白超過時に処理を中断してエラー終了")
+    p_all.add_argument("--max-gap", type=float, default=25.0, help="許容される最大垂直ギャップ mm (デフォルト: 25.0mm)")
     p_all.add_argument("--no-preview", action="store_true", help="プレビューPNG生成をスキップ")
     p_all.set_defaults(func=cmd_all)
 

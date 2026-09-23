@@ -36,8 +36,18 @@
 * 🔍 **公式URLからの決定論的情報抽出・正規化ツール（AI独自判断の排除）**:
   - 公式告知URLからHTML構造・ブロック境界を解析し、公演概要、出演者組分け、タイムテーブル、対象商品、優先入場案内、特典会くじ内訳、撮可制限、注意事項を漏れなく決定論的に抽出。
   - AIの解釈ブレや拾い漏れを防ぎ、自明な定型文の自動フィルタリング、進行順番号の正規化を行った要約Markdown（`event_summary.md`）および構造化JSON（`event_data.json`）を生成。
+* 📐 **エリア図の推測配置厳禁と並列・未定注記原則**:
+  - 公式情報から位置関係（前方/後方）が断定できないエリア（HAJIMAREエリア、ファミリーエリア等）を勝手に推測配置せず、並列破線枠＋「※実際の配置・区分けは当日の案内看板・係員の指示をご確認ください」の注記を義務化。
+* 🎤 **観覧マナー・レギュレーションのミニライブ枠（STEP 3）直接統合**:
+  - 入場案内と混同せず、コール声援・ジャンプ禁止・危険行為・滞留禁止などの観覧マナーを「STEP 3: ミニライブ」枠内に直接2カラムFlexboxとして統合。
+* 🎁 **特典会詳細枠のデッドスペース完全排除と多層高密度コンポーネント**:
+  - 参加5ステップ案内フロー、4大禁止事項、1部・2部差分ダブルテーブル、3レーン割り当て、参加前4大FAQ、注意事項を隙間なく配置し、圧倒的な情報密度と満足度を両立。
+* 🛑 **Chromium / Skia PDF レンダラーの内部クラッシュ完全防止**:
+  - 特定のOpenType絵文字クラッシュ（`⚠️` 等のフォールバック失敗）の排除、サブピクセル極小境界線（`border: 0.3pt/0.4pt`）の排除、Flexbox内Gridネストの排除により、印刷時のエンジンクラッシュを根本防止。
+* 🔍 **余白・デッドスペース自動検出・検証 (`flyer.py check-space`)**:
+  - PyMuPDF を用いてテキスト・画像ボックス間の垂直ギャップを自動測定し、閾値（25mm等）を超える空白が存在しないかを決定論的に検査。
 * ⚡ **ゼロインストールCLI（`npx`, `uv`, `flyer.py`）による即時ビルド・検証・プレビュー**:
-  - `flyer.py all` により、ワンコマンドで「PDFビルド ➔ A4 1ページ厳守判定 ➔ 300dpi高精細PNGプレビュー生成」を一気通貫で実行。macOS 固有コマンド（`qlmanage`, `mdls`）や外部 Swift 不要。
+  - `flyer.py all` により、ワンコマンドで「PDFビルド ➔ A4 1ページ厳守判定 ➔ 余白検査 ➔ 300dpi高精細PNGプレビュー生成」を一気通貫で実行。macOS 固有コマンド（`qlmanage`, `mdls`）や外部 Swift 不要。
 
 ---
 
@@ -156,13 +166,23 @@ uv run python skills/event-tokutenkai/scripts/flyer.py build flyer.typ -o output
 uv run python skills/event-tokutenkai/scripts/flyer.py pages output.pdf --expect 1
 ```
 
-#### C. 4K解像度（300dpi相当）PNGプレビューの生成 (`render` / `preview`)
+#### C. 余白・デッドスペース（垂直ギャップ）の検査 (`check-space` / `space`)
+PDF 内のテキスト・画像ボックス間の垂直ギャップを自動検出し、余白過多（デッドスペース）がないかを検査します。
+```bash
+# デフォルト（最大許容ギャップ 20mm）で検査
+uv run python skills/event-tokutenkai/scripts/flyer.py check-space output.pdf
+
+# 閾値を指定し、超過時にエラー終了する場合（CI / 自動検証向け）
+uv run python skills/event-tokutenkai/scripts/flyer.py check-space output.pdf --max-gap 25.0 --strict
+```
+
+#### D. 4K解像度（300dpi相当）PNGプレビューの生成 (`render` / `preview`)
 macOS の `qlmanage` や Swift スクリプトに依存せず、PyMuPDF によりクロスプラットフォームで高速に 300dpi 高解像度 PNG（2481×3508px）を出力します。
 ```bash
 uv run python skills/event-tokutenkai/scripts/flyer.py render output.pdf -o output.png --dpi 300
 ```
 
-#### D. 印刷用ベクター SVG QR コード生成 (`qr`)
+#### E. 印刷用ベクター SVG QR コード生成 (`qr`)
 外部CLI（`npx qrcode` 等）を使わず、Python ライブラリで直接ベクター SVG の QR コードを生成します。
 ```bash
 uv run python skills/event-tokutenkai/scripts/flyer.py qr "https://starplanet-academy.com/schedule/item-359/" -o qr.svg
