@@ -270,47 +270,63 @@ class EventExtractor:
             "access_notes": [],
         }
 
+        weekday_map = {0: "月", 1: "火", 2: "水", 3: "木", 4: "金", 5: "土", 6: "日"}
+
+        # 1. 日程の抽出（【日時】【開催日】行を最優先、上書き防止）
+        found_date_explicit = False
         for idx, line in enumerate(self.lines):
-            # タイトル
-            if not res["event_name"]:
-                m = re.search(r"(?:【?(?:タイトル|イベント名)】?)[：:]\s*[「『\"]?([^\n」』\"]+)[」』\"]?", line)
-                if m:
-                    res["event_name"] = m.group(1).strip()
-                elif "「" in line and "」" in line and any(k in line for k in ["Live", "LIVE", "Party", "リリース", "ツアー", "フェス", "公演"]):
-                    m_title = re.search(r"「([^」]+)」", line)
-                    if m_title:
-                        res["event_name"] = m_title.group(1).strip()
+            is_datetime_header = any(k in line for k in ["【日時】", "【開催日】", "【日程】", "日時：", "日時:", "開催日時"])
 
-            # 日程 (例: 2026年9月27日(日), 2026.09.27(日), 2026年9月23日(水・祝))
-            m_day = re.search(r"(\d{4})[年\.\-/](\d{1,2})[月\.\-/](\d{1,2})日?\s*[\(（]([日月火水木金土祝・\s]+)[\)）]", line)
+            # 日付パターン: 2026年9月27日（日） / 2026.09.27(日) / 9月27日(日)
+            m_day = re.search(r"(?:(\d{4})[年\.\-/])?(\d{1,2})[月\.\-/](\d{1,2})日?\s*(?:（|\()([日月火水木金土祝・\s]+)(?:）|\))", line)
             if m_day:
-                y, m_val, d = int(m_day.group(1)), int(m_day.group(2)), int(m_day.group(3))
-                res["date"] = f"{y:04d}-{m_val:02d}-{d:02d}"
-                res["day_of_week"] = m_day.group(4).strip()
-            elif not res["date"]:
-                m_plain = re.search(r"(\d{4})[年\.\-/](\d{1,2})[月\.\-/](\d{1,2})", line)
-                if m_plain:
-                    y, m_val, d = int(m_plain.group(1)), int(m_plain.group(2)), int(m_plain.group(3))
-                    res["date"] = f"{y:04d}-{m_val:02d}-{d:02d}"
+                y_str = m_day.group(1)
+                # 年が省略されている場合は今年またはページ内/タイトルから推定
+                if not y_str:
+                    m_year = re.search(r"20\d{2}", self.page_title) or re.search(r"20\d{2}", self.cleaned_text[:500])
+                    y = int(m_year.group(0)) if m_year else datetime.date.today().year
+                else:
+                    y = int(y_str)
+                m_val, d = int(m_day.group(2)), int(m_day.group(3))
+                extracted_dow = m_day.group(4).strip()
 
-            # 会場
+                # カレンダー計算による曜日検証
+                try:
+                    cal_dow = weekday_map[datetime.date(y, m_val, d).weekday()]
+                except Exception:
+                    cal_dow = extracted_dow
+
+                # 【日時】ヘッダーがある行なら即座に決定（最優先）
+                if is_datetime_header:
+                    res["date"] = f"{y:04d}-{m_val:02d}-{d:02d}"
+                    res["day_of_week"] = cal_dow
+                    found_date_explicit = True
+                    break
+                elif not found_date_explicit and not res["date"]:
+                    # 「発売」「予約」等の文字を含まない行のみ仮採用
+                    if not any(k in line for k in ["発売", "予約", "締切", "有効期限", "更新"]):
+                        res["date"] = f"{y:04d}-{m_val:02d}-{d:02d}"
+                        res["day_of_week"] = cal_dow
+
+        # 2. 会場名の抽出（【会場】【場所】行、コロンや全角空白対応）
+        for idx, line in enumerate(self.lines):
             if not res["venue_name"]:
-                m = re.search(r"^(?:【?(?:会場|場所)】?)[：:]\s*(.+)", line)
+                m = re.search(r"^(?:【?(?:会場|場所)】?)[：:\s]\s*(.+)", line)
                 if not m and line.strip() in ["【会場】", "【場所】", "会場", "場所"]:
-                    # 次の行を会場とする
                     if idx + 1 < len(self.lines):
                         v_next = self.lines[idx + 1].strip()
                         m = re.match(r"^(.+)", v_next)
                 if m:
                     v_raw = m.group(1).strip()
-                    # 住所分離
-                    m_addr = re.search(r"[\(（]〒?(\d{3}-\d{4})?\s*([^\)）]+)[\)）]", v_raw)
+                    # 住所分離（例: (神奈川県), (東京都武蔵野市...)）
+                    m_addr = re.search(r"[\(（](?:〒?\d{3}-\d{4}\s*)?([^\)）]*(?:都|道|府|県|市|区)[^\)）]*)[\)）]", v_raw)
                     if m_addr:
-                        res["venue_address"] = m_addr.group(2).strip()
+                        res["venue_address"] = m_addr.group(1).strip()
                         v_raw = v_raw[: m_addr.start()].strip()
-                    
-                    # 施設名とフロアの分離
-                    m_fl = re.search(r"^(.+?(?:パルコ|ビル|タワー|プラザ|モール|会館|劇場|ホール|LOFT|STUDIO|店))\s*(.*)$", v_raw)
+
+                    # 施設名とフロア・広場等の分離
+                    venue_keywords = r"パルコ|アリオ|イオン|ららぽーと|ステラタウン|モール|タワー|プラザ|会館|劇場|ホール|LOFT|STUDIO|スクエア|ガーデン|店"
+                    m_fl = re.search(rf"^(.+?(?:{venue_keywords}))\s*(.*)$", v_raw)
                     if m_fl:
                         res["venue_name"] = m_fl.group(1).strip()
                         res["venue_floor"] = m_fl.group(2).strip()
@@ -318,28 +334,37 @@ class EventExtractor:
                         res["venue_name"] = v_raw
 
             # 住所単独行
-            if not res["venue_address"] and ("〒" in line or "東京都" in line or "市" in line or "区" in line):
+            if not res["venue_address"] and ("〒" in line or any(k in line for k in ["東京都", "神奈川県", "埼玉県", "千葉県", "市", "区"])):
                 if any(k in self.lines[max(0, idx - 1)] for k in ["会場", "場所"]):
                     res["venue_address"] = line.strip("（）() ")
 
+            # タイトル
+            if not res["event_name"]:
+                m = re.search(r"(?:【?(?:タイトル|イベント名)】?)[：:\s]\s*[「『\"]?([^\n」』\"]+)[」』\"]?", line)
+                if m:
+                    res["event_name"] = m.group(1).strip()
+                elif "「" in line and "」" in line and any(k in line for k in ["Live", "LIVE", "Party", "リリース", "ツアー", "フェス", "公演", "ちゅぴ"]):
+                    m_title = re.search(r"「([^」]+)」", line)
+                    if m_title:
+                        res["event_name"] = m_title.group(1).strip()
+
             # アクセス注意
-            if any(k in line for k in ["エレベーター", "エスカレーター", "階段で", "来場方法", "7Fまで"]):
+            if any(k in line for k in ["エレベーター", "エスカレーター", "階段で", "来場方法", "徒歩"]):
                 clean_l = line.lstrip("※・- ")
                 if clean_l not in res["access_notes"]:
                     res["access_notes"].append(clean_l)
 
-        # ページタイトルからのフォールバック
+        # 3. ページタイトルからのフォールバック
         clean_title = self.page_title
-        # サイト名（例: - Straight Angeli）を末尾から削除
         clean_title = re.sub(r"\s+[-–—|｜]\s+[^|–—\-]+$", "", clean_title).strip()
-        # 更新プレフィックス（例: 9/22更新）を削除
         clean_title = re.sub(r"^\d{1,2}/\d{1,2}更新\s*", "", clean_title).strip()
 
         # タイトルから会場（＠会場）を抽出
         if not res["venue_name"] and "＠" in clean_title:
             t_part, v_part = clean_title.split("＠", 1)
             v_part = v_part.strip()
-            m_fl = re.search(r"^(.+?(?:パルコ|ビル|タワー|プラザ|モール|会館|劇場|ホール|LOFT|店))\s*(.*)$", v_part)
+            venue_keywords = r"パルコ|アリオ|イオン|ららぽーと|ステラタウン|モール|タワー|プラザ|会館|劇場|ホール|LOFT|店"
+            m_fl = re.search(rf"^(.+?(?:{venue_keywords}))\s*(.*)$", v_part)
             if m_fl:
                 res["venue_name"] = m_fl.group(1).strip()
                 res["venue_floor"] = m_fl.group(2).strip()
@@ -351,7 +376,6 @@ class EventExtractor:
             if m_quote:
                 res["event_name"] = m_quote.group(1).strip()
             else:
-                # ＠より前
                 if "＠" in clean_title:
                     res["event_name"] = clean_title.split("＠", 1)[0].strip()
                 else:
@@ -431,8 +455,8 @@ class EventExtractor:
     def _extract_timetable(self) -> Dict[str, Any]:
         """タイムテーブルの抽出（時系列順の厳格保持 ＆ 2部制並記集約対応）"""
         items: List[Dict[str, Any]] = []
-        # 時刻パターン: 10:30〜物販開始, 12:25〜(予定) 優先観覧エリア...
-        tt_pattern = re.compile(r"^(\d{1,2}:\d{2})\s*(?:〜|~|-)?\s*(\d{1,2}:\d{2})?\s*(?:\(予定\))?\s*(.+)")
+        # 行頭時刻パターン: 10:30〜物販開始, 12:25〜(予定) 優先観覧エリア...
+        tt_pattern = re.compile(r"^(\d{1,2}[:：]\d{2})\s*(?:〜|~|-)?\s*(\d{1,2}[:：]\d{2})?\s*(?:\(予定\))?\s*(.+)")
 
         full_text = self.cleaned_text
         has_part1 = "1部" in full_text or "第1部" in full_text
@@ -440,13 +464,12 @@ class EventExtractor:
         is_multi_part = has_part1 and has_part2
 
         for line in self.lines:
+            # A. 行頭時刻
             m = tt_pattern.match(line)
             if m:
-                st = m.group(1)
-                et = m.group(2) or ""
+                st = m.group(1).replace("：", ":")
+                et = (m.group(2) or "").replace("：", ":")
                 content = m.group(3).strip()
-
-                # 補足（例: （約45分））の切り出し
                 note = ""
                 m_note = re.search(r"[\(（]([^\)）]+)[\)）]", content)
                 if m_note:
@@ -460,6 +483,36 @@ class EventExtractor:
                     "title": content,
                     "detail": note,
                 })
+
+            # B. 括弧内のインラインスケジュール（例: （販売10:30〜・ミニライブ①13:00〜・特典会14:15〜・ミニライブ②））
+            m_inline_paren = re.search(r"[（\(]([^）\)]*?\d{1,2}[:：]\d{2}[^）\)]*?)[）\)]", line)
+            if m_inline_paren:
+                sub_parts = re.split(r"[・、,;；/／]\s*", m_inline_paren.group(1))
+                for part in sub_parts:
+                    m_part = re.search(r"(?:([^\d\s:：]+)\s*)?(\d{1,2}[:：]\d{2})\s*(?:〜|~|-)?\s*(?:([^\d\s:：]+))?", part)
+                    if m_part:
+                        p_title = (m_part.group(1) or m_part.group(3) or "").strip()
+                        p_time = m_part.group(2).replace("：", ":")
+                        if p_title and p_time:
+                            items.append({
+                                "time": p_time,
+                                "end_time": "",
+                                "title": p_title,
+                                "detail": "",
+                            })
+
+            # C. 「開始時間：10:30〜」「集合時間(12:30)」「13:00 START」などの記述
+            if any(k in line for k in ["開始時間", "集合時間", "START", "開場", "開演"]):
+                m_spec = re.search(r"(開始時間|集合時間|開場|開演|START)[：:\s\(（]*(\d{1,2}[:：]\d{2})", line, re.IGNORECASE)
+                if not m_spec:
+                    m_spec = re.search(r"(\d{1,2}[:：]\d{2})\s*(?:START|開演|開場|集合)", line, re.IGNORECASE)
+                    if m_spec:
+                        s_time = m_spec.group(1).replace("：", ":")
+                        items.append({"time": s_time, "end_time": "", "title": "ミニライブ開演 / 集合", "detail": ""})
+                else:
+                    s_title = m_spec.group(1)
+                    s_time = m_spec.group(2).replace("：", ":")
+                    items.append({"time": s_time, "end_time": "", "title": s_title, "detail": ""})
 
         # 重複除去 & ソート
         seen = set()
@@ -520,31 +573,54 @@ class EventExtractor:
             "payment_exclusions": [],
         }
 
-        # 商品行の走査 (例: ・生写真第2シリーズ ¥1,000(税込), 対象商品(BTRC-1055))
+        # セクション共通の価格を探索（例: 税込￥3,000）
+        common_price = ""
+        for line in self.lines:
+            if any(k in line for k in ["税込", "¥", "￥", "円"]) and any(k in line for k in ["エムカード", "CD", "シングル", "ちゅぴ"]):
+                m_cp = re.search(r"([¥￥][0-9,]+|税込[¥￥]?[0-9,]+円?|[0-9,]+円\(税込\))", line)
+                if m_cp:
+                    common_price = m_cp.group(1).replace("税込", "").strip()
+                    if not common_price.startswith("¥") and not common_price.startswith("￥"):
+                        common_price = f"¥{common_price.replace('円', '')}"
+                    break
+
+        # 商品行の走査 (例: ・生写真第2シリーズ ¥1,000(税込), BTRC-1055 ちゅぴ【集合盤】)
         for line in self.lines:
             # 品番
             m_code = re.search(r"([A-Z]{3,5}-\d{3,5})", line)
             # 価格
-            m_price = re.search(r"([0-9,]+円(?:\(税込\))?|¥[0-9,]+(?:\(税込\))?)", line)
+            m_price = re.search(r"([0-9,]+円(?:\(税込\))?|[¥￥][0-9,]+(?:\(税込\))?)", line)
 
-            if m_price and any(k in line for k in ["生写真", "CD", "エムカード", "グッズ", "写真", "盤"]):
+            price_val = m_price.group(1) if m_price else common_price
+
+            # パターン1: 品番と盤種を含む行 (例: BTRC-1055 ちゅぴ【集合盤】)
+            if m_code:
+                code_str = m_code.group(1)
+                clean_name = line.strip("・※-[] ")
+                clean_name = clean_name.replace(code_str, "").strip(" 　/／[品番]")
+                disc_type = ""
+                m_disc = re.search(r"【([^】]+)】", clean_name)
+                if m_disc:
+                    disc_type = m_disc.group(1)
+                res["items"].append({
+                    "name": clean_name or "ちゅぴ",
+                    "disc_type": disc_type,
+                    "code": code_str,
+                    "price": price_val or "¥3,000",
+                })
+            elif m_price and any(k in line for k in ["生写真", "CD", "エムカード", "グッズ", "写真", "盤"]):
                 clean_name = re.sub(r"^[・※\-\s]+", "", line)
                 price_str = m_price.group(1)
-                # 商品名から価格部分を除去
                 clean_name = clean_name.replace(price_str, "").strip(" 　/／")
-                code_str = m_code.group(1) if m_code else ""
-                
-                # 盤種（集合盤、ユニット盤など）
                 disc_type = ""
                 m_disc = re.search(r"【([^】]+)】", clean_name)
                 if m_disc:
                     disc_type = m_disc.group(1)
                     clean_name = clean_name[: m_disc.start()].strip()
-
                 res["items"].append({
                     "name": clean_name,
                     "disc_type": disc_type,
-                    "code": code_str,
+                    "code": "",
                     "price": price_str,
                 })
 
@@ -587,23 +663,23 @@ class EventExtractor:
         }
 
         full_text = self.cleaned_text
-        res["has_priority_area"] = "優先観覧エリア" in full_text
-        res["female_area"] = "女性専用" in full_text or "女性優先" in full_text or "女性限定" in full_text
-        res["handicap_area"] = "車椅子" in full_text or "お身体の不自由" in full_text
+        res["has_priority_area"] = "優先" in full_text
+        res["female_area"] = "女性" in full_text
+        res["handicap_area"] = "車椅子" in full_text or "お身体の不自由" in full_text or "お子様" in full_text
 
         # エリア図の要否判定（優先エリア、女性専用、車椅子、入場順等の記述がある場合は必須）
         if res["has_priority_area"] or res["female_area"] or res["handicap_area"] or "ファミリー" in full_text or "入場順" in full_text or "レイアウト" in full_text:
             res["floor_map_required"] = True
-            res["floor_map_guidance"] = "ステージ、優先観覧エリア、女性専用エリア、入場導線等を含む縦長ベクターフロアマップ（floor_map.svg）を作成し、入場案内枠の右側（.entry-layout-row > .entry-map-col）に配置してください。"
+            res["floor_map_guidance"] = "ステージ、優先観覧エリア、女性専用エリア、カメラエリア、入場導線等を含むベクターフロアマップ（D2スクリプト floormap1.d2 / floormap2.d2）を作成し、入場案内枠の右側（.entry-layout-row > .entry-map-col）に配置してください。"
 
         for line in self.lines:
             if "集合" in line or "整列" in line or "入場開始" in line:
-                m_t = re.search(r"(\d{1,2}:\d{2})", line)
+                m_t = re.search(r"(\d{1,2}[:：]\d{2})", line)
                 if m_t and not res["meeting_time"]:
-                    res["meeting_time"] = m_t.group(1)
+                    res["meeting_time"] = m_t.group(1).replace("：", ":")
 
-            if any(k in line for k in ["整理番号付き優先観覧エリア券", "優先観覧エリア券"]):
-                if any(k in line for k in ["ランダム", "先着", "1枚まで", "ご購入の方", "配布"]):
+            if any(k in line for k in ["優先観覧エリア券", "優先入場券", "優先エリア入場整理券"]):
+                if any(k in line for k in ["ランダム", "先着", "1枚まで", "ご購入の方", "配布", "各1枚"]):
                     clean_t = line.lstrip("※・- ")
                     clean_t = re.sub(r"[\(（※]?定員に達し次第[、,\s]*終了[いたしますとなります]*[\)）]?", "", clean_t)
                     clean_t = re.sub(r"[\(（※]?無?なくなり次第[、,\s]*終了[いたしますとなります]*[\)）]?", "", clean_t)
@@ -612,7 +688,7 @@ class EventExtractor:
                         if not res["ticket_rule"] or len(clean_t) > len(res["ticket_rule"]):
                             res["ticket_rule"] = clean_t
 
-            if "一般観覧" in line or "フリー観覧" in line or "観覧は無料" in line:
+            if "フリー入場" in line or "一般観覧" in line or "フリー観覧" in line or "観覧は無料" in line:
                 res["free_viewing"] = line.lstrip("※・- ")
 
             if "集合場所" in line or "整列場所" in line:
@@ -625,8 +701,6 @@ class EventExtractor:
         full_text = self.cleaned_text
         has_part1 = "1部" in full_text or "第1部" in full_text
         has_part2 = "2部" in full_text or "第2部" in full_text
-        
-        # 特典会内で1部・2部の書き分けがあるか
         is_multi_part_tokutenkai = has_part1 and has_part2 and any(k in full_text for k in ["【1部】", "【2部】", "1部特典会", "2部特典会", "第1部 特典会", "第2部 特典会"])
 
         res: Dict[str, Any] = {
@@ -637,7 +711,7 @@ class EventExtractor:
             "part2_menus": [],
             "kuji_items": [],
             "general_rules": [],
-            "tokutenkai_guidance": "特典会の枠が空きすぎないよう、参加手順（呼び出し順、録画開始タイミング、足元マーク、交代制、まとめ出し制限等）の具体的情報を隙間なく記述してください。",
+            "tokutenkai_guidance": "特典会の枠が空きすぎないよう、イラスト（assets/illustrations/）と参加手順（呼び出し順、録画開始タイミング、足元マーク、交代制、まとめ出し制限等）の具体的情報を隙間なく記述してください。",
         }
 
         in_kuji_section = False
@@ -646,9 +720,22 @@ class EventExtractor:
             if "→" in line and any(k in line for k in ["会", "検定", "撮影", "ショット", "お話し"]):
                 res["execution_order"] = line.strip()
 
-            # 特典券N枚パターン (例: 特典券1枚：お見送り会, 特典券3枚：2ショット撮影会)
+            # パターンA: 対象商品N枚：「メニュー名」を1枚
+            m_target = re.search(r"対象商品\s*(\d+)枚\s*[：:]\s*[「『\"]?([^」』\"\n]+?)[」』\"]?(?:参加券|を\s*\d+枚)?$", line)
+            if m_target:
+                t_count = m_target.group(1)
+                t_title = m_target.group(2).strip("「」『』 ")
+                t_title = re.sub(r"\s*参加券$", "", t_title)
+                res["menus"].append({
+                    "order": str(len(res["menus"]) + 1),
+                    "name": t_title,
+                    "description": f"対象商品{t_count}枚購入で参加",
+                    "required_sets": f"{t_count}枚",
+                })
+
+            # パターンB: 特典券N枚パターン (例: 特典券1枚：お見送り会, 特典券3枚：2ショット撮影会)
             m_ticket = re.match(r"^(?:特典券|参加券)\s*(\d+)枚\s*[：:]\s*(.+)", line)
-            if m_ticket:
+            if m_ticket and not m_target:
                 t_count = m_ticket.group(1)
                 t_title = m_ticket.group(2).strip()
                 res["menus"].append({
@@ -658,13 +745,12 @@ class EventExtractor:
                     "required_sets": f"{t_count}枚",
                 })
 
-            # 特典会大メニュー (例: ①帰りの会(お見送り会), ②推し運検定(ランダムくじ特典会))
+            # パターンC: 特典会大メニュー (例: ①帰りの会(お見送り会), ②推し運検定(ランダムくじ特典会))
             m_menu = re.match(r"^([①②③④⑤⑥⑦⑧⑨⑩\d]+[\.\)]?)\s*([^\n：:]{3,30}?)(?:[：:]\s*(.+))?$", line)
-            if m_menu:
+            if m_menu and not m_target and not m_ticket:
                 order_raw = m_menu.group(1).strip()
                 title = m_menu.group(2).strip()
                 desc = m_menu.group(3) or ""
-                # 数字への正規化
                 order_num = ""
                 for circ_ch, d_num in zip("①②③④⑤⑥⑦⑧⑨⑩", "12345678910"):
                     if circ_ch in order_raw:
@@ -675,17 +761,13 @@ class EventExtractor:
                     if m_d:
                         order_num = m_d.group(0)
 
-                if any(k in title for k in ["帰りの会", "お見送り", "推し運検定", "撮影", "shot", "ショット", "お話し", "サイン"]):
+                if any(k in title for k in ["帰りの会", "お見送り", "推し運検定", "撮影", "shot", "ショット", "お話し", "サイン", "お手振り"]):
                     res["menus"].append({
                         "order": order_num,
                         "name": title,
                         "description": desc,
-                        "required_sets": "",
+                        "required_sets": line.lstrip("※・- "),
                     })
-
-            # 特典券必要セット数 (例: 対象商品1セットご購入で...)
-            if res["menus"] and ("セットご購入" in line or "特典券をお渡し" in line):
-                res["menus"][-1]["required_sets"] = line.lstrip("※・- ")
 
             # くじ賞品セクション (例: ◼︎グループショット(お客様＋メンバー全員))
             if any(k in line for k in ["推し運検定特典会内容", "くじ内訳", "賞品内容"]):

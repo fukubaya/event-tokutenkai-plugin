@@ -20,6 +20,7 @@ Event & Tokutenkai Flyer Utility Tool
 
 import argparse
 import os
+import random
 import shutil
 import subprocess
 import sys
@@ -75,6 +76,7 @@ def cmd_build(args: argparse.Namespace) -> int:
 
     output_path = Path(args.output) if args.output else input_path.with_suffix(".pdf")
     engine = args.engine
+    fallback = getattr(args, "fallback", True) and not getattr(args, "no_fallback", False)
 
     # エンジン自動判定
     if engine == "auto":
@@ -89,13 +91,42 @@ def cmd_build(args: argparse.Namespace) -> int:
 
     print(f"==> Building PDF with [{engine}]: {input_path} -> {output_path}")
 
+    result = _run_engine(engine, input_path, output_path)
+
+    # Vivliostyle/Skia クラッシュ時のWeasyPrintフォールバック
+    if result != 0 and fallback and engine in ["vivliostyle", "html-vivliostyle"]:
+        fallback_engine = "weasyprint"
+        print(f"\n⚠️  Vivliostyle build failed (likely Skia PDF crash).")
+        print(f"==> Retrying with fallback engine [{fallback_engine}]...")
+        result = _run_engine(fallback_engine, input_path, output_path)
+        if result == 0:
+            print(f"✅ Fallback to [{fallback_engine}] succeeded!")
+        else:
+            print(f"❌ Fallback to [{fallback_engine}] also failed.", file=sys.stderr)
+            return result
+
+    if result != 0:
+        return result
+
+    if output_path.exists():
+        size = output_path.stat().st_size
+        emoji = random.choice(["📘", "📗", "📙", "📕"])
+        print(f"{emoji} Built successfully!")
+        print(f"==> PDF generated: {output_path} ({format_bytes(size)})")
+        return 0
+    else:
+        print(f"Error: Output file '{output_path}' was not generated.", file=sys.stderr)
+        return 1
+
+
+def _run_engine(engine: str, input_path: Path, output_path: Path) -> int:
+    """指定エンジンでPDFビルドを実行する。成功時0、失敗時は非0を返す。"""
     cmd = []
     if engine in ["vivliostyle", "html-vivliostyle"]:
         cmd = ["npx", "-y", "@vivliostyle/cli", "build", str(input_path), "-o", str(output_path)]
     elif engine in ["weasyprint", "html-weasyprint"]:
         cmd = ["uv", "run", "weasyprint", str(input_path), str(output_path)]
     elif engine == "typst":
-        # typst-ts-cli または システムの typst を探す
         if shutil.which("typst"):
             cmd = ["typst", "compile", str(input_path), str(output_path)]
         else:
@@ -106,19 +137,12 @@ def cmd_build(args: argparse.Namespace) -> int:
 
     try:
         res = subprocess.run(cmd, check=True)
+        return 0
     except subprocess.CalledProcessError as e:
         print(f"Error: Build failed with exit code {e.returncode}", file=sys.stderr)
         return e.returncode
     except FileNotFoundError as e:
         print(f"Error: Required command not found ({e})", file=sys.stderr)
-        return 1
-
-    if output_path.exists():
-        size = output_path.stat().st_size
-        print(f"==> PDF generated: {output_path} ({format_bytes(size)})")
-        return 0
-    else:
-        print(f"Error: Output file '{output_path}' was not generated.", file=sys.stderr)
         return 1
 
 
@@ -319,7 +343,11 @@ def cmd_check_space(args: argparse.Namespace) -> int:
     print(f"   Maximum Vertical Gap: {max_gap_mm:.1f} mm ({max_gap:.1f} pt)")
     if significant_gaps:
         print(f"   Result: WARNING ({len(significant_gaps)} gap(s) exceeded threshold of {args.max_gap:.1f} mm!)", file=sys.stderr)
-        print(f"   [TIP] デッドスペース（空白領域）が発生しています。カード内の文字サイズ、行間、パディングを拡大するか、詳細情報・Q&A等を追加して紙面を均等に満たしてください。", file=sys.stderr)
+        print(f"   [TIP] デッドスペース（余白）が検出されました。以下の施策で紙面を均等かつリッチに埋めてください：", file=sys.stderr)
+        print(f"         1. 特典会ビジュアルストリップに公式風イラスト（assets/illustrations/）を追加", file=sys.stderr)
+        print(f"         2. 手荷物案内・熱中症対策・進行状況確認先（X）の情報ストリップ（.tokuten-info-strip）を追加", file=sys.stderr)
+        print(f"         3. 優先入場枠にカメラエリア規定や整理番号呼び出しブロックの案内を追記", file=sys.stderr)
+        print(f"         4. 主要カードの padding, gap, 行間（line-height: 1.3〜1.45）を微調整", file=sys.stderr)
         if args.strict:
             return 1
     else:
@@ -365,6 +393,45 @@ def cmd_qr(args: argparse.Namespace) -> int:
 
 
 # ----------------------------------------------------------------------
+# 6. d2 コマンド & ヘルパー
+# ----------------------------------------------------------------------
+def _is_d2_available() -> bool:
+    return shutil.which("d2") is not None
+
+
+def _compile_d2(input_path: Path, output_path: Path, theme: int = 0, pad: int = 10) -> int:
+    """d2 CLI を呼び出して SVG を生成"""
+    if not _is_d2_available():
+        print("❌ Error: 'd2' CLI is not found in PATH.", file=sys.stderr)
+        print("   Install D2: 'brew install d2' (macOS) or 'curl -fsSL https://d2lang.com/install.sh | sh'", file=sys.stderr)
+        return 1
+
+    cmd = ["d2", str(input_path), str(output_path), "--theme", str(theme), "--pad", str(pad)]
+    try:
+        res = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        if res.returncode == 0:
+            size_str = format_bytes(output_path.stat().st_size) if output_path.exists() else "unknown"
+            print(f"🗺️  D2 Floor Map compiled: {input_path.name} -> {output_path.name} ({size_str})")
+            return 0
+        else:
+            print(f"❌ D2 compilation failed for {input_path}:\n{res.stderr}", file=sys.stderr)
+            return res.returncode
+    except Exception as e:
+        print(f"❌ Error invoking d2: {e}", file=sys.stderr)
+        return 1
+
+
+def cmd_d2(args: argparse.Namespace) -> int:
+    input_path = Path(args.input)
+    if not input_path.exists():
+        print(f"Error: Input file '{input_path}' not found.", file=sys.stderr)
+        return 1
+
+    output_path = Path(args.output) if args.output else input_path.with_suffix(".svg")
+    return _compile_d2(input_path, output_path, theme=args.theme, pad=args.pad)
+
+
+# ----------------------------------------------------------------------
 # 6. all (パイプライン) コマンド
 # ----------------------------------------------------------------------
 def cmd_all(args: argparse.Namespace) -> int:
@@ -380,11 +447,28 @@ def cmd_all(args: argparse.Namespace) -> int:
     print(f"🚀 Flyer Pipeline: {input_path.name}")
     print("==================================================================")
 
+    # Step 0: Auto-compile *.d2 files if present
+    no_d2 = getattr(args, "no_d2", False)
+    if not no_d2:
+        parent_dir = input_path.parent
+        d2_files = list(parent_dir.glob("*.d2"))
+        if d2_files:
+            print(f"🗺️  Detected {len(d2_files)} D2 floor map(s) in {parent_dir.name}/")
+            for d2_file in sorted(d2_files):
+                svg_out = d2_file.with_suffix(".svg")
+                # SVGが存在しないか、d2ファイルが更新されている場合にコンパイル
+                if not svg_out.exists() or d2_file.stat().st_mtime > svg_out.stat().st_mtime:
+                    _compile_d2(d2_file, svg_out, theme=getattr(args, "d2_theme", 0), pad=10)
+                else:
+                    print(f"   (cached) {svg_out.name} is up to date.")
+
     # Step 1: Build PDF
     build_args = argparse.Namespace(
         input=str(input_path),
         output=str(pdf_out),
         engine=args.engine,
+        fallback=True,
+        no_fallback=getattr(args, "no_fallback", False),
     )
     res = cmd_build(build_args)
     if res != 0:
@@ -518,7 +602,12 @@ def main():
         default="auto",
         help="組版エンジン (デフォルト: auto [拡張子で自動判別])",
     )
-    p_build.set_defaults(func=cmd_build)
+    p_build.add_argument(
+        "--no-fallback",
+        action="store_true",
+        help="Vivliostyle失敗時のWeasyPrintフォールバックを無効化",
+    )
+    p_build.set_defaults(func=cmd_build, fallback=True)
 
     # --- Subcommand: pages (verify) ---
     p_pages = subparsers.add_parser("pages", aliases=["verify"], help="PDF のページ数・寸法（A4/mm）を検証")
@@ -551,8 +640,16 @@ def main():
     p_qr.add_argument("--border", type=int, default=2, help="余白モジュール数 (デフォルト: 2)")
     p_qr.set_defaults(func=cmd_qr)
 
+    # --- Subcommand: d2 ---
+    p_d2 = subparsers.add_parser("d2", help="D2 スクリプト (.d2) からベクターフロアマップ SVG を生成")
+    p_d2.add_argument("input", help="入力 D2 スクリプトファイル (.d2)")
+    p_d2.add_argument("-o", "--output", help="出力先 SVG ファイルパス (省略時: <input>.svg)")
+    p_d2.add_argument("--theme", type=int, default=0, help="D2 テーマ番号 (デフォルト: 0 [ライトテーマ])")
+    p_d2.add_argument("--pad", type=int, default=10, help="余白パディング (デフォルト: 10)")
+    p_d2.set_defaults(func=cmd_d2)
+
     # --- Subcommand: all ---
-    p_all = subparsers.add_parser("all", help="ビルド → ページ数検証 → 余白検査 → 高解像度プレビュー生成を一気通貫で実行")
+    p_all = subparsers.add_parser("all", help="D2マップビルド → PDFビルド → ページ数検証 → 余白検査 → 高解像度プレビューを一気通貫で実行")
     p_all.add_argument("input", help="入力ファイル (.html または .typ)")
     p_all.add_argument("-o", "--output", help="出力PDFファイルパス (省略時: <input>.pdf)")
     p_all.add_argument("--preview", help="出力プレビューPNGファイルパス (省略時: <input>.png)")
@@ -567,6 +664,9 @@ def main():
     p_all.add_argument("--strict", action="store_true", help="ページ数不一致や余白超過時に処理を中断してエラー終了")
     p_all.add_argument("--max-gap", type=float, default=25.0, help="許容される最大垂直ギャップ mm (デフォルト: 25.0mm)")
     p_all.add_argument("--no-preview", action="store_true", help="プレビューPNG生成をスキップ")
+    p_all.add_argument("--no-fallback", action="store_true", help="Vivliostyle失敗時のWeasyPrintフォールバックを無効化")
+    p_all.add_argument("--no-d2", action="store_true", help="同ディレクトリ内 *.d2 の自動コンパイルをスキップ")
+    p_all.add_argument("--d2-theme", type=int, default=0, help="D2 テーマ番号 (デフォルト: 0 [ライト])")
     p_all.set_defaults(func=cmd_all)
 
     # --- Subcommand: extract ---
