@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
-  <!-- Hand -->
-  <path d="M18 26 L18 17 C18 15.5 19.5 14.5 21 15.5 L21 23 M21 15.5 L21 13 C21 11.5 22.5 10.5 24 11.5 L24 23 M24 11.5 L24 13 C24 11.5 25.5 10.5 27 11.5 L27 23 M27 13 L27 16 C27 14.5 28.5 13.5 30 14.5 L30 26 C30 33 24 37 19 37 C15 37 12 33 12 30 L15 25 C16 23.5 18 24.5 18 26 Z" fill="#64748b"/>
-  <!-- Prohibition sign -->
-  <circle cx="24" cy="24" r="20" fill="none" stroke="#ef4444" stroke-width="4"/>
-  <line x1="10" y1="10" x2="38" y2="38" stroke="#ef4444" stroke-width="4"/>
-</svg>

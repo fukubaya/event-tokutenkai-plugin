@@ -92,13 +92,20 @@
   border: 0.5pt solid #cbd5e1;
 }
 
-/* メンバーカラー設定例 */
-.m-color-red    { background: #fee2e2; color: #b91c1c; border: 0.5pt solid #fca5a5; }
-.m-color-blue   { background: #dbeafe; color: #1d4ed8; border: 0.5pt solid #93c5fd; }
-.m-color-yellow { background: #fef9c3; color: #a16207; border: 0.5pt solid #fde047; }
-.m-color-green  { background: #dcfce7; color: #15803d; border: 0.5pt solid #86efac; }
-.m-color-pink   { background: #fdf4ff; color: #a21caf; border: 0.5pt solid #f5d0fe; }
-.m-color-purple { background: #f3e8ff; color: #6b21a8; border: 0.5pt solid #d8b4fe; }
+/* メンバーカラー定義（デザイントークン） */
+.m-red         { background: #fee2e2; color: #b91c1c; border: 0.5pt solid #fca5a5; }
+.m-blue        { background: #e0f2fe; color: #0284c7; border: 0.5pt solid #38bdf8; }
+.m-yellow      { background: #fef9c3; color: #a16207; border: 0.5pt solid #fde047; }
+.m-green       { background: #dcfce7; color: #15803d; border: 0.5pt solid #86efac; }
+.m-pink        { background: #fce7f3; color: #be185d; border: 0.5pt solid #f472b6; }
+.m-purple      { background: #f3e8ff; color: #7e22ce; border: 0.5pt solid #c084fc; }
+.m-orange      { background: #ffedd5; color: #c2410c; border: 0.5pt solid #fb923c; }
+.m-lightblue   { background: #e0f7fa; color: #00838f; border: 0.5pt solid #26c6da; }
+.m-mint        { background: #d1fae5; color: #065f46; border: 0.5pt solid #6ee7b7; }
+.m-lavender    { background: #ede9fe; color: #5b21b6; border: 0.5pt solid #a78bfa; }
+.m-white       { background: #f8fafc; color: #334155; border: 0.5pt solid #cbd5e1; }
+.m-black       { background: #18181b; color: #ffffff; border: 0.5pt solid #3f3f46; }
+
 
 /* メンバーカラーなし（未設定）グループ用 組分け・チームチップ */
 .team-chip {

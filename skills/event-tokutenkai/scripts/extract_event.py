@@ -58,6 +58,8 @@ class EventExtractor:
         self.cleaned_text = ""
         self.page_title = ""
         self.attached_images: List[Dict[str, str]] = []
+        self.raw_soup: Optional[BeautifulSoup] = None
+
 
     def fetch_or_read(self) -> None:
         """URL またはファイルからコンテンツを取得"""
@@ -77,6 +79,7 @@ class EventExtractor:
 
     def parse_content(self) -> None:
         """HTML をブロック要素境界で適切に改行分割して行リストを構築し、添付画像を収集"""
+        self.raw_soup = BeautifulSoup(self.raw_html, "html.parser")
         soup = BeautifulSoup(self.raw_html, "html.parser")
 
         if soup.title and soup.title.string:
@@ -277,8 +280,8 @@ class EventExtractor:
         for idx, line in enumerate(self.lines):
             is_datetime_header = any(k in line for k in ["【日時】", "【開催日】", "【日程】", "日時：", "日時:", "開催日時"])
 
-            # 日付パターン: 2026年9月27日（日） / 2026.09.27(日) / 9月27日(日)
-            m_day = re.search(r"(?:(\d{4})[年\.\-/])?(\d{1,2})[月\.\-/](\d{1,2})日?\s*(?:（|\()([日月火水木金土祝・\s]+)(?:）|\))", line)
+            # 日付パターン: 2026年9月27日（日） / 2026.09.27(日) / 9月27日(日) / 9月27日
+            m_day = re.search(r"(?:(\d{4})[年\.\-/])?(\d{1,2})[月\.\-/](\d{1,2})日?(?:\s*(?:（|\()([日月火水木金土祝・\s]+)(?:）|\)))?", line)
             if m_day:
                 y_str = m_day.group(1)
                 # 年が省略されている場合は今年またはページ内/タイトルから推定
@@ -288,13 +291,13 @@ class EventExtractor:
                 else:
                     y = int(y_str)
                 m_val, d = int(m_day.group(2)), int(m_day.group(3))
-                extracted_dow = m_day.group(4).strip()
+                extracted_dow = m_day.group(4).strip() if m_day.group(4) else ""
 
-                # カレンダー計算による曜日検証
+                # カレンダー計算による曜日検証（曜日表記がない場合も自動補完）
                 try:
                     cal_dow = weekday_map[datetime.date(y, m_val, d).weekday()]
                 except Exception:
-                    cal_dow = extracted_dow
+                    cal_dow = extracted_dow or "日"
 
                 # 【日時】ヘッダーがある行なら即座に決定（最優先）
                 if is_datetime_header:
@@ -325,7 +328,7 @@ class EventExtractor:
                         v_raw = v_raw[: m_addr.start()].strip()
 
                     # 施設名とフロア・広場等の分離
-                    venue_keywords = r"パルコ|アリオ|イオン|ららぽーと|ステラタウン|モール|タワー|プラザ|会館|劇場|ホール|LOFT|STUDIO|スクエア|ガーデン|店"
+                    venue_keywords = r"パルコ|アリオ|イオン|ららぽーと|ダイバーシティ|ステラタウン|モール|タワー|プラザ|会館|劇場|ホール|LOFT|STUDIO|スクエア|ガーデン|ドーム|スタジアム|スペース|店"
                     m_fl = re.search(rf"^(.+?(?:{venue_keywords}))\s*(.*)$", v_raw)
                     if m_fl:
                         res["venue_name"] = m_fl.group(1).strip()
@@ -455,8 +458,8 @@ class EventExtractor:
     def _extract_timetable(self) -> Dict[str, Any]:
         """タイムテーブルの抽出（時系列順の厳格保持 ＆ 2部制並記集約対応）"""
         items: List[Dict[str, Any]] = []
-        # 行頭時刻パターン: 10:30〜物販開始, 12:25〜(予定) 優先観覧エリア...
-        tt_pattern = re.compile(r"^(\d{1,2}[:：]\d{2})\s*(?:〜|~|-)?\s*(\d{1,2}[:：]\d{2})?\s*(?:\(予定\))?\s*(.+)")
+        # 行頭時刻パターン: 10:30〜物販開始, ・10:30〜, 【10:30】ミニライブ, 12:25〜(予定) 優先観覧エリア...
+        tt_pattern = re.compile(r"^[・\-\*◆■★\s]*[【\[\(（]?(\d{1,2}[:：]\d{2})[】\]\)）]?\s*(?:〜|~|-)?\s*(?:[【\[\(（]?(\d{1,2}[:：]\d{2})[】\]\)）]?)?\s*(?:\(予定\)|（予定）)?\s*(.+)")
 
         full_text = self.cleaned_text
         has_part1 = "1部" in full_text or "第1部" in full_text
@@ -938,7 +941,7 @@ class EventExtractor:
     def _extract_style_and_typography(self) -> Dict[str, Any]:
         """公式ページやイベント内容から、推奨スタイル・配色テーマおよびタイポグラフィ（フォント選定）を分析"""
         detected_fonts: List[str] = []
-        soup = BeautifulSoup(self.raw_html, "html.parser")
+        soup = self.raw_soup or BeautifulSoup(self.raw_html, "html.parser")
         for link in soup.find_all("link", rel=re.compile(r"stylesheet", re.I)):
             href = link.get("href", "")
             if "fonts.googleapis.com" in href:

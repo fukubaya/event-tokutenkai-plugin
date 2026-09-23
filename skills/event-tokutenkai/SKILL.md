@@ -1,12 +1,12 @@
 ---
 name: event-tokutenkai
 description: >-
-  Guides the creation and compilation of print-ready flyers and information design for idol/artist events, release events (ririebe), and tokutenkai (meet-and-greets, photo sessions). Use when designing event schedules, floor maps, regulation guides, and A4 flyers using HTML/CSS (Vivliostyle/WeasyPrint) or Typst via npx or uv CLIs.
+  Guides the creation and compilation of print-ready flyers and information design for idol/artist events, release events (ririebe), and tokutenkai (meet-and-greets, photo sessions). Use when designing event schedules, floor maps, regulation guides, and A4 flyers using HTML/CSS (Vivliostyle/WeasyPrint) via flyer.py.
 ---
 
 # Event & Tokutenkai Information Flyer Skill
 
-このスキルは、アイドル・アーティストのリリースイベント（リリイベ）、ライブ、特典会（撮影会・お話し会・お渡し会）などにおいて、タイムテーブル、購入レギュレーション、会場フロアマップ、参加注意事項を正確に整理し、印刷・WEB配信用フライヤー（A4ベクターPDF・高精細PNG）をコードベース（HTML/CSS または Typst）で作成・ビルドするためのワークフローを提供します。
+このスキルは、アイドル・アーティストのリリースイベント（リリイベ）、ライブ、特典会（撮影会・お話し会・お渡し会）などにおいて、タイムテーブル、購入レギュレーション、会場フロアマップ、参加注意事項を正確に整理し、印刷・WEB配信用フライヤー（A4ベクターPDF・高精細PNG）をコードベース（HTML/CSS）で作成・ビルドするためのワークフローを提供します。
 
 ---
 
@@ -61,13 +61,10 @@ uv run python scripts/flyer.py extract "https://starplanet-academy.com/schedule/
 
 2. **ツールの選択**:
    - **HTML/CSS (Vivliostyle / WeasyPrint)**:
-     - Webデザインのノウハウ（Flexbox, CSS Grid, Webフォント）を活かしたい場合
-     - デザインの自由度が高く、テンプレート連携（Jinja2 / Mustache等）が容易
+     - Webデザインのノウハウ（Flexbox, CSS変数, Webフォント）を活かした精密なA4組版
+     - デザインの自由度が高く、トークン分離やテンプレート連携が容易
      - 推奨実行: `uv run python scripts/flyer.py all index.html`
-   - **Typst**:
-     - ページ物のカタログ、厳密な表組み、書籍風レイアウトを作成したい場合
-     - プレーンテキストで簡潔に記述したい場合
-     - 推奨実行: `uv run python scripts/flyer.py all flyer.typ`
+
 
 ---
 
@@ -147,9 +144,6 @@ uv run python scripts/flyer.py build index.html -o output.pdf
 
 # WeasyPrint を明示
 uv run python scripts/flyer.py build index.html -o output.pdf --engine weasyprint
-
-# Typst
-uv run python scripts/flyer.py build flyer.typ -o output.pdf
 ```
 
 #### B. ページ数・寸法の検証 (`pages` / `verify`)
@@ -169,6 +163,7 @@ uv run python scripts/flyer.py render output.pdf -o output.png --dpi 300
 #### D. ベクター SVG QR コードの生成 (`qr`)
 Webの一次情報URLから、印刷でも縮小・拡大でも劣化しないベクターSVG QRコードを生成します。
 ```bash
+# 300dpi で第1ページをレンダリング
 uv run python scripts/flyer.py qr "https://example.com/event" -o qr.svg
 ```
 
@@ -183,7 +178,6 @@ uv run python scripts/flyer.py d2 floormap1.d2 -o floormap1.svg --theme 0
 ### 3. シェルスクリプトによる呼び出し (`build.sh`)
 ```bash
 ./scripts/build.sh auto index.html output.pdf output.png
-./scripts/build.sh typst flyer.typ output.pdf
 ```
 
 ---
@@ -340,7 +334,7 @@ uv run python scripts/flyer.py d2 floormap1.d2 -o floormap1.svg --theme 0
   - 紙面縦方向に余裕がある場合、長文を1行に詰め込まず、意味のまとまり（文脈・注意点ごと）に適宜改行（`<br>` やブロック分離）を入れて1行の長さを抑えます。横長すぎるテキストブロックを解消することで、現場での速読性が向上します。
 * **カラー絵文字（🚨等）による Chromium / Skia PDF ビルドクラッシュの回避**:
   - Vivliostyle CLI（Puppeteer）内部の Skia / HarfBuzz グリフ処理において、特定のカラー絵文字（例: `🚨` パトランプ等）が含まれていると `ProtocolError (Page.printToPDF): Printing failed` が発生してビルドがクラッシュすることがあります。
-  - 印刷用HTMLではクラッシュを誘発しやすいカラー絵文字を避け、安定した標準グリフ記号（`⚠️`、`★`、`📍`、`🎁`、`🎫`、`🎤`、`📸`、`✨`、`📱` 等）やテキストラベル（`【重要】`、`【入場順】` 等）を使用します。
+  - 印刷用HTMLではクラッシュを誘発しやすいカラー絵文字を避け、安定した標準グリフ記号（`★`、`📍`、`🎁`、`🎫`、`🎤`、`📸`、`✨`、`📱` 等）やテキストラベル（`【重要】`、`【入場順】` 等）を使用します。
 * **出演者名・メンバー名などの固有名詞の完全な正確性**:
   - 出演者やメンバーの氏名は、公式プロフィール等に記載された正式表記（姓名フルネーム、正しい漢字・ひらがな表記）を厳密に用います。略称や名字のみ、推測での表記は行いません。
 * **特典会イメージ画像（共通アセット一覧と都度生成のワークフロー）**:

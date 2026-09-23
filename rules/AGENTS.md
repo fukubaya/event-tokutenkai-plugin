@@ -4,19 +4,18 @@
 
 ## 1. 原則: 画像生成AIでの文字・表の一発出し禁止
 - 画像生成AI（Diffusionモデル等）を使って、文字や数字、表を含む1枚画像を生成して完結させてはならない。文字の崩れや誤字、罫線の歪み、編集不能のリスクを回避するため。
-- キービジュアル（背景やイラスト素材）のみを画像生成AI（またはSVG）で用意し、**文字・フォント・表・レイアウトはコード（HTML/CSS または Typst）として記述・分離**すること。
+- キービジュアル（背景やイラスト素材）のみを画像生成AI（またはSVG）で用意し、**文字・フォント・表・レイアウトはコード（HTML/CSS）として記述・分離**すること。
 
 ## 2. デザイン・レイアウトの分離とトークン管理
 - **デザイントークン（カラーセット、フォント、余白）の分離**:
-  - HTML/CSSの場合: `theme.css` 等で `:root` に CSS変数（カスタムプロパティ）を定義し、カラーパレットや余白（`--page-margin`, `--color-primary` など）を一括変更可能にすること。
-  - Typstの場合: ファイル冒頭または設定モジュールで `#let primary-color = ...`, `#let page-margin = ...` を定義すること。
+  - `theme.css` 等で `:root` に CSS変数（カスタムプロパティ）を定義し、カラーパレットや余白（`--page-margin`, `--color-primary` など）を一括変更可能にすること。
 - **印刷サイズと裁ち落としの明示**:
-  - 必ず `@page` または `#set page(...)` で物理サイズ（A4, B5, mm単位）と余白を明示すること。
+  - 必ず `@page` で物理サイズ（A4, B5, mm単位）と余白を明示すること。
   - 商業印刷向けの場合は裁ち落とし（bleed: 3mm）やトンボ（crop marks）を意識した設定を設けること。
 
 ## 3. 編集性とベクター品質の担保
 - **テキストと表**:
-  - ラスタ画像化せず、常にテキスト要素（HTMLタグ `<p>`, `<h1>`, `<table>` または Typst構文）として保持すること。
+  - ラスタ画像化せず、常にテキスト要素（HTMLタグ `<p>`, `<h1>`, `<table>` 等）として保持すること。
 - **イラスト・図版**:
   - 可能な限りSVGなどのベクター形式を使用し、拡大・印刷に耐えうる解像度非依存の形式にすること。
 
@@ -118,10 +117,10 @@
     - `uv run python skills/event-tokutenkai/scripts/flyer.py all <input.html> [-o <output.pdf>] [--preview <output.png>] [--dpi 300]`
     - ビルド ➔ ページ数検証（1ページ厳守判定） ➔ 300dpi 高解像度 PNG 生成 をワンステップで完結。
   - **個別PDFビルド**:
-    - `uv run python skills/event-tokutenkai/scripts/flyer.py build <input.html> -o <output.pdf> [--engine vivliostyle|weasyprint|typst]`
+    - `uv run python skills/event-tokutenkai/scripts/flyer.py build <input.html> -o <output.pdf> [--engine vivliostyle|weasyprint]`
     - 単体での直接実行:
-      - **HTML/CSS**: `npx @vivliostyle/cli build <html-file> -o <pdf-file>` または `uv run weasyprint <html-file> <pdf-file>`
-      - **Typst**: `npx typst-cli compile <typ-file> <pdf-file>`
+      - **Vivliostyle (Chromium)**: `npx @vivliostyle/cli build <html-file> -o <pdf-file>`
+      - **WeasyPrint (Cairo)**: `uv run --with weasyprint weasyprint <html-file> <pdf-file>`
   - **PDFページ数・寸法の検証（1ページ厳守チェック）**:
     - `uv run python skills/event-tokutenkai/scripts/flyer.py pages <pdf-file> --expect 1`
     - PyMuPDF により総ページ数と用紙サイズ（mm/A4判定）を瞬時に取得し、A4フライヤーが1枚に収まっているかを厳格にアサート。
@@ -220,7 +219,7 @@
   - 紙面の縦方向に余裕がある場合、長文を1行にだらだらと流さず、意味のまとまり（文脈・重要事項ごと）に適宜改行（`<br>` やブロック分離）を挟み、1行あたりの視線移動幅を最適化すること。横長すぎずゆったりとしたブロックとして見せることで、現場での速読性と理解度が格段に上がる。
 - **カラー絵文字（🚨等）による Chromium / Skia PDF レンダラークラッシュ防止**:
   - Vivliostyle CLI（Puppeteer）内部の Skia / HarfBuzz グリフ解決において、特定のカラー絵文字（例: `🚨` パトランプ等）が含まれると `ProtocolError (Page.printToPDF): Printing failed` が発生し、PDFビルドがクラッシュすることがある。
-  - 印刷用HTMLではクラッシュを誘発しやすいカラー絵文字の使用を避け、安定したグリフ記号（`⚠️`、`★`、`📍`、`🎁`、`🎫`、`🎤`、`📸`、`✨`、`📱` 等）やテキストラベル（`【重要】`、`【入場順】` 等）を使用すること。
+  - 印刷用HTMLではクラッシュを誘発しやすいカラー絵文字の使用を避け、安定したグリフ記号（`★`、`📍`、`🎁`、`🎫`、`🎤`、`📸`、`✨`、`📱` 等）やテキストラベル（`【重要】`、`【入場順】` 等）を使用すること。
 - **出演者名・メンバー名などの固有名詞の完全正確性**:
   - 出演者やメンバーの氏名は、公式プロフィール等に記載された正式表記（姓名フルネーム、正しい漢字・ひらがな表記）を厳密に用いること。略称や名字のみ、推測での表記は厳禁とする。
 

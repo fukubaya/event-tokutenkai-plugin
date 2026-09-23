@@ -11,7 +11,7 @@ Event & Tokutenkai Flyer Utility Tool
 イベント・特典会フライヤー作成・検証用CLIツール
 
 機能:
-  build   - HTML (Vivliostyle / WeasyPrint) または Typst から PDF を生成
+  build   - HTML (Vivliostyle / WeasyPrint) から PDF を生成
   pages   - PDF のページ数・寸法（A4 / mm）の検証（1ページ厳守チェック）
   render  - PDF から 300dpi 高解像度 PNG プレビューを生成（macOS qlmanage / Swift代替）
   qr      - URL からベクター SVG QR コードを生成（外部CLI不要）
@@ -81,9 +81,7 @@ def cmd_build(args: argparse.Namespace) -> int:
     # エンジン自動判定
     if engine == "auto":
         suffix = input_path.suffix.lower()
-        if suffix in [".typ"]:
-            engine = "typst"
-        elif suffix in [".html", ".htm"]:
+        if suffix in [".html", ".htm"]:
             engine = "vivliostyle"
         else:
             print(f"Error: Cannot determine engine for '{input_path.name}'. Specify --engine.", file=sys.stderr)
@@ -125,14 +123,9 @@ def _run_engine(engine: str, input_path: Path, output_path: Path) -> int:
     if engine in ["vivliostyle", "html-vivliostyle"]:
         cmd = ["npx", "-y", "@vivliostyle/cli", "build", str(input_path), "-o", str(output_path)]
     elif engine in ["weasyprint", "html-weasyprint"]:
-        cmd = ["uv", "run", "weasyprint", str(input_path), str(output_path)]
-    elif engine == "typst":
-        if shutil.which("typst"):
-            cmd = ["typst", "compile", str(input_path), str(output_path)]
-        else:
-            cmd = ["npx", "-y", "@myriaddreamin/typst-ts-cli", "compile", str(input_path), str(output_path)]
+        cmd = ["uv", "run", "--with", "weasyprint", "weasyprint", str(input_path), str(output_path)]
     else:
-        print(f"Error: Unknown engine '{engine}'. Choose vivliostyle, weasyprint, or typst.", file=sys.stderr)
+        print(f"Error: Unknown engine '{engine}'. Choose vivliostyle or weasyprint.", file=sys.stderr)
         return 1
 
     try:
@@ -593,14 +586,14 @@ def main():
     subparsers = parser.add_subparsers(dest="command", required=True, help="実行するサブコマンド")
 
     # --- Subcommand: build ---
-    p_build = subparsers.add_parser("build", help="HTML または Typst から PDF をビルド")
-    p_build.add_argument("input", help="入力ファイル (.html または .typ)")
+    p_build = subparsers.add_parser("build", help="HTML から PDF をビルド")
+    p_build.add_argument("input", help="入力ファイル (.html)")
     p_build.add_argument("-o", "--output", help="出力PDFファイルパス (省略時: <input>.pdf)")
     p_build.add_argument(
         "--engine",
-        choices=["auto", "vivliostyle", "weasyprint", "typst"],
+        choices=["auto", "vivliostyle", "weasyprint"],
         default="auto",
-        help="組版エンジン (デフォルト: auto [拡張子で自動判別])",
+        help="組版エンジン (デフォルト: auto [vivliostyle])",
     )
     p_build.add_argument(
         "--no-fallback",
@@ -650,13 +643,13 @@ def main():
 
     # --- Subcommand: all ---
     p_all = subparsers.add_parser("all", help="D2マップビルド → PDFビルド → ページ数検証 → 余白検査 → 高解像度プレビューを一気通貫で実行")
-    p_all.add_argument("input", help="入力ファイル (.html または .typ)")
+    p_all.add_argument("input", help="入力ファイル (.html)")
     p_all.add_argument("-o", "--output", help="出力PDFファイルパス (省略時: <input>.pdf)")
     p_all.add_argument("--preview", help="出力プレビューPNGファイルパス (省略時: <input>.png)")
     p_all.add_argument("--dpi", type=int, default=300, help="プレビュー解像度 (デフォルト: 300)")
     p_all.add_argument(
         "--engine",
-        choices=["auto", "vivliostyle", "weasyprint", "typst"],
+        choices=["auto", "vivliostyle", "weasyprint"],
         default="auto",
         help="組版エンジン (デフォルト: auto)",
     )
