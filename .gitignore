@@ -1,0 +1,8 @@
+.DS_Store
+events/
+__pycache__/
+*.pyc
+.venv/
+*.pdf
+*.png
+

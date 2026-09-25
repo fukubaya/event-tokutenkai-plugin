@@ -1,0 +1,58 @@
+# D2 Floor Map Template: 縦型段状構成（上: Stage ➔ 前方特設(女性・子ども等) ➔ 優先 ➔ 下: フリー）
+# タワーレコード渋谷CUTUP STUDIO等のライブハウス・地下スタジオ向け
+direction: down
+
+wrapper: " " {
+  grid-columns: 1
+  grid-rows: 4
+  style.fill: transparent
+  style.stroke: transparent
+  horizontal-gap: 6
+  vertical-gap: 6
+
+  stage: "STAGE" {
+    style: {
+      fill: "#18181b"
+      stroke: "#09090b"
+      font-color: "#ffffff"
+      font-size: 14
+      bold: true
+      border-radius: 4
+    }
+  }
+
+  front: "★ 女性・子ども用エリア (前方優先)" {
+    style: {
+      fill: "#fdf2f8"
+      stroke: "#ec4899"
+      stroke-dash: 3
+      font-color: "#be185d"
+      font-size: 11
+      bold: true
+      border-radius: 4
+    }
+  }
+
+  priority: "優先観覧エリア (整理番号順入場)" {
+    style: {
+      fill: "#eff6ff"
+      stroke: "#3b82f6"
+      font-color: "#1d4ed8"
+      font-size: 13
+      bold: true
+      border-radius: 4
+    }
+  }
+
+  free: "フリー入場エリア (観覧無料 / 余裕時のみ)" {
+    style: {
+      fill: "#f8fafc"
+      stroke: "#94a3b8"
+      stroke-dash: 4
+      font-color: "#475569"
+      font-size: 11
+      bold: true
+      border-radius: 4
+    }
+  }
+}

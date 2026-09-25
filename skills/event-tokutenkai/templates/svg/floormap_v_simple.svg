@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 80" width="100%" height="100%" style="display: block; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;">
+  <!-- 背景カード -->
+  <rect x="0" y="0" width="100" height="80" fill="#ffffff" rx="3" stroke="#cbd5e1" stroke-width="0.8"/>
+
+  <!-- ステージ（上部） -->
+  <rect x="6" y="6" width="88" height="16" fill="#0f172a" rx="2"/>
+  <text x="50" y="17" fill="#ffffff" font-size="8.5" font-weight="900" text-anchor="middle" letter-spacing="0.08em">STAGE (ステージ)</text>
+
+  <!-- 優先観覧エリア（中央・主役） -->
+  <rect x="6" y="26" width="88" height="30" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.2" rx="2"/>
+  <text x="50" y="40" fill="#1d4ed8" font-size="8" font-weight="900" text-anchor="middle">優先観覧エリア</text>
+  <text x="50" y="50" fill="#2563eb" font-size="5.8" font-weight="bold" text-anchor="middle">【整理番号順に入場】</text>
+
+  <!-- 一般フリー観覧エリア（後方） -->
+  <rect x="6" y="60" width="88" height="15" fill="#f8fafc" stroke="#94a3b8" stroke-width="0.8" rx="2"/>
+  <text x="50" y="70.5" fill="#475569" font-size="6.8" font-weight="bold" text-anchor="middle">一般フリー観覧 (観覧無料)</text>
+</svg>

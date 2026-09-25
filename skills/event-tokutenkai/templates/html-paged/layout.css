@@ -1,0 +1,1510 @@
+/* ==========================================================================
+   Event & Tokutenkai Flyer Layout Stylesheet
+   印刷サイズ（A4縦）、フルブリード、時系列タイムライン、フロアマップ、QRコード、免責バー
+   ========================================================================== */
+
+/* 印刷ページ基本設定 */
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: var(--page-width);
+  height: var(--page-height);
+  font-family: var(--font-body);
+  font-size: 7.2pt;
+  line-height: 1.32;
+  color: var(--color-text-main);
+  -webkit-font-smoothing: antialiased;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* インラインSVGアイコン */
+.inline-icon {
+  width: 1.15em;
+  height: 1.15em;
+  vertical-align: -0.2em;
+  display: inline-block;
+  margin-right: 2px;
+}
+
+body {
+  background-color: var(--color-bg-body);
+  background-image: var(--bg-image, none);
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 全体ラッパー */
+.poster-wrapper {
+  width: 100%;
+  height: 100%;
+  padding: var(--page-padding-v) var(--page-padding-h);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==========================================================================
+   1. ヘッダー（タイトル ＆ 出演者 ＆ 会場情報 ＆ 日時バッジ）
+   ========================================================================== */
+.poster-header {
+  background: var(--color-card-bg);
+  border: 1.5pt solid var(--color-border-bold);
+  border-radius: 2.5mm;
+  padding: 1.8mm 2.8mm;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2.5mm;
+  flex-shrink: 0;
+}
+
+.header-left-col {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8mm;
+}
+
+.header-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5mm;
+}
+
+.header-tag-pill {
+  background: var(--color-primary-dark);
+  color: #ffffff;
+  font-size: 6.8pt;
+  font-weight: 800;
+  padding: 0.4mm 2mm;
+  border-radius: 0.8mm;
+  letter-spacing: 0.04em;
+  display: inline-block;
+}
+
+.header-sub-tag {
+  background: var(--color-primary-light);
+  border: 0.6pt solid var(--color-primary);
+  color: var(--color-primary-dark);
+  font-size: 6.5pt;
+  font-weight: 800;
+  padding: 0.3mm 1.8mm;
+  border-radius: 0.8mm;
+}
+
+.header-main-title {
+  font-family: var(--font-display);
+  font-size: 14pt;
+  font-weight: 900;
+  color: var(--color-primary-dark);
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+}
+
+/* 出演者一覧行（組分けチップ） */
+.header-members-line {
+  font-size: 6.5pt;
+  font-weight: 700;
+  color: var(--color-text-sub);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.2mm;
+  margin-top: 0.2mm;
+}
+
+/* 組分けチップ（スタプラ研究生/スタアカ：公式組分けチップ） */
+.team-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6mm;
+  font-size: 6.3pt;
+  font-weight: 800;
+  padding: 0.3mm 1.5mm;
+  border-radius: 0.8mm;
+  line-height: 1.2;
+}
+
+.team-chip-pinecone {
+  background: var(--color-pinecone-bg);
+  color: var(--color-pinecone-text);
+  border: 0.6pt solid var(--color-pinecone-border);
+}
+
+.team-chip-acorn {
+  background: var(--color-acorn-bg);
+  color: var(--color-acorn-text);
+  border: 0.6pt solid var(--color-acorn-border);
+}
+
+.member-name-tag {
+  display: inline-block;
+  background: #ffffff;
+  color: var(--color-text-main);
+  border: 0.5pt solid var(--color-border);
+  border-radius: 0.6mm;
+  padding: 0.2mm 1.2mm;
+  font-size: 6.3pt;
+  font-weight: 700;
+}
+
+.team-members-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8mm;
+  margin-right: 1.5mm;
+}
+
+/* 公式メンバーカラーチップ（能動的調査によるカラー反映） */
+.member-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2mm 1.5mm;
+  border-radius: 0.8mm;
+  font-size: 6.3pt;
+  font-weight: 800;
+  line-height: 1.2;
+  border: 0.6pt solid currentColor;
+  white-space: nowrap;
+}
+
+/* メンバーカラー定義は theme.css にて一元管理（デザイントークン分離） */
+
+
+/* メンバー注記チップ（欠席・不参加等） */
+.member-note-chip {
+  display: inline-block;
+  font-size: 6.0pt;
+  color: var(--color-text-muted, #64748b);
+  margin-left: 1mm;
+}
+
+
+/* 開催場所行（ヘッダー統合・名前の圧倒的強調） */
+.header-loc-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.2mm;
+  background: var(--color-bg-sub);
+  border: 0.8pt solid var(--color-border);
+  padding: 0.8mm 1.8mm;
+  border-radius: 1mm;
+  font-size: 6.3pt;
+  line-height: 1.25;
+  margin-top: 0.4mm;
+}
+
+.loc-badge {
+  background: var(--color-primary);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 6.2pt;
+  padding: 0.3mm 1.6mm;
+  border-radius: 0.6mm;
+  white-space: nowrap;
+}
+
+.loc-name-prominent {
+  font-size: 9.4pt;
+  font-weight: 900;
+  color: var(--color-primary-dark);
+  background: #ffffff;
+  border: 0.8pt solid var(--color-primary);
+  padding: 0.2mm 2.2mm;
+  border-radius: 0.8mm;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.loc-access-pill {
+  background: var(--color-secondary-light);
+  color: var(--color-secondary);
+  border: 0.5pt solid var(--color-secondary);
+  font-size: 6.2pt;
+  font-weight: 800;
+  padding: 0.2mm 1.6mm;
+  border-radius: 0.6mm;
+  white-space: nowrap;
+}
+
+.loc-addr {
+  color: var(--color-text-sub);
+  white-space: nowrap;
+}
+
+.loc-note {
+  color: var(--color-text-muted);
+  font-size: 5.8pt;
+}
+
+/* 日時バッジ */
+.header-date-badge {
+  flex-shrink: 0;
+  background: var(--color-primary-dark);
+  color: #ffffff;
+  border-radius: 2.2mm;
+  padding: 2mm 3.2mm;
+  text-align: center;
+  min-width: 30mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.date-badge-year {
+  font-size: 6.2pt;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  opacity: 0.92;
+}
+
+.date-badge-day {
+  font-family: var(--font-num);
+  font-size: 14pt;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.date-badge-venue {
+  font-size: 7.2pt;
+  font-weight: 900;
+  margin-top: 0.5mm;
+  background: #ffffff;
+  color: var(--color-primary-dark);
+  padding: 0.4mm 1.2mm;
+  border-radius: 0.8mm;
+  letter-spacing: -0.01em;
+}
+
+/* ==========================================================================
+   2. 時系列タイムライン
+   ========================================================================== */
+.timeline-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.3mm;
+  margin-top: 1.3mm;
+  margin-bottom: 0;
+  flex: 1 1 auto;
+}
+
+/* 共通統一時刻カラム（幅26mm固定・大きめ統一タイポグラフィ） */
+.time-col-unified {
+  width: 26mm;
+  min-width: 26mm;
+  max-width: 26mm;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: var(--color-bg-sub);
+  border-right: 1.2pt solid var(--color-border);
+  padding: 1.1mm 0.8mm;
+  gap: 0.4mm;
+}
+
+.time-col-val {
+  font-family: var(--font-num, var(--font-number, sans-serif));
+  font-size: 11.5pt;
+  font-weight: 900;
+  line-height: 1.05;
+  color: var(--color-text-main);
+  letter-spacing: -0.02em;
+}
+
+/* 複数時刻表示（ミニライブ、特典会など） */
+.time-col-multi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5mm;
+  width: 100%;
+}
+
+.time-row-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.6mm;
+  width: 100%;
+}
+
+.time-tag-mini {
+  font-size: 5.5pt;
+  font-weight: 800;
+  opacity: 0.88;
+  line-height: 1;
+}
+
+.time-val-item {
+  font-family: var(--font-num, var(--font-number, sans-serif));
+  font-size: 10.5pt;
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+/* 2部制並記時刻（例: 13:15 / 16:15） */
+.time-col-val.multi-time,
+.time-col-val:has(.multi-part-time) {
+  font-size: 10.2pt;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+}
+
+.time-badge-val {
+  font-family: var(--font-num, var(--font-number, sans-serif));
+  font-size: 10.5pt;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+}
+
+.time-col-label, .time-badge-sub {
+  font-size: 5.5pt;
+  font-weight: 800;
+  margin-top: 0.3mm;
+  padding: 0.2mm 1mm;
+  border-radius: 0.6mm;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--color-text-main);
+}
+
+/* STEP 1: 物販（特典券の値段・種類・上限の視覚的強調） */
+.card-step-goods {
+  background: var(--color-card-bg);
+  border: 1.2pt solid var(--color-border);
+  border-radius: 2mm;
+  display: flex;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.goods-content-row {
+  flex: 1;
+  padding: 1.1mm 2.4mm;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6mm;
+}
+
+.goods-main-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.4mm;
+}
+
+.goods-product-block {
+  display: flex;
+  align-items: center;
+  gap: 1.2mm;
+}
+
+.product-badge {
+  background: var(--color-primary-dark);
+  color: #ffffff;
+  font-size: 6.0pt;
+  font-weight: 800;
+  padding: 0.2mm 1.4mm;
+  border-radius: 0.5mm;
+  white-space: nowrap;
+}
+
+.product-name {
+  font-size: 8.4pt;
+  font-weight: 900;
+  color: var(--color-primary-dark);
+  white-space: nowrap;
+}
+
+.product-price-highlight {
+  font-family: var(--font-num);
+  font-size: 9.6pt;
+  font-weight: 900;
+  color: #b91c1c;
+  background: #fee2e2;
+  border: 0.5pt solid #f87171;
+  padding: 0.2mm 1.8mm;
+  border-radius: 0.6mm;
+  white-space: nowrap;
+}
+
+.goods-ticket-price-box {
+  display: flex;
+  align-items: center;
+  gap: 1.2mm;
+}
+
+.ticket-rate-badge {
+  background: var(--color-primary-light);
+  border: 0.7pt solid var(--color-primary);
+  color: var(--color-primary-dark);
+  font-size: 6.6pt;
+  font-weight: 800;
+  padding: 0.3mm 1.8mm;
+  border-radius: 0.6mm;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8mm;
+  white-space: nowrap;
+}
+
+.ticket-usage-tag {
+  font-size: 6.0pt;
+  font-weight: 800;
+  padding: 0.2mm 1.2mm;
+  border-radius: 0.5mm;
+  white-space: nowrap;
+}
+
+.tag-talk {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 0.5pt solid #7dd3fc;
+}
+
+.tag-kuji {
+  background: #fef3c7;
+  color: #b45309;
+  border: 0.5pt solid #fcd34d;
+}
+
+.goods-limit-badge {
+  background: #fef2f2;
+  border: 0.6pt solid #ef4444;
+  color: #b91c1c;
+  font-size: 6.0pt;
+  font-weight: 800;
+  padding: 0.2mm 1.4mm;
+  border-radius: 0.6mm;
+  white-space: nowrap;
+}
+
+.goods-sub-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 6.3pt;
+  color: var(--color-text-sub);
+  line-height: 1.25;
+}
+
+/* STEP 2: 優先入場 ＆ 会場レイアウト案内（優先観覧券の有無・条件明示） */
+.card-step-map {
+  background: var(--color-card-bg);
+  border: 1.2pt solid var(--color-border);
+  border-radius: 2mm;
+  display: flex;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.map-content-row,
+.entry-layout-row {
+  flex: 1;
+  padding: 1.1mm 2.4mm;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 2.5mm;
+  width: 100%;
+}
+
+.map-text-col,
+.entry-text-col {
+  flex: 1 1 58%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.6mm;
+}
+
+.priority-status-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.2mm;
+}
+
+.badge-priority-yes {
+  background: #15803d;
+  color: #ffffff;
+  font-size: 7.0pt;
+  font-weight: 900;
+  padding: 0.3mm 2mm;
+  border-radius: 0.6mm;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8mm;
+  white-space: nowrap;
+}
+
+.badge-priority-condition {
+  background: #fef3c7;
+  color: #92400e;
+  border: 0.6pt solid #f59e0b;
+  font-size: 6.3pt;
+  font-weight: 800;
+  padding: 0.2mm 1.5mm;
+  border-radius: 0.6mm;
+  white-space: nowrap;
+}
+
+.badge-priority-time {
+  background: var(--color-primary-dark);
+  color: #ffffff;
+  font-size: 6.3pt;
+  font-weight: 800;
+  padding: 0.2mm 1.5mm;
+  border-radius: 0.6mm;
+  white-space: nowrap;
+}
+
+.badge-free-available {
+  background: var(--color-bg-sub);
+  color: var(--color-text-main);
+  border: 0.5pt solid var(--color-border);
+  font-size: 6.0pt;
+  font-weight: 700;
+  padding: 0.2mm 1.2mm;
+  border-radius: 0.6mm;
+  white-space: nowrap;
+}
+
+.map-info-list {
+  font-size: 6.3pt;
+  color: var(--color-text-sub);
+  line-height: 1.3;
+  list-style: none;
+  padding-left: 0;
+  margin-top: 0.2mm;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6mm;
+}
+
+.map-info-list li,
+.map-info-item {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 1.2mm;
+  list-style: none;
+}
+
+.map-info-tag {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-weight: 800;
+  font-size: 5.6pt;
+  padding: 0.2mm 1.4mm;
+  border-radius: 0.5mm;
+  white-space: nowrap;
+  flex-shrink: 0;
+  border: 0.4pt solid var(--color-border-light, var(--color-border));
+}
+
+.map-info-tag.priority {
+  background: #fef08a;
+  color: #854d0e;
+  border-color: #ca8a04;
+}
+
+.map-info-tag.alert {
+  background: var(--color-accent-light, #fee2e2);
+  color: var(--color-accent, #dc2626);
+  border-color: var(--color-accent, #dc2626);
+}
+
+.map-info-desc {
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+
+.map-figure-col,
+.entry-map-col {
+  flex: 0 0 40%;
+  max-width: 40%;
+  min-width: 38mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 0.6pt solid var(--color-border);
+  border-radius: 1.5mm;
+  padding: 0.8mm;
+}
+
+.floor-map-img,
+.map-figure {
+  width: 100%;
+  height: auto;
+  max-height: 48mm;
+  display: block;
+}
+
+/* STEP 3: ミニライブ（ライブ時間・撮影禁止アラートの強調） */
+.card-step-live {
+  background: #ffffff;
+  border: 1.5pt solid var(--color-primary);
+  border-radius: 2.2mm;
+  display: flex;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.time-col-duration {
+  font-size: 5.6pt;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  margin-top: 0.3mm;
+  white-space: nowrap;
+}
+
+.live-body-layout {
+  flex: 1;
+  padding: 1.6mm 2.8mm;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2.5mm;
+}
+
+.live-text-area {
+  flex: 1;
+}
+
+.live-main-title {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5mm;
+}
+
+.live-name-heading {
+  font-size: 10.4pt;
+  font-weight: 900;
+  color: var(--color-primary-dark);
+}
+
+.live-duration-pill {
+  background: #fef08a;
+  border: 0.8pt solid #ca8a04;
+  color: #854d0e;
+  font-size: 7.6pt;
+  font-weight: 900;
+  padding: 0.3mm 2.2mm;
+  border-radius: 0.8mm;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8mm;
+  white-space: nowrap;
+}
+
+.live-free-badge {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  border: 0.6pt solid var(--color-primary);
+  font-size: 6.8pt;
+  font-weight: 800;
+  padding: 0.3mm 1.8mm;
+  border-radius: 0.8mm;
+  white-space: nowrap;
+}
+
+.live-photo-alert {
+  font-size: 6.8pt;
+  color: var(--color-secondary);
+  font-weight: 700;
+  margin-top: 0.4mm;
+  display: flex;
+  align-items: center;
+  gap: 1mm;
+}
+
+/* STEP 4: 特典会（主役②・最大区画・スペース最大確保） */
+.card-step-tokuten {
+  background: #ffffff;
+  border: 1.8pt solid var(--color-primary-dark);
+  border-radius: 2.8mm;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  flex: 1 1 auto;
+}
+
+.tokuten-header-bar {
+  background: var(--color-primary-dark);
+  color: #ffffff;
+  padding: 1.6mm 3.2mm;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tokuten-header-title {
+  font-weight: 900;
+  font-size: 9.6pt;
+  display: flex;
+  align-items: center;
+  gap: 1.5mm;
+}
+
+.tokuten-header-tag {
+  font-size: 7.0pt;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.22);
+  padding: 0.3mm 2.2mm;
+  border-radius: 0.8mm;
+}
+
+.tokuten-body {
+  padding: 2.0mm 3.0mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.8mm;
+  flex: 1 1 auto;
+}
+
+/* チームレーン案内行 */
+.tokuten-lanes-row {
+  display: flex;
+  gap: 2.2mm;
+}
+
+.tokuten-lanes-row > .lane-box {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.lane-box {
+  border: 0.8pt solid var(--color-border);
+  border-radius: 1.4mm;
+  padding: 1.2mm 2.0mm;
+  background: var(--color-bg-sub);
+  display: flex;
+  align-items: center;
+  gap: 1.8mm;
+}
+
+.lane-box-title {
+  font-weight: 800;
+  font-size: 7.4pt;
+  white-space: nowrap;
+}
+
+.lane-box-members {
+  font-size: 6.8pt;
+  font-weight: 700;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.0mm;
+}
+
+/* 特典会テーブル */
+.table-tokuten {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 7.2pt;
+  line-height: 1.34;
+}
+
+.table-tokuten th {
+  background: var(--color-bg-sub);
+  color: var(--color-text-main);
+  font-weight: 900;
+  font-size: 7.2pt;
+  padding: 1.0mm 1.8mm;
+  border: 0.6pt solid var(--color-border);
+  text-align: left;
+}
+
+.table-tokuten td {
+  padding: 1.3mm 1.8mm;
+  border: 0.6pt solid var(--color-border);
+  vertical-align: middle;
+}
+
+.table-tokuten tr:nth-child(even) td {
+  background: #fdfdfd;
+}
+
+/* 実施順バッジ */
+.order-badge {
+  font-size: 7.0pt;
+  font-weight: 900;
+  padding: 0.4mm 1.6mm;
+  border-radius: 0.7mm;
+  display: inline-block;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.order-first {
+  background: #b45309;
+  color: #ffffff;
+}
+
+.order-second {
+  background: #475569;
+  color: #ffffff;
+}
+
+/* 特典券必要枚数バッジ（数字と価格の強調） */
+.tokuten-ticket-count-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8mm 1.2mm;
+  border-radius: 1mm;
+  line-height: 1.1;
+}
+
+.count-2 {
+  background: #fef3c7;
+  border: 1.0pt solid #d97706;
+  color: #92400e;
+}
+
+.count-1 {
+  background: #f1f5f9;
+  border: 1.0pt solid #94a3b8;
+  color: #334155;
+}
+
+.count-num {
+  font-family: var(--font-num);
+  font-size: 13.5pt;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.count-unit {
+  font-size: 7.0pt;
+  font-weight: 800;
+}
+
+.count-price {
+  font-size: 6.4pt;
+  font-weight: 800;
+  opacity: 0.9;
+}
+
+/* 推し運検定 内訳サブテーブル */
+.kuji-subtable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.0mm;
+  font-size: 6.8pt;
+  background: #ffffff;
+}
+
+.kuji-subtable th {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-weight: 900;
+  font-size: 6.8pt;
+  padding: 0.7mm 1.4mm;
+  border: 0.5pt solid var(--color-border);
+}
+
+.kuji-subtable td {
+  padding: 0.8mm 1.4mm;
+  border: 0.5pt solid var(--color-border);
+}
+
+/* くじ賞品タグ（色分け） */
+.kuji-prize-tag {
+  display: inline-block;
+  font-size: 7.0pt;
+  font-weight: 900;
+  padding: 0.3mm 1.8mm;
+  border-radius: 0.6mm;
+  white-space: nowrap;
+}
+
+.prize-oshi {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 0.5pt solid #f87171;
+}
+
+.prize-back {
+  background: #fef3c7;
+  color: #92400e;
+  border: 0.5pt solid #f59e0b;
+}
+
+.prize-3shot {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 0.5pt solid #38bdf8;
+}
+
+.prize-solo {
+  background: #f3e8ff;
+  color: #6b21a8;
+  border: 0.5pt solid #c084fc;
+}
+
+.prize-group {
+  background: #dcfce7;
+  color: #166534;
+  border: 0.5pt solid #4ade80;
+}
+
+/* 特典会イラストサムネイルストリップ */
+.tokuten-visuals-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.6mm;
+  background: var(--color-bg-sub);
+  border: 0.5pt solid var(--color-border);
+  border-radius: 1.2mm;
+  padding: 1.2mm 1.8mm;
+}
+
+.tokuten-visual-item {
+  display: flex;
+  align-items: center;
+  gap: 1.2mm;
+  background: #ffffff;
+  border: 0.5pt solid var(--color-border);
+  border-radius: 1mm;
+  padding: 0.8mm 1.4mm;
+  flex: 1;
+}
+
+.tokuten-thumb {
+  width: 14mm;
+  height: 11mm;
+  object-fit: cover;
+  border-radius: 0.6mm;
+  display: block;
+}
+
+.tokuten-thumb-text {
+  font-size: 6.2pt;
+  line-height: 1.22;
+}
+
+.tokuten-thumb-title {
+  font-weight: 900;
+  font-size: 6.6pt;
+  color: var(--color-primary-dark);
+}
+
+.tokuten-thumb-sub {
+  color: var(--color-text-sub);
+  font-size: 5.6pt;
+}
+
+/* 特典会進行フローバー（ステップ順・ハイライト・注記） */
+.tokuten-flow-bar {
+  background: var(--color-primary-light);
+  border: 0.7pt solid var(--color-primary);
+  border-radius: 0.8mm;
+  padding: 0.6mm 1.6mm;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 6.0pt;
+  gap: 1.0mm;
+}
+
+.flow-title {
+  font-weight: 900;
+  color: var(--color-primary-dark);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.flow-step-box {
+  display: flex;
+  align-items: center;
+  gap: 1.0mm;
+  flex: 1;
+  justify-content: space-around;
+}
+
+.flow-step {
+  font-weight: 800;
+  color: var(--color-text-main);
+  white-space: nowrap;
+}
+
+.flow-step.flow-highlight {
+  color: var(--color-accent);
+  font-weight: 900;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0.15mm 1.0mm;
+  border-radius: 0.4mm;
+  border: 0.5pt solid var(--color-accent);
+}
+
+.flow-arrow {
+  color: var(--color-primary);
+  font-weight: 900;
+}
+
+.flow-note {
+  font-size: 5.6pt;
+  color: var(--color-accent);
+  font-weight: 800;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* 特典会 4大重要ルールカード（アイコングリッド：公式禁止事項を網羅） */
+
+.tokuten-rules-card {
+  display: flex;
+  gap: 1.8mm;
+  background: #ffffff;
+  border: 1.0pt solid var(--color-secondary);
+  border-radius: 1.4mm;
+  padding: 1.3mm 2.2mm;
+}
+
+.tokuten-rule-col {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 1.4mm;
+  font-size: 6.6pt;
+  line-height: 1.25;
+}
+
+.rule-icon-box {
+  flex-shrink: 0;
+  width: 5.5mm;
+  height: 5.5mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rule-text-box {
+  display: flex;
+  flex-direction: column;
+}
+
+.rule-title-bold {
+  font-weight: 900;
+  color: var(--color-secondary);
+  font-size: 7.2pt;
+  white-space: nowrap;
+}
+
+.rule-desc-sub {
+  font-size: 6.0pt;
+  color: var(--color-text-sub);
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   2部制（複数回公演）差分ダブルテーブル（左右独立書き分け）
+   ========================================================================== */
+.tokutenkai-double-table {
+  display: flex;
+  gap: 2.2mm;
+  width: 100%;
+}
+
+.session-box {
+  flex: 1 1 0;
+  min-width: 0;
+  background: var(--session-box-bg, var(--color-bg-sub, #f8fafc));
+  border: 0.8pt solid var(--session-box-border, var(--color-border, #cbd5e1));
+  border-radius: 1.6mm;
+  padding: 1.4mm 2.0mm;
+  display: flex;
+  flex-direction: column;
+}
+
+.session-title-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.2mm;
+  padding-bottom: 0.8mm;
+  border-bottom: 0.6pt solid var(--color-border, #e2e8f0);
+}
+
+.session-badge {
+  font-size: 7.4pt;
+  font-weight: 900;
+  color: #ffffff;
+  background: var(--session-badge-bg, var(--color-primary-dark, #1e3a8a));
+  padding: 0.4mm 2.0mm;
+  border-radius: 0.8mm;
+  white-space: nowrap;
+}
+
+.session-time {
+  font-size: 6.4pt;
+  font-weight: 700;
+  color: var(--color-text-sub, #475569);
+  white-space: nowrap;
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.0mm;
+  flex: 1 1 auto;
+}
+
+.menu-item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.4mm;
+  font-size: 6.8pt;
+  line-height: 1.34;
+  padding: 0.8mm 0;
+  border-bottom: 0.5pt dashed var(--color-border, #e2e8f0);
+}
+
+.menu-item-row:last-child {
+  border-bottom: none;
+}
+
+.ticket-tag {
+  flex-shrink: 0;
+  width: 14mm;
+  text-align: center;
+  padding: 0.4mm 0;
+  border-radius: 0.6mm;
+  font-size: 6.3pt;
+  font-weight: 900;
+  background: var(--ticket-tag-bg, #fee2e2);
+  color: var(--ticket-tag-text, #b91c1c);
+  border: 0.5pt solid var(--ticket-tag-border, #fca5a5);
+}
+
+.ticket-free {
+  background: #dcfce7;
+  color: #15803d;
+  border-color: #86efac;
+}
+
+.menu-item-desc {
+  flex: 1;
+  min-width: 0;
+}
+
+.menu-name {
+  font-weight: 800;
+  color: var(--color-text-main);
+  margin-right: 1.2mm;
+}
+
+.menu-detail-text {
+  font-size: 6.2pt;
+  color: var(--color-text-sub);
+  margin-top: 0.3mm;
+  line-height: 1.3;
+}
+
+.menu-detail-list {
+  margin: 0.3mm 0 0;
+  padding-left: 1.0em;
+  font-size: 6.2pt;
+  color: var(--color-text-sub);
+}
+
+/* レーングリッド・タグ */
+.laser-lane-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 5.9pt;
+  font-weight: 800;
+  padding: 0.2mm 1.2mm;
+  border-radius: 0.6mm;
+  margin-top: 0.4mm;
+  margin-right: 0.8mm;
+  white-space: nowrap;
+}
+
+.pill-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 5.9pt;
+  font-weight: 800;
+  padding: 0.2mm 1.2mm;
+  border-radius: 0.6mm;
+  white-space: nowrap;
+}
+
+.pill-blue   { background: #e0f2fe; color: #0284c7; border: 0.5pt solid #7dd3fc; }
+.pill-green  { background: #dcfce7; color: #15803d; border: 0.5pt solid #86efac; }
+.pill-amber  { background: #fef3c7; color: #b45309; border: 0.5pt solid #fde047; }
+.pill-red    { background: #fee2e2; color: #b91c1c; border: 0.5pt solid #fca5a5; }
+.pill-purple { background: #f3e8ff; color: #7e22ce; border: 0.5pt solid #d8b4fe; }
+.pill-orange { background: #ffedd5; color: #c2410c; border: 0.5pt solid #fdba74; }
+
+.tokuten-rules-strip {
+  display: flex;
+  align-items: center;
+  gap: 1.2mm;
+  flex-wrap: wrap;
+}
+
+.tokuten-rule-pill {
+  font-size: 6.2pt;
+  font-weight: 800;
+  padding: 0.3mm 1.6mm;
+  border-radius: 0.6mm;
+  background: #fef2f2;
+  color: #991b1b;
+  border: 0.5pt solid #fecaca;
+  white-space: nowrap;
+}
+
+/* 特典会共通情報ストリップ（手荷物・進行・体調案内） */
+.tokuten-info-strip {
+  display: flex;
+  gap: 1.2mm;
+  width: 100%;
+}
+
+.tokuten-info-item {
+  flex: 1 1 0;
+  min-width: 0;
+  background: #f8fafc;
+  padding: 0.8mm 1.4mm;
+  border-radius: 0.6mm;
+  border-left: 1.2pt solid var(--color-primary);
+  border: 0.5pt solid var(--color-border);
+  border-left-width: 1.5pt;
+  border-left-color: var(--color-primary);
+}
+
+.info-label {
+  font-size: 5.6pt;
+  font-weight: 900;
+  color: var(--color-text-main);
+  display: block;
+  margin-bottom: 0.2mm;
+}
+
+.info-desc {
+  font-size: 5.0pt;
+  line-height: 1.3;
+  color: var(--color-text-sub);
+  display: block;
+}
+
+
+
+/* ==========================================================================
+   3. ボトムグリッド（注意事項 ＆ 公式ベクターQRコード：下部寄せ配置）
+   ========================================================================== */
+.bottom-grid {
+  margin-top: auto;
+  display: flex;
+  gap: 2mm;
+  background: var(--color-card-bg);
+  border: 1.0pt solid var(--color-border);
+  border-radius: 1.8mm;
+  padding: 1.4mm 2.4mm;
+  flex-shrink: 0;
+}
+
+.bottom-col-rules {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.bottom-block-title {
+  font-size: 6.6pt;
+  font-weight: 800;
+  color: var(--color-text-main);
+  display: flex;
+  align-items: center;
+  gap: 1mm;
+  margin-bottom: 0.6mm;
+  padding-bottom: 0.2mm;
+  border-bottom: 0.5pt solid var(--color-border);
+}
+
+.bottom-list-rules {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4mm;
+}
+
+.bottom-list-rules li {
+  position: relative;
+  padding-left: 1.1em;
+  font-size: 6.0pt;
+  line-height: 1.28;
+  color: var(--color-text-sub);
+}
+
+.bottom-list-rules li::before {
+  content: "・";
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--color-primary);
+  font-weight: 800;
+}
+
+/* QRコードブロック */
+.bottom-col-qr {
+  flex: 0 0 38mm;
+  width: 38mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  justify-content: flex-start;
+}
+
+.qr-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4mm;
+  background: #ffffff;
+  padding: 0.6mm;
+  border: 0.5pt solid var(--color-border);
+  border-radius: 1.2mm;
+  width: 100%;
+}
+
+/* 【極めて重要・絶対禁止】
+   imgタグ自体には padding, border, border-radius を絶対に付与しないこと！ */
+.qr-image {
+  width: 15.5mm;
+  height: 15.5mm;
+  display: block;
+  padding: 0;
+  border: none;
+}
+
+.qr-caption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2mm;
+}
+
+.qr-alert {
+  font-size: 5.2pt;
+  font-weight: 800;
+  color: var(--color-secondary);
+  line-height: 1.15;
+}
+
+.qr-label {
+  font-size: 5.4pt;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  line-height: 1.15;
+}
+
+.qr-link {
+  font-size: 5.0pt;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-decoration: underline;
+  line-height: 1.2;
+  word-break: break-all;
+}
+
+/* ==========================================================================
+   4. フッター免責バー（最下部配置）
+   ========================================================================== */
+.footer-disclaimer {
+  background: var(--color-bg-sub);
+  border: 0.5pt solid var(--color-border);
+  border-radius: 0.8mm;
+  padding: 0.5mm 1.8mm;
+  font-size: 5.4pt;
+  line-height: 1.2;
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-top: 0.8mm;
+  flex-shrink: 0;
+}
+
+.footer-disclaimer-tag {
+  font-weight: 800;
+  color: var(--color-secondary);
+  margin-right: 0.8mm;
+}
+
+/* ==========================================================================
+   汎用ベクターSVGアイコン用スタイル（絵文字完全代替）
+   ========================================================================== */
+.icon-svg {
+  width: 1.15em;
+  height: 1.15em;
+  vertical-align: -0.2em;
+  display: inline-block;
+}
+
+.icon-svg-badge {
+  width: 1.0em;
+  height: 1.0em;
+  vertical-align: -0.15em;
+  display: inline-block;
+  margin-right: 0.3mm;
+}
+
+.icon-svg-loc {
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: -0.22em;
+  display: inline-block;
+  margin-right: 0.3mm;
+}
+
+.rule-icon-svg {
+  width: 4.5mm;
+  height: 4.5mm;
+  display: block;
+  margin-bottom: 0.3mm;
+}
+
+.badge-step-new {
+  display: inline-block;
+  background: #16a34a;
+  color: #ffffff;
+  font-size: 5pt;
+  font-weight: 900;
+  padding: 0.2mm 0.8mm;
+  border-radius: 0.4mm;
+  letter-spacing: -0.02em;
+}
+

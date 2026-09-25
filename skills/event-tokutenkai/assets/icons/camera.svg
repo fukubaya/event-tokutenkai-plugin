@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <!-- Camera Body -->
+  <path d="M12 16 L16 11 L32 11 L36 16 L40 16 C42.2 16 44 17.8 44 20 L44 36 C44 38.2 42.2 40 40 40 L8 40 C5.8 40 4 38.2 4 36 L4 20 C4 17.8 5.8 16 8 16 Z" fill="#334155"/>
+  <!-- Flash / Top dial -->
+  <rect x="18" y="8" width="6" height="3" rx="1" fill="#64748b"/>
+  <!-- Lens outer -->
+  <circle cx="24" cy="27" r="10" fill="#1e293b"/>
+  <!-- Lens reflection -->
+  <circle cx="24" cy="27" r="7" fill="#38bdf8"/>
+  <circle cx="26" cy="25" r="2.5" fill="#ffffff" opacity="0.8"/>
+  <!-- OK Badge -->
+  <circle cx="36" cy="35" r="8" fill="#10b981"/>
+  <path d="M32 35 L35 38 L40 32" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

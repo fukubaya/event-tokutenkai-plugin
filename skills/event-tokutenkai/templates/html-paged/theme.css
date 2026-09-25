@@ -1,0 +1,121 @@
+/* ==========================================================================
+   Design Tokens / Theme Configuration
+   カラーパレット、余白、フォントなどの設定を一元管理するファイル
+   ========================================================================== */
+
+:root {
+  /* 印刷物理サイズ（A4縦） */
+  --page-width: 210mm;
+  --page-height: 297mm;
+  --page-padding-v: 6mm;
+  --page-padding-h: 7mm;
+
+  /* カラーセット（ブランド・テーマカラー） */
+  --color-primary: #1a73e8;          /* メインアクセントカラー（見出し、主要バッジ） */
+  --color-primary-dark: #1557b0;     /* メインカラー（濃・タイトル・強調文字） */
+  --color-primary-light: #e8f0fe;    /* メインカラー（淡・背景ハイライト） */
+  --color-secondary: #e11d48;        /* アラート・注目アクセント（注意、赤バッジ） */
+  --color-secondary-light: #ffe4e6;  /* アラート淡背景 */
+  --color-gold: #f59e0b;             /* 特典会・プレミアムアクセント */
+
+  --color-text-main: #1e293b;        /* 本文文字色 */
+  --color-text-sub: #475569;         /* 補足説明文字色 */
+  --color-text-muted: #64748b;       /* 注釈・注記文字色 */
+  
+  --color-bg-body: #f8fafc;          /* 全体背景（背景画像未指定時のフォールバック） */
+  --color-card-bg: #ffffff;          /* カードソリッド背景色（※透過漏れ防止） */
+  --color-bg-sub: #f1f5f9;           /* 表ヘッダー・薄いグレー背景 */
+  --color-border: #cbd5e1;           /* 境界線・区切り線 */
+  --color-border-bold: #94a3b8;      /* カード外枠ボーダー */
+
+  /* 背景画像（AI生成またはSVG/CSSパターン） */
+  --bg-image: none;                  /* 例: url("bg-autumn.jpg") */
+
+  /* ==========================================================================
+     フォント・タイポグラフィ選定プリセット
+     Mac / Windows のOS標準インストールフォント（ヒラギノ、游ゴシック、游明朝、Impact等）を
+     最優先で活用し、外部Webフォント（Google Fonts等）と組み合わせてオフライン・高速・高品質を両立
+     ========================================================================== */
+
+  /* [選定パターン1: ポップ＆スクール・モダン] モダン角ゴシック + ジオメトリック欧文 (デフォルト) */
+  --font-body: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", sans-serif;
+  --font-display: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", sans-serif;
+  --font-num: "Jost", "Helvetica Neue", Arial, "Segoe UI", sans-serif;
+
+  /* [選定パターン2: 優美・透明感・愛・気品] しっぽり明朝／ヒラギノ明朝 + クラシカルセリフ欧文
+     --font-body: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+     --font-display: "Shippori Mincho", "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+     --font-num: "Cormorant Garamond", "Times New Roman", "Georgia", serif;
+  */
+
+  /* [選定パターン3: ライブハウス・フェス・熱気] 極太角ゴシック + コンデンスド欧文（Impact / Oswald）
+     --font-body: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
+     --font-display: "Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif;
+     --font-num: "Impact", "Oswald", "Arial Black", "Helvetica Neue", sans-serif;
+  */
+
+  /* [選定パターン4: キュート・アイドル・親しみ] ポップ丸ゴシック + ラウンド欧文
+     --font-body: "Hiragino Maru Gothic ProN", "Zen Maru Gothic", "BIZ UDPGothic", "Meiryo", sans-serif;
+     --font-display: "Hiragino Maru Gothic ProN", "Zen Maru Gothic", "BIZ UDPGothic", "Meiryo", sans-serif;
+     --font-num: "Quicksand", "Arial Rounded MT Bold", "Nunito", "Helvetica Neue", sans-serif;
+  */
+
+  /* 余白・スペーシング */
+  --space-xs: 1.5mm;
+  --space-sm: 3mm;
+  --space-md: 6mm;
+  --space-lg: 10mm;
+
+  /* 2部制ダブルテーブル用トークン */
+  --session-box-bg: #f8fafc;
+  --session-box-border: #cbd5e1;
+  --session-badge-bg: var(--color-primary-dark);
+  --ticket-tag-bg: #fee2e2;
+  --ticket-tag-text: #b91c1c;
+  --ticket-tag-border: #fca5a5;
+}
+
+/* ==========================================================================
+   メンバーカラーチップ定義サンプル
+   公式プロフィール等でカラーが定義されている場合は各メンバー色を設定
+   ========================================================================== */
+.member-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2mm 1.4mm;
+  border-radius: 1mm;
+  font-size: 6.2pt;
+  font-weight: 700;
+  line-height: 1.25;
+  background: #f1f5f9;
+  color: #334155;
+  border: 0.5pt solid #cbd5e1;
+}
+
+/* メンバーカラー定義（デザイントークン） */
+.m-red         { background: #fee2e2; color: #b91c1c; border: 0.5pt solid #fca5a5; }
+.m-blue        { background: #e0f2fe; color: #0284c7; border: 0.5pt solid #38bdf8; }
+.m-yellow      { background: #fef9c3; color: #a16207; border: 0.5pt solid #fde047; }
+.m-green       { background: #dcfce7; color: #15803d; border: 0.5pt solid #86efac; }
+.m-pink        { background: #fce7f3; color: #be185d; border: 0.5pt solid #f472b6; }
+.m-purple      { background: #f3e8ff; color: #7e22ce; border: 0.5pt solid #c084fc; }
+.m-orange      { background: #ffedd5; color: #c2410c; border: 0.5pt solid #fb923c; }
+.m-lightblue   { background: #e0f7fa; color: #00838f; border: 0.5pt solid #26c6da; }
+.m-mint        { background: #d1fae5; color: #065f46; border: 0.5pt solid #6ee7b7; }
+.m-lavender    { background: #ede9fe; color: #5b21b6; border: 0.5pt solid #a78bfa; }
+.m-white       { background: #f8fafc; color: #334155; border: 0.5pt solid #cbd5e1; }
+.m-black       { background: #18181b; color: #ffffff; border: 0.5pt solid #3f3f46; }
+
+
+/* メンバーカラーなし（未設定）グループ用 組分け・チームチップ */
+.team-chip {
+  display: inline-flex;
+  align-items: center;
+  background: #f1f5f9;
+  color: #334155;
+  border: 0.6pt solid #94a3b8;
+  font-size: 6.5pt;
+  font-weight: 800;
+  padding: 0.2mm 1.5mm;
+  border-radius: 1mm;
+}

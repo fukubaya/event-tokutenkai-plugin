@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>イベント＆特典会 告知フライヤー テンプレート</title>
+  <!-- Google Fonts: タイポグラフィ選定に応じたWebフォント
+       ※Vivliostyle CLIクラッシュ防止のため、ウェイトは必要最小限（例: wght@700,900等）に絞ること
+       【代表的なフォント選定パターン】
+       - パターン1 (モダン・ポップ): Jost (欧文数字) + Noto Sans JP (角ゴシック) [デフォルト]
+         family=Jost:wght@700;900&family=Noto+Sans+JP:wght@500;700;900
+       - パターン2 (優美・クラシカル): Cormorant Garamond (欧文) + Shippori Mincho (明朝)
+         family=Cormorant+Garamond:wght@600;700&family=Shippori+Mincho:wght@700
+       - パターン3 (熱気・ライブ): Oswald (コンデンスド欧文) + Noto Sans JP
+         family=Oswald:wght@700&family=Noto+Sans+JP:wght@700;900
+       - パターン4 (キュート・学園): Quicksand (ラウンド欧文) + Zen Maru Gothic (丸ゴシック)
+         family=Quicksand:wght@700&family=Zen+Maru+Gothic:wght@700;900
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@700;900&family=Noto+Sans+JP:wght@500;700;900&display=swap" rel="stylesheet">
+  <!-- テーマ定義（デザイントークン）とレイアウト -->
+  <link rel="stylesheet" href="theme.css">
+  <link rel="stylesheet" href="layout.css">
+</head>
+<body>
+
+<div class="poster-wrapper">
+
+  <!-- ========================================================================
+       1. ヘッダー（タイトル ＆ 出演者 ＆ 会場情報 ＆ 日時バッジ）
+       ※ヘッダーにはAIバッジを置かず、来場者最重要情報（タイトル・出演者・会場・日時）に集中
+       ======================================================================== -->
+  <header class="poster-header">
+    <div class="header-left-col">
+      <div class="header-badge-row">
+        <span class="header-tag-pill">SPECIAL RELEASE EVENT</span>
+        <span class="header-sub-tag">観覧無料！ミニライブ ＆ 特典会</span>
+      </div>
+      <h1 class="header-main-title">
+        ニューシングル発売記念リリースイベント
+      </h1>
+      
+      <!-- 出演者チップ一覧（メンバーカラーまたは組分けチップ） -->
+      <div class="header-members-line">
+        <span style="font-weight: 800; color: var(--color-primary-dark);">出演：</span>
+        <span class="member-chip m-red">メンバーA (赤)</span>
+        <span class="member-chip m-blue">メンバーB (青)</span>
+        <span class="member-chip m-yellow">メンバーC (黄)</span>
+        <span class="member-chip m-green">メンバーD (緑)</span>
+        <span class="member-chip m-pink">メンバーE (桃)</span>
+        <span class="member-chip m-purple">メンバーF (紫)</span>
+        <!-- ※メンバーカラー未設定グループの場合は .team-chip を使用 -->
+      </div>
+
+      <!-- 開催場所行（タイムラインからヘッダー内に集約・統合） -->
+      <div class="header-loc-row">
+        <span class="loc-badge">📍 開催場所</span>
+        <span class="loc-name">〇〇ホール 1F イベントスペース</span>
+        <span class="loc-addr">（東京都〇〇区〇〇1-2-3）</span>
+        <span class="loc-note">※開場12:30／集合12:15／早朝待機・徹夜禁止</span>
+      </div>
+    </div>
+
+    <!-- 日時・会場バッジ -->
+    <div class="header-date-badge">
+      <div class="date-badge-year">2026年 AUTUMN</div>
+      <div class="date-badge-day">10.15 <span style="font-size: 11pt;">(日)</span></div>
+      <div class="date-badge-venue">📍 〇〇ホール 1F</div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       2. 時系列タイムライン（時系列順の厳守 ＆ 2部制並記集約）
+       ======================================================================== -->
+  <main class="timeline-container">
+
+    <!-- STEP 1: 対象商品販売 -->
+    <div class="card-step-standard">
+      <div class="time-col-unified">
+        <span class="time-col-val">10:30〜</span>
+        <span class="time-col-label">販売開始</span>
+      </div>
+      <div class="standard-content-row">
+        <div>
+          <div class="standard-content-title">🛍️ 対象商品 販売：ニューシングル「〇〇」</div>
+          <div style="font-size: 7.2pt; color: var(--color-text-sub); margin-top: 0.5mm;">
+            価格：<strong>¥1,200</strong> (税込) ／ ご購入ごとに<strong>「特典券」</strong>＋<strong>「優先入場券」</strong>先着配布（1会計上限あり）。
+          </div>
+        </div>
+        <div style="text-align: right; color: var(--color-text-sub); white-space: nowrap;">
+          <strong>場所：</strong>特設カウンター ／ <strong>決済：</strong>現金・クレカ・各種キャッシュレス
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: 優先入場 ＆ 会場レイアウト（フロアマップSVG埋め込み・2部制並記） -->
+    <div class="card-step-map">
+      <div class="time-col-unified">
+        <span class="time-col-val multi-time">12:30 / 15:30</span>
+        <span class="time-col-label">開場・整列</span>
+      </div>
+      <div class="entry-layout-row">
+        <div class="entry-text-col">
+          <div class="standard-content-title" style="display: flex; align-items: center; justify-content: space-between;">
+            <span>🎫 優先観覧エリア入場 ＆ 会場レイアウト案内</span>
+            <span style="background: var(--color-primary-light); color: var(--color-primary-dark); font-size: 6.8pt; font-weight: 800; padding: 0.3mm 1.8mm; border-radius: 1mm;">
+              一般フリー観覧あり
+            </span>
+          </div>
+          <div class="map-info-list" style="margin-top: 0.8mm;">
+            <div class="map-info-item">
+              <span class="map-info-tag">優先入場</span>
+              <span class="map-info-desc">各部開演15分前集合（【1部】12:30 / 【2部】15:30）。整理番号順にご案内。</span>
+            </div>
+            <div class="map-info-item">
+              <span class="map-info-tag priority">女性専用</span>
+              <span class="map-info-desc">優先エリア内に女性・小学生以下のお子様優先エリアあり。</span>
+            </div>
+            <div class="map-info-item">
+              <span class="map-info-tag alert">フリー入場</span>
+              <span class="map-info-desc">各部開演10分前に集合。優先入場終了後、スペース余裕時のみご案内。</span>
+            </div>
+          </div>
+
+        </div>
+        <div class="entry-map-col">
+          <!-- 会場レイアウト図SVG（縦長ベクター構成） -->
+          <svg viewBox="0 0 140 100" xmlns="http://www.w3.org/2000/svg" class="map-figure">
+            <rect x="0" y="0" width="140" height="100" fill="#f8fafc" rx="4"/>
+            <!-- ステージ -->
+            <rect x="15" y="4" width="110" height="18" fill="#1e293b" rx="2"/>
+            <text x="70" y="16" fill="#ffffff" font-size="7.5" font-weight="bold" text-anchor="middle">STAGE（ステージ）</text>
+            <!-- 優先エリア & 女性専用エリア -->
+            <rect x="15" y="26" width="70" height="38" fill="#dbeafe" stroke="#93c5fd" stroke-width="0.8" rx="2"/>
+            <text x="50" y="47" fill="#1e40af" font-size="6.5" font-weight="bold" text-anchor="middle">優先観覧エリア</text>
+            <rect x="88" y="26" width="37" height="38" fill="#fce7f3" stroke="#f472b6" stroke-width="0.8" rx="2"/>
+            <text x="106.5" y="43" fill="#be185d" font-size="6.0" font-weight="bold" text-anchor="middle">女性専用</text>
+            <text x="106.5" y="51" fill="#be185d" font-size="5.5" font-weight="bold" text-anchor="middle">エリア</text>
+            <!-- 一般フリー観覧エリア -->
+            <rect x="15" y="68" width="110" height="26" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="0.8" rx="2"/>
+            <text x="70" y="83" fill="#475569" font-size="6.5" font-weight="bold" text-anchor="middle">一般フリー観覧エリア</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3: ミニライブ（主役①・2部制並記） -->
+    <div class="card-step-live">
+      <div class="time-col-unified" style="background: var(--color-primary-light); border-right-color: var(--color-primary);">
+        <span class="time-col-val multi-time" style="color: var(--color-primary-dark);">13:00 / 16:00</span>
+        <span class="time-col-label" style="background: var(--color-primary); color: #ffffff;">LIVE START</span>
+      </div>
+      <div class="live-body-layout">
+        <div class="live-text-area">
+          <div class="live-main-title">🎤 スペシャル・ミニライブ（観覧無料・各部約30分）</div>
+          <div style="font-size: 7.2pt; color: var(--color-text-sub); margin-top: 0.6mm;">
+            【1部】13:00〜 ／ 【2部】16:00〜 開演！ ライブ中には<strong>「静止画撮影可能（撮可）TIME」</strong>を特別実施！<br>
+            <span style="font-size: 6.8pt; color: var(--color-secondary); font-weight: 700;">※撮可TIME以外のライブ中の録音・録画・撮影は一切禁止です。フラッシュ・三脚等は使用できません。</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4: 特典会（主役②・2部制差分ダブルテーブル・隙間ない詳細記述） -->
+    <div class="card-step-tokuten">
+      <div class="tokuten-header-bar">
+        <span style="font-weight: 800; font-size: 8.5pt;">🎁 各部ミニライブ終了後〜 特典会レギュレーション</span>
+        <div class="tokuten-rules-strip">
+          <span class="tokuten-rule-pill">🚫 接触禁止</span>
+          <span class="tokuten-rule-pill">🚫 物持たせ禁止</span>
+          <span class="tokuten-rule-pill">🚫 しゃがみ禁止</span>
+          <span class="tokuten-rule-pill">📱 スマホ限定</span>
+        </div>
+      </div>
+      <div class="tokuten-body">
+        
+        <!-- 2部制左右差分ダブルテーブル -->
+        <div class="tokutenkai-double-table">
+          
+          <!-- 1部 特典会 -->
+          <div class="session-box">
+            <div class="session-title-bar">
+              <span class="session-badge">【1部】特典会メニュー</span>
+              <span class="session-time">1部ライブ終了後（列途切れ次第終了）</span>
+            </div>
+            <div class="menu-list">
+              <div class="menu-item-row">
+                <span class="ticket-tag">特典券 1枚</span>
+                <div class="menu-item-desc">
+                  <span class="menu-name">全員お見送り会</span>
+                  <span class="pill-tag pill-green">立ち止まり不可</span>
+                  <div class="menu-detail-text">出演メンバー全員によるお見送り。手ぶらで連続して前にお進みください。</div>
+                </div>
+              </div>
+              <div class="menu-item-row">
+                <span class="ticket-tag">特典券 2枚</span>
+                <div class="menu-item-desc">
+                  <span class="menu-name">個別2ショット撮影会</span>
+                  <span class="pill-tag pill-blue">スタッフが撮影</span>
+                  <div class="menu-detail-text">
+                    希望メンバー1名と2ショット撮影。足元マーク厳守。<br>
+                    <span class="laser-lane-tag pill-blue">第1レーン: メンバーA・B</span>
+                    <span class="laser-lane-tag pill-orange">第2レーン: メンバーC・D</span>
+                    <span class="laser-lane-tag pill-purple">第3レーン: メンバーE・F</span>
+                  </div>
+                </div>
+              </div>
+              <div class="menu-item-row">
+                <span class="ticket-tag">特典券 3枚</span>
+                <div class="menu-item-desc">
+                  <span class="menu-name">動画撮影付き全員お見送り会</span>
+                  <span class="pill-tag pill-red">動画のみOK</span>
+                  <div class="menu-detail-text">スタッフの合図で最前列から録画開始。スマホを片手に持ち歩きながら進みます。</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2部 特典会 -->
+          <div class="session-box">
+            <div class="session-title-bar">
+              <span class="session-badge">【2部】特典会メニュー</span>
+              <span class="session-time">2部ライブ終了後（列途切れ次第終了）</span>
+            </div>
+            <div class="menu-list">
+              <div class="menu-item-row">
+                <span class="ticket-tag">特典券 1枚</span>
+                <div class="menu-item-desc">
+                  <span class="menu-name">全員お見送り会</span>
+                  <span class="pill-tag pill-green">立ち止まり不可</span>
+                  <div class="menu-detail-text">出演メンバー全員によるお見送り。手ぶらで連続して前にお進みください。</div>
+                </div>
+              </div>
+              <div class="menu-item-row">
+                <span class="ticket-tag">特典券 1枚</span>
+                <div class="menu-item-desc">
+                  <span class="menu-name">個別お話し会</span>
+                  <span class="pill-tag pill-amber">1枚15秒・まとめ出し可</span>
+                  <div class="menu-detail-text">ご希望のメンバー1名と机越しに対面トーク（タイマー計時・最大5枚までまとめ出し可）。</div>
+                </div>
+              </div>
+              <div class="menu-item-row">
+                <span class="ticket-tag">特典券 2枚</span>
+                <div class="menu-item-desc">
+                  <span class="menu-name">個別2ショット撮影会</span>
+                  <span class="pill-tag pill-blue">スタッフが撮影</span>
+                  <div class="menu-detail-text">
+                    希望メンバー1名と2ショット撮影。足元マーク厳守。<br>
+                    <span class="laser-lane-tag pill-blue">第1: メンバーA・B</span>
+                    <span class="laser-lane-tag pill-orange">第2: メンバーC・D</span>
+                    <span class="laser-lane-tag pill-purple">第3: メンバーE・F</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+
+        <!-- 特典会進行フローバー（ステップ順） -->
+        <div class="tokuten-flow-bar">
+          <span class="flow-title">参加の流れ</span>
+          <div class="flow-step-box">
+            <span class="flow-step">① 特典券準備</span>
+            <span class="flow-arrow">➔</span>
+            <span class="flow-step">② レーン整列</span>
+            <span class="flow-arrow">➔</span>
+            <span class="flow-step flow-highlight">③ 手荷物預け</span>
+            <span class="flow-arrow">➔</span>
+            <span class="flow-step">④ 撮影・お話し</span>
+            <span class="flow-arrow">➔</span>
+            <span class="flow-step">⑤ 交代・退場</span>
+          </div>
+          <span class="flow-note">※列途切れ次第終了</span>
+        </div>
+
+        <!-- 特典会 4大重要ルールカード（アイコングリッド） -->
+        <div class="tokuten-rules-card">
+          <div class="tokuten-rule-col">
+            <div class="rule-icon-box">📱</div>
+            <div class="rule-text-box">
+              <span class="rule-title-bold">スマホ限定</span>
+              <span class="rule-desc-sub">標準カメラアプリのみ</span>
+            </div>
+          </div>
+          <div class="tokuten-rule-col">
+            <div class="rule-icon-box">🤝❌</div>
+            <div class="rule-text-box">
+              <span class="rule-title-bold">接触禁止</span>
+              <span class="rule-desc-sub">メンバー・衣装への接触NG</span>
+            </div>
+          </div>
+          <div class="tokuten-rule-col">
+            <div class="rule-icon-box">❌</div>
+            <div class="rule-text-box">
+              <span class="rule-title-bold">小道具持たせ禁止</span>
+              <span class="rule-desc-sub">背後撮影・しゃがみNG</span>
+            </div>
+          </div>
+          <div class="tokuten-rule-col">
+            <div class="rule-icon-box">🎒📦</div>
+            <div class="rule-text-box">
+              <span class="rule-title-bold">手ぶら整列</span>
+              <span class="rule-desc-sub">荷物は手前のカゴへ</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 特典会共通注意＆現場案内ストリップ -->
+        <div class="tokuten-info-strip">
+          <div class="tokuten-info-item">
+            <span class="info-label">🎒 手荷物管理</span>
+            <span class="info-desc">整列直前にカゴ・テーブルをご用意。完全手ぶらでご参加いただき、終了毎にお持ち帰りください。</span>
+          </div>
+          <div class="tokuten-info-item">
+            <span class="info-label">📢 進行状況</span>
+            <span class="info-desc">公式Xアカウントにてリアルタイムでご案内。混雑・天候等により進行順が変更となる場合があります。</span>
+          </div>
+          <div class="tokuten-info-item">
+            <span class="info-label">☀️ 体調・安全</span>
+            <span class="info-desc">こまめな水分補給をお願いします。体調不良を感じた場合は無理をせずお近くのスタッフへお声がけください。</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ========================================================================
+       3. ボトムグリッド（注意事項 ＆ 公式詳細ベクターQRブロック）
+       ======================================================================== -->
+  <section class="bottom-grid">
+    <!-- 注意事項（セマンティックな ul/li によるぶら下がりインデント） -->
+    <div class="bottom-col-rules">
+      <div class="bottom-block-title">
+        <span>⛔ イベント参加における注意事項・マナー</span>
+      </div>
+      <ul class="bottom-list-rules">
+        <li><strong>手荷物管理：</strong>会場内にロッカーはありません。手荷物は各自管理をお願いします。</li>
+        <li><strong>観覧マナー：</strong>過度なジャンプ、リフト、モッシュ、周囲の視界を遮る行為は禁止です。</li>
+        <li><strong>施設への配慮：</strong>近隣店舗・商業施設への迷惑行為、早朝待機・座り込みは固くお断りします。</li>
+        <li><strong>体調管理：</strong>こまめな水分補給を行い、体調不良時はお近くのスタッフへお声がけください。</li>
+      </ul>
+    </div>
+
+    <!-- 公式詳細QRコードブロック -->
+    <div class="bottom-col-qr">
+      <div class="bottom-block-title" style="justify-content: center; width: 100%;">
+        <span>📱 公式詳細情報</span>
+      </div>
+      <div class="qr-container">
+        <!-- 【最重要】imgタグに直接 padding, border を付与しないこと！ -->
+        <img src="qr.svg" class="qr-image" alt="公式イベント詳細ページQRコード">
+        <div class="qr-caption">
+          <span class="qr-alert">必ず元サイトを確認</span>
+          <span class="qr-label">公式詳細・最新情報</span>
+          <a href="https://example.com/event/" class="qr-link">example.com/event/</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       4. フッター免責バー（AI自動生成・非公式案内の集約明記）
+       ======================================================================== -->
+  <footer class="footer-disclaimer">
+    <span class="footer-disclaimer-tag">【AI生成・非公式】</span>本資料はAIにより自動生成された非公式の参考まとめです。主催・運営公式の案内ではありません。誤記や変更の可能性があるため、<strong>正しい最新情報は必ず公式サイトをご確認ください。</strong>
+  </footer>
+
+</div>
+
+</body>
+</html>

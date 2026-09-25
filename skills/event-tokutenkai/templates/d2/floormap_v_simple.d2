@@ -1,0 +1,46 @@
+# D2 Floor Map Template: 縦型シンプル3段構成（上: Stage ➔ 中: 優先 ➔ 下: フリー）
+# 吉祥寺パルコ等の標準的な商業施設・屋上ステージ向け
+direction: down
+
+wrapper: " " {
+  grid-columns: 1
+  grid-rows: 3
+  style.fill: transparent
+  style.stroke: transparent
+  horizontal-gap: 6
+  vertical-gap: 6
+
+  stage: "STAGE (ステージ)" {
+    style: {
+      fill: "#0f172a"
+      stroke: "#0284c7"
+      font-color: "#ffffff"
+      font-size: 14
+      bold: true
+      border-radius: 4
+    }
+  }
+
+  priority: "優先観覧エリア\n【整理番号順に入場】" {
+    style: {
+      fill: "#eff6ff"
+      stroke: "#3b82f6"
+      font-color: "#1d4ed8"
+      font-size: 13
+      bold: true
+      border-radius: 4
+    }
+  }
+
+  free: "一般フリー観覧エリア (観覧無料)" {
+    style: {
+      fill: "#f8fafc"
+      stroke: "#94a3b8"
+      stroke-dash: 4
+      font-color: "#475569"
+      font-size: 12
+      bold: true
+      border-radius: 4
+    }
+  }
+}

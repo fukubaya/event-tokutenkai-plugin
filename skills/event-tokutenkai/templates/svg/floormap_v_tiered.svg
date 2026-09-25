@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 82" width="100%" height="100%" style="display: block; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;">
+  <!-- 背景カード -->
+  <rect x="0" y="0" width="150" height="82" fill="#ffffff" rx="3" stroke="#cbd5e1" stroke-width="0.8"/>
+
+  <!-- ステージ（最前方） -->
+  <rect x="4" y="4" width="142" height="13" fill="#18181b" rx="2"/>
+  <text x="75" y="13.2" fill="#ffffff" font-size="6.8" font-weight="900" text-anchor="middle" letter-spacing="0.06em">STAGE (B1F CUTUP STUDIO)</text>
+
+  <!-- 女性・子ども用エリア（前方一部） -->
+  <rect x="4" y="19.5" width="142" height="12.5" fill="#fdf2f8" stroke="#ec4899" stroke-width="0.9" stroke-dasharray="2.5 1.2" rx="2"/>
+  <text x="75" y="28" fill="#be185d" font-size="5.5" font-weight="900" text-anchor="middle">★ 前方に女性・子ども用エリア設置（同伴保護者・女性対象）</text>
+
+  <!-- 優先観覧エリア（中央・主役） -->
+  <rect x="4" y="34.5" width="142" height="26" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.1" rx="2"/>
+  <text x="75" y="46.5" fill="#1d4ed8" font-size="7.0" font-weight="900" text-anchor="middle">優先観覧エリア（整理番号順入場）</text>
+  <text x="75" y="55" fill="#2563eb" font-size="5.0" font-weight="bold" text-anchor="middle">【12:30 集合 ｜ 集合遅れは最後尾からの入場となります】</text>
+
+  <!-- フリー入場・後方観覧エリア -->
+  <rect x="4" y="63" width="142" height="15" fill="#f8fafc" stroke="#94a3b8" stroke-width="0.8" rx="2"/>
+  <text x="75" y="70.5" fill="#475569" font-size="5.0" font-weight="bold" text-anchor="middle">フリー入場エリア（12:50 1F階段前集合 ｜ 観覧無料）</text>
+  <text x="75" y="76" fill="#64748b" font-size="4.2" font-weight="normal" text-anchor="middle">※優先観覧券の配券状況により入場制限・実施なしの場合あり</text>
+</svg>

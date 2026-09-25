@@ -1,0 +1,67 @@
+# D2 Floor Map Template: グリッド箱区切り型（優先エリア前方特設：グルショ等）
+# 公式イベント図面準拠のカラーパレットを適用
+direction: right
+
+wrapper: " " {
+  grid-columns: 3
+  grid-rows: 1
+  style.fill: transparent
+  style.stroke: transparent
+  horizontal-gap: 6
+  vertical-gap: 6
+
+  stage: "Stage" {
+    style: {
+      fill: "#00a3e0"
+      stroke: "#0284c7"
+      font-color: "#ffffff"
+      font-size: 14
+      bold: true
+      border-radius: 4
+    }
+  }
+
+  priority: "優先エリア" {
+    label.near: top-center
+    grid-columns: 2
+    grid-rows: 1
+    horizontal-gap: 6
+    vertical-gap: 6
+    style: {
+      fill: "#fef9c3"
+      stroke: "#ca8a04"
+      font-color: "#854d0e"
+      font-size: 13
+      bold: true
+      border-radius: 6
+    }
+
+    group: "グループShot\n参加者\n優先エリア" {
+      style: {
+        fill: "#fdba74"
+        stroke: "#ea580c"
+        font-color: "#7c2d12"
+        font-size: 11
+        bold: true
+        border-radius: 4
+      }
+    }
+
+    e2: " " {
+      style.fill: transparent
+      style.stroke: transparent
+    }
+  }
+
+  free: "フリーエリア" {
+    style: {
+      fill: "#f8fafc"
+      stroke: "#94a3b8"
+      stroke-dash: 4
+      font-color: "#475569"
+      font-size: 12
+      bold: true
+      border-radius: 4
+    }
+  }
+}

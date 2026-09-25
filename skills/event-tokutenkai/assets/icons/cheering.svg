@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <!-- Megaphone Body -->
+  <path d="M10 18 L24 12 L24 32 L10 26 Z" fill="#2563eb"/>
+  <!-- Front Horn Flare -->
+  <path d="M24 12 L34 7 C35.5 6 37 7 37 9 L37 35 C37 37 35.5 38 34 37 L24 32 Z" fill="#3b82f6"/>
+  <!-- Front Ring -->
+  <ellipse cx="37" cy="22" rx="2" ry="14" fill="#60a5fa"/>
+  <!-- Handle -->
+  <path d="M14 26 L16 38 C16.5 40 18.5 41 20 40 L21 39 C22 38 22.5 36.5 22 35 L20 28" fill="#1e40af"/>
+  <!-- Sound Waves -->
+  <path d="M41 15 C43 19 43 25 41 29" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M44 11 C47 17 47 27 44 33" fill="none" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round"/>
+</svg>

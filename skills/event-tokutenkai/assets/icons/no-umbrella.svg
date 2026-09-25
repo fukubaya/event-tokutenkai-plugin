@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <!-- Umbrella -->
+  <path d="M24 10 C16 10 12 18 12 24 L36 24 C36 18 32 10 24 10 Z" fill="#475569"/>
+  <path d="M24 24 L24 34 C24 36 22 37 20 37 C18 37 17 36 17 34" fill="none" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M24 8 L24 10" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Prohibition sign -->
+  <circle cx="24" cy="24" r="20" fill="none" stroke="#ef4444" stroke-width="4"/>
+  <line x1="10" y1="10" x2="38" y2="38" stroke="#ef4444" stroke-width="4"/>
+</svg>

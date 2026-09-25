@@ -1,0 +1,128 @@
+# D2 Floor Map Template: グリッド箱区切り型（優先エリア内ネスト：新規・女性・カメラ）
+# 公式イベント図面準拠のカラーパレットを適用
+direction: right
+
+wrapper: " " {
+  grid-columns: 4
+  grid-rows: 1
+  style.fill: transparent
+  style.stroke: transparent
+  horizontal-gap: 6
+  vertical-gap: 6
+
+  stage: "Stage" {
+    style: {
+      fill: "#00a3e0"
+      stroke: "#0284c7"
+      font-color: "#ffffff"
+      font-size: 14
+      bold: true
+      border-radius: 4
+    }
+  }
+
+  child: "お子様保護者\nエリア(座)" {
+    style: {
+      fill: "#ffedd5"
+      stroke: "#fb923c"
+      font-color: "#9a3412"
+      font-size: 11
+      bold: true
+      border-radius: 4
+    }
+  }
+
+  priority: "優先エリア" {
+    label.near: top-center
+    grid-columns: 3
+    grid-rows: 3
+    horizontal-gap: 6
+    vertical-gap: 6
+    style: {
+      fill: "#fef9c3"
+      stroke: "#ca8a04"
+      font-color: "#854d0e"
+      font-size: 13
+      bold: true
+      border-radius: 6
+    }
+
+    # 列1 (左列: Stage寄り前方)
+    new: "新規エリア" {
+      style: {
+        fill: "#bbf7d0"
+        stroke: "#22c55e"
+        font-color: "#166534"
+        font-size: 11
+        bold: true
+        border-radius: 4
+      }
+    }
+
+    e1: " " {
+      style.fill: transparent
+      style.stroke: transparent
+    }
+
+    female: "女性エリア" {
+      style: {
+        fill: "#fbcfe8"
+        stroke: "#f472b6"
+        font-color: "#9d174d"
+        font-size: 11
+        bold: true
+        border-radius: 4
+      }
+    }
+
+    # 列2 (中列: 中央)
+    e2: " " {
+      style.fill: transparent
+      style.stroke: transparent
+    }
+
+    e3: " " {
+      style.fill: transparent
+      style.stroke: transparent
+    }
+
+    camera: "カメラエリア" {
+      style: {
+        fill: "#cbd5e1"
+        stroke: "#94a3b8"
+        font-color: "#334155"
+        font-size: 11
+        bold: true
+        border-radius: 4
+      }
+    }
+
+    # 列3 (右列: フリー寄り後方)
+    e4: " " {
+      style.fill: transparent
+      style.stroke: transparent
+    }
+
+    e5: " " {
+      style.fill: transparent
+      style.stroke: transparent
+    }
+
+    e6: " " {
+      style.fill: transparent
+      style.stroke: transparent
+    }
+  }
+
+  free: "フリーエリア" {
+    style: {
+      fill: "#f8fafc"
+      stroke: "#94a3b8"
+      stroke-dash: 4
+      font-color: "#475569"
+      font-size: 12
+      bold: true
+      border-radius: 4
+    }
+  }
+}
