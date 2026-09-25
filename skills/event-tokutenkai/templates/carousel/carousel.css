@@ -1,0 +1,1199 @@
+/* ==========================================================================
+   Event & Tokutenkai 4-Card Carousel Stylesheet (SNS / Mobile Optimized)
+   全カード A4縦長（210×297mm）、共通ヘッダー（現在地バッジなし・単体成立）、
+   スマホ1画面で流し見しても即座に読めるジャンプ率・特大フォント・ゆったり配置
+   ========================================================================== */
+
+/* 印刷・PDF基本設定（A4縦） */
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  font-family: var(--font-body);
+  font-size: 7.5pt;
+  line-height: 1.35;
+  color: var(--color-text-main);
+  -webkit-font-smoothing: antialiased;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  background-color: var(--color-bg-body);
+}
+
+/* インラインSVGアイコン */
+.inline-icon {
+  width: 1.15em;
+  height: 1.15em;
+  vertical-align: -0.2em;
+  display: inline-block;
+  margin-right: 2px;
+}
+
+/* カルーセルコンテナ */
+.carousel-container {
+  width: 100%;
+}
+
+/* 各スライドページ（厳密に1ページで改ページ・A4サイズ） */
+.carousel-slide {
+  page-break-after: always;
+  break-after: page;
+  width: var(--page-width, 210mm);
+  height: var(--page-height, 297mm);
+  padding: var(--page-padding-v, 6mm) var(--page-padding-h, 7mm);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-body, #f8fafc);
+  background-image: var(--bg-image, none);
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+  position: relative;
+}
+
+.carousel-slide:last-child {
+  page-break-after: auto;
+  break-after: auto;
+}
+
+/* ==========================================================================
+   全カード共通ヘッダー（単体保存・拡散でも完全自立）
+   ※現在地バッジはなし
+   ========================================================================== */
+.slide-header {
+  background: var(--color-card-bg, #ffffff);
+  border: 1.5pt solid var(--color-border-bold, #94a3b8);
+  border-radius: 2.5mm;
+  padding: 1.8mm 2.8mm;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2.5mm;
+  flex-shrink: 0;
+}
+
+.header-left-col {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8mm;
+}
+
+.header-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5mm;
+}
+
+.header-tag-pill {
+  background: var(--color-primary-dark, #1557b0);
+  color: #ffffff;
+  font-size: 6.8pt;
+  font-weight: 800;
+  padding: 0.4mm 2mm;
+  border-radius: 0.8mm;
+  letter-spacing: 0.04em;
+  display: inline-block;
+}
+
+.header-sub-tag {
+  background: var(--color-primary-light, #e8f0fe);
+  border: 0.6pt solid var(--color-primary, #1a73e8);
+  color: var(--color-primary-dark, #1557b0);
+  font-size: 6.5pt;
+  font-weight: 800;
+  padding: 0.3mm 1.8mm;
+  border-radius: 0.8mm;
+}
+
+.header-main-title {
+  font-family: var(--font-display);
+  font-size: 13.5pt;
+  font-weight: 900;
+  color: var(--color-primary-dark, #1557b0);
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+}
+
+.header-members-line {
+  font-size: 6.5pt;
+  font-weight: 700;
+  color: var(--color-text-sub, #475569);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.2mm;
+  margin-top: 0.2mm;
+}
+
+.header-loc-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.2mm;
+  background: var(--color-bg-sub, #f1f5f9);
+  border: 0.8pt solid var(--color-border, #cbd5e1);
+  padding: 0.8mm 1.8mm;
+  border-radius: 1mm;
+  font-size: 6.3pt;
+  line-height: 1.25;
+  margin-top: 0.4mm;
+}
+
+.loc-badge {
+  background: var(--color-primary, #1a73e8);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 6.2pt;
+  padding: 0.3mm 1.6mm;
+  border-radius: 0.6mm;
+  white-space: nowrap;
+}
+
+.loc-name-prominent {
+  font-size: 8.8pt;
+  font-weight: 900;
+  color: var(--color-primary-dark, #1557b0);
+  background: #ffffff;
+  border: 0.8pt solid var(--color-primary, #1a73e8);
+  padding: 0.2mm 2.2mm;
+  border-radius: 0.8mm;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.loc-addr {
+  color: var(--color-text-sub, #475569);
+  white-space: nowrap;
+}
+
+.loc-note {
+  color: var(--color-text-muted, #64748b);
+  font-size: 5.8pt;
+}
+
+.header-right-col {
+  display: flex;
+  align-items: stretch;
+  gap: 2mm;
+  flex-shrink: 0;
+}
+
+.header-date-badge {
+  background: var(--color-primary-dark, #1557b0);
+  color: #ffffff;
+  border-radius: 2mm;
+  padding: 1.8mm 2.8mm;
+  text-align: center;
+  min-width: 27mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.date-badge-year {
+  font-size: 6.2pt;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  opacity: 0.92;
+}
+
+.date-badge-day {
+  font-family: var(--font-num);
+  font-size: 14pt;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.date-badge-venue {
+  font-size: 6.8pt;
+  font-weight: 900;
+  margin-top: 0.5mm;
+  background: #ffffff;
+  color: var(--color-primary-dark, #1557b0);
+  padding: 0.3mm 1mm;
+  border-radius: 0.6mm;
+  letter-spacing: -0.01em;
+}
+
+/* ヘッダー内QR＆URLボックス */
+.header-qr-box {
+  background: #ffffff;
+  border: 1pt solid var(--color-border-bold, #94a3b8);
+  border-radius: 2mm;
+  padding: 1.2mm 1.8mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-width: 22mm;
+}
+
+.header-qr-img {
+  width: 14mm;
+  height: 14mm;
+  display: block;
+}
+
+.header-qr-label {
+  margin-top: 0.6mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.15;
+}
+
+.qr-label-official {
+  font-size: 6pt;
+  font-weight: 900;
+  color: var(--color-primary-dark, #1557b0);
+  letter-spacing: 0.02em;
+}
+
+.qr-label-url {
+  font-size: 5pt;
+  font-weight: 700;
+  color: var(--color-text-muted, #64748b);
+}
+
+/* スライド固有のテーマ見出しバー（ヘッダー直下） */
+.slide-theme-bar {
+  background: var(--color-primary-light, #e8f0fe);
+  border: 1pt solid var(--color-primary, #1a73e8);
+  border-radius: 1.8mm;
+  padding: 1.2mm 3mm;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.8mm;
+  flex-shrink: 0;
+}
+
+.slide-theme-title {
+  font-family: var(--font-display);
+  font-size: 10pt;
+  font-weight: 900;
+  color: var(--color-primary-dark, #1557b0);
+  display: flex;
+  align-items: center;
+  gap: 1.5mm;
+}
+
+.slide-theme-tag {
+  background: var(--color-primary-dark, #1557b0);
+  color: #ffffff;
+  font-size: 6.8pt;
+  font-weight: 800;
+  padding: 0.3mm 1.8mm;
+  border-radius: 0.8mm;
+  letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   スライド1：超集約サマリー専用スタイル
+   ========================================================================== */
+.slide-1-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 3.5mm;
+  margin-top: 2.5mm;
+  min-height: 0;
+}
+
+/* ハイライトリボン（観覧無料、撮可、新規特典） */
+.summary-ribbon {
+  display: flex;
+  gap: 2.5mm;
+  flex-shrink: 0;
+}
+
+.summary-ribbon-item {
+  flex: 1;
+  background: var(--color-card-bg, #ffffff);
+  border: 1.2pt solid var(--color-border-bold, #94a3b8);
+  border-radius: 2mm;
+  padding: 2.2mm 2.8mm;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5mm;
+  font-size: 10.2pt;
+  font-weight: 900;
+  color: var(--color-primary-dark, #1557b0);
+  white-space: nowrap;
+}
+
+.summary-ribbon-item.alert {
+  border-color: var(--color-secondary, #e11d48);
+  background: var(--color-secondary-light, #ffe4e6);
+  color: var(--color-secondary, #e11d48);
+}
+
+.summary-ribbon-item.gold {
+  border-color: var(--color-gold, #f59e0b);
+  background: #fef3c7;
+  color: #b45309;
+}
+
+/* 超大型タイムラインカード（スライド1：項目間を詰めて縦を圧縮） */
+.summary-timeline-card {
+  flex: 0 0 auto;
+  background: var(--color-card-bg, #ffffff);
+  border: 1.5pt solid var(--color-border-bold, #94a3b8);
+  border-radius: 2.8mm;
+  padding: 2.5mm 4.5mm;
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-timeline-row {
+  display: flex;
+  align-items: center;
+  gap: 3.5mm;
+  padding: 1.5mm 0;
+  border-bottom: 0.8pt dashed var(--color-border, #cbd5e1);
+}
+
+.summary-timeline-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.summary-timeline-row:first-child {
+  padding-top: 0;
+}
+
+.summary-time-badge {
+  flex-shrink: 0;
+  width: 40mm;
+  background: var(--color-bg-sub, #f1f5f9);
+  border: 1.2pt solid var(--color-border, #cbd5e1);
+  border-radius: 1.8mm;
+  padding: 1.2mm 2.2mm;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.summary-time-badge.live-time {
+  background: var(--color-primary-light, #e8f0fe);
+  border-color: var(--color-primary, #1a73e8);
+}
+
+.summary-time-badge.live-time .summary-time-val {
+  color: var(--color-primary-dark, #1557b0);
+}
+
+.summary-time-val {
+  font-family: var(--font-num);
+  font-size: 19pt;
+  font-weight: 900;
+  line-height: 1.05;
+  color: var(--color-text-main, #1e293b);
+}
+
+.summary-time-val.multi {
+  font-size: 15pt;
+}
+
+.summary-time-label {
+  font-size: 8.5pt;
+  font-weight: 800;
+  color: var(--color-text-sub, #475569);
+  margin-top: 0.3mm;
+}
+
+.summary-content-col {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.summary-content-title {
+  font-family: var(--font-display);
+  font-size: 14.5pt;
+  font-weight: 900;
+  color: var(--color-text-main, #1e293b);
+  display: flex;
+  align-items: center;
+  gap: 2mm;
+  line-height: 1.2;
+}
+
+/* 販売開始部分の特典券配布条件バッジ */
+.summary-sales-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 1mm;
+  background: #fef3c7;
+  border: 1pt solid #f59e0b;
+  color: #b45309;
+  font-family: var(--font-base);
+  font-size: 8.8pt;
+  font-weight: 800;
+  padding: 0.5mm 2.4mm;
+  border-radius: 1mm;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+/* 目玉特典会サマリーカード（スライド1：スペース最大化） */
+.summary-tokuten-card {
+  flex: 1 1 auto;
+  background: var(--color-card-bg, #ffffff);
+  border: 1.5pt solid var(--color-border-bold, #94a3b8);
+  border-radius: 2.8mm;
+  padding: 3.5mm 5mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.summary-tokuten-title {
+  font-family: var(--font-display);
+  font-size: 13pt;
+  font-weight: 900;
+  color: var(--color-primary-dark, #1557b0);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2mm;
+}
+
+/* 先行無料枠ハイライトリボン */
+.summary-tokuten-free-bar {
+  background: #fef3c7;
+  border: 1.2pt solid #fde047;
+  border-radius: 1.5mm;
+  padding: 1.5mm 3.5mm;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 9.2pt;
+  font-weight: 800;
+  color: #b45309;
+  margin-bottom: 2.5mm;
+}
+
+.summary-illust-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3.5mm;
+  flex: 1;
+}
+
+.summary-illust-item {
+  border: 1.2pt solid var(--color-border, #cbd5e1);
+  border-radius: 2.5mm;
+  background: #ffffff;
+  padding: 2.5mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+}
+
+.summary-illust-img-wrap {
+  width: 100%;
+  height: 68mm;
+  background: #ffffff;
+  border-radius: 1.8mm;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.summary-illust-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.summary-illust-name {
+  font-size: 13.5pt;
+  font-weight: 900;
+  color: var(--color-text-main, #1e293b);
+  margin-top: 1.5mm;
+}
+
+.summary-illust-ticket {
+  display: inline-block;
+  background: var(--color-secondary-light, #ffe4e6);
+  border: 0.8pt solid var(--color-secondary, #e11d48);
+  color: var(--color-secondary, #e11d48);
+  font-size: 10.5pt;
+  font-weight: 800;
+  padding: 0.8mm 3.2mm;
+  border-radius: 1mm;
+  margin-top: 1.5mm;
+  white-space: nowrap;
+}
+
+.summary-illust-desc {
+  font-size: 8.8pt;
+  font-weight: 700;
+  color: var(--color-text-sub, #475569);
+  margin-top: 1.2mm;
+  line-height: 1.2;
+}
+
+/* ==========================================================================
+   スライド2：販売〜優先入場専用スタイル
+   ========================================================================== */
+.slide-2-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 3.5mm;
+  margin-top: 2.5mm;
+  min-height: 0;
+}
+
+/* 物販セクション大区画カード */
+.goods-section-card {
+  flex: 1 1 auto;
+  background: var(--color-card-bg, #ffffff);
+  border: 1.5pt solid var(--color-border-bold, #94a3b8);
+  border-radius: 2.8mm;
+  padding: 4mm 5mm;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5mm;
+}
+
+.section-card-title {
+  font-family: var(--font-display);
+  font-size: 13pt;
+  font-weight: 900;
+  color: var(--color-primary-dark, #1557b0);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1.2pt solid var(--color-primary-light, #e8f0fe);
+  padding-bottom: 1.8mm;
+  gap: 2mm;
+}
+
+/* 商品テーブル */
+.goods-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10pt;
+  margin-top: 1.5mm;
+}
+
+.goods-table th {
+  background: var(--color-bg-sub, #f1f5f9);
+  border: 0.8pt solid var(--color-border, #cbd5e1);
+  padding: 2.5mm 3.2mm;
+  font-weight: 900;
+  color: var(--color-text-main, #1e293b);
+  text-align: left;
+}
+
+.goods-table td {
+  border: 0.8pt solid var(--color-border, #cbd5e1);
+  padding: 3.8mm 3.2mm;
+  color: var(--color-text-main, #1e293b);
+}
+
+.goods-rule-badges-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2mm;
+  margin-top: 1.8mm;
+}
+
+.goods-rule-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 1mm;
+  font-size: 9.5pt;
+  font-weight: 800;
+  padding: 1.2mm 3mm;
+  border-radius: 1.2mm;
+  background: var(--color-bg-sub, #f1f5f9);
+  border: 0.8pt solid var(--color-border, #cbd5e1);
+  color: var(--color-text-main, #1e293b);
+  white-space: nowrap;
+}
+
+.goods-rule-badge.alert {
+  background: var(--color-secondary-light, #ffe4e6);
+  border-color: var(--color-secondary, #e11d48);
+  color: var(--color-secondary, #e11d48);
+}
+
+.goods-rule-badge.primary {
+  background: var(--color-primary-light, #e8f0fe);
+  border-color: var(--color-primary, #1a73e8);
+  color: var(--color-primary-dark, #1557b0);
+}
+
+/* 優先入場＆フロアマップ大区画カード */
+.entry-section-card {
+  flex: 1.55 1 auto;
+  background: var(--color-card-bg, #ffffff);
+  border: 1.5pt solid var(--color-border-bold, #94a3b8);
+  border-radius: 2.8mm;
+  padding: 4mm 5mm;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5mm;
+}
+
+.entry-grid-layout {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 4.5mm;
+  flex: 1;
+  min-height: 0;
+}
+
+.entry-details-col {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  gap: 2mm;
+  font-size: 9.5pt;
+}
+
+.entry-step-item {
+  background: var(--color-bg-sub, #f1f5f9);
+  border: 0.8pt solid var(--color-border, #cbd5e1);
+  border-radius: 2mm;
+  padding: 3.2mm 4mm;
+}
+
+.entry-step-item.highlight {
+  background: var(--color-primary-light, #e8f0fe);
+  border-color: var(--color-primary, #1a73e8);
+}
+
+.entry-step-title {
+  font-size: 11.5pt;
+  font-weight: 900;
+  color: var(--color-primary-dark, #1557b0);
+  display: flex;
+  align-items: center;
+  gap: 1.2mm;
+  margin-bottom: 0.8mm;
+}
+
+.entry-step-desc {
+  font-size: 9.2pt;
+  color: var(--color-text-sub, #475569);
+  line-height: 1.38;
+}
+
+.entry-map-container {
+  border: 1.2pt solid var(--color-border, #cbd5e1);
+  border-radius: 2.2mm;
+  background: #ffffff;
+  padding: 3mm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.entry-map-svg {
+  width: 100%;
+  height: 100%;
+  max-height: 115mm;
+  object-fit: contain;
+}
+
+/* ==========================================================================
+   スライド3：ライブ〜特典会詳細専用スタイル
+   ========================================================================== */
+.slide-3-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 3.5mm;
+  margin-top: 2.5mm;
+  min-height: 0;
+}
+
+/* ミニライブ＆撮可セクションカード（コンパクト化して特典会にスペースを譲る） */
+.live-section-card {
+  flex: 0 0 auto;
+  background: var(--color-card-bg, #ffffff);
+  border: 1.5pt solid var(--color-border-bold, #94a3b8);
+  border-radius: 2.8mm;
+  padding: 2.5mm 4.5mm;
+  display: flex;
+  flex-direction: column;
+  gap: 1.6mm;
+}
+
+.live-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2mm;
+}
+
+.camera-rule-box {
+  background: var(--color-primary-light, #e8f0fe);
+  border: 1.2pt solid var(--color-primary, #1a73e8);
+  border-radius: 1.8mm;
+  padding: 1.8mm 3.5mm;
+}
+
+.camera-rule-title {
+  font-size: 10.2pt;
+  font-weight: 900;
+  color: var(--color-primary-dark, #1557b0);
+  display: flex;
+  align-items: center;
+  gap: 1.5mm;
+  margin-bottom: 0.8mm;
+}
+
+.camera-rule-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.2mm 3.5mm;
+  font-size: 8.6pt;
+  color: var(--color-text-main, #1e293b);
+  line-height: 1.35;
+}
+
+/* 特典会詳細セクションカード（スペース最大化＆充実） */
+.tokuten-detail-card {
+  flex: 1 1 auto;
+  background: var(--color-card-bg, #ffffff);
+  border: 1.5pt solid var(--color-border-bold, #94a3b8);
+  border-radius: 2.8mm;
+  padding: 3.5mm 5mm;
+  display: flex;
+  flex-direction: column;
+  gap: 2.2mm;
+}
+
+/* スライド3：特典会イラストプレビュー行 */
+.tokuten-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3mm;
+}
+
+.tokuten-preview-item {
+  border: 1.2pt solid var(--color-border, #cbd5e1);
+  border-radius: 2mm;
+  background: #ffffff;
+  padding: 1.5mm 2.5mm;
+  display: flex;
+  align-items: center;
+  gap: 2.5mm;
+}
+
+.tokuten-preview-img-wrap {
+  width: 25mm;
+  height: 25mm;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tokuten-preview-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.tokuten-preview-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8mm;
+  min-width: 0;
+}
+
+.tokuten-preview-name {
+  font-size: 10.5pt;
+  font-weight: 900;
+  color: var(--color-text-main, #1e293b);
+  white-space: nowrap;
+}
+
+.tokuten-preview-ticket {
+  background: var(--color-secondary-light, #ffe4e6);
+  border: 0.8pt solid var(--color-secondary, #e11d48);
+  color: var(--color-secondary, #e11d48);
+  font-size: 8.8pt;
+  font-weight: 800;
+  padding: 0.4mm 2.2mm;
+  border-radius: 0.8mm;
+  white-space: nowrap;
+}
+
+/* 進行フローバー */
+.flow-progress-bar {
+  display: flex;
+  align-items: center;
+  gap: 1.5mm;
+  background: var(--color-bg-sub, #f1f5f9);
+  border: 0.8pt solid var(--color-border, #cbd5e1);
+  padding: 1.5mm 3mm;
+  border-radius: 1.5mm;
+  font-size: 9pt;
+  font-weight: 800;
+  color: var(--color-text-sub, #475569);
+  flex-wrap: wrap;
+}
+
+.flow-step-tag {
+  background: #ffffff;
+  border: 0.8pt solid var(--color-border, #cbd5e1);
+  padding: 0.5mm 2mm;
+  border-radius: 1mm;
+  color: var(--color-text-main, #1e293b);
+}
+
+.flow-step-tag.active {
+  background: var(--color-primary, #1a73e8);
+  color: #ffffff;
+  border-color: var(--color-primary-dark, #1557b0);
+}
+
+.flow-step-tag.gold {
+  background: #fef3c7;
+  color: #b45309;
+  border-color: #fde047;
+}
+
+/* ワイド特典会テーブル */
+.tokuten-detail-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.6pt;
+  flex: 1;
+}
+
+.tokuten-detail-table th {
+  background: var(--color-primary-light, #e8f0fe);
+  border: 0.8pt solid var(--color-border, #cbd5e1);
+  padding: 2.2mm 3.2mm;
+  font-weight: 900;
+  color: var(--color-primary-dark, #1557b0);
+  text-align: left;
+}
+
+.tokuten-detail-table td {
+  border: 0.8pt solid var(--color-border, #cbd5e1);
+  padding: 3.5mm 3.2mm;
+  color: var(--color-text-main, #1e293b);
+  vertical-align: middle;
+}
+
+.ticket-price-cell-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.8mm;
+}
+
+.ticket-tag-cell {
+  background: var(--color-secondary-light, #ffe4e6);
+  border: 0.8pt solid var(--color-secondary, #e11d48);
+  color: var(--color-secondary, #e11d48);
+  font-weight: 800;
+  font-size: 9.2pt;
+  padding: 0.6mm 2.4mm;
+  border-radius: 0.8mm;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.ticket-price-amount {
+  font-family: var(--font-num);
+  font-size: 9.5pt;
+  font-weight: 900;
+  color: #1e3a8a;
+  background: #eff6ff;
+  border: 0.6pt solid #bfdbfe;
+  padding: 0.3mm 1.8mm;
+  border-radius: 0.8mm;
+  display: inline-block;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+.ticket-price-amount.free {
+  color: #15803d;
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+/* 特典会現場マナーストリップ */
+.tokuten-manner-strip {
+  background: var(--color-bg-sub, #f1f5f9);
+  border: 1pt solid var(--color-border, #cbd5e1);
+  border-radius: 1.8mm;
+  padding: 2.2mm 3.5mm;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  font-size: 9.2pt;
+  font-weight: 800;
+  color: var(--color-text-sub, #475569);
+  flex-wrap: wrap;
+  gap: 1.5mm 3mm;
+}
+
+.tokuten-manner-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 1mm;
+}
+
+/* ==========================================================================
+   スライド4：全体総合フライヤー専用スタイル（0.1.0 と同様の構造）
+   ========================================================================== */
+.slide-4-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2.5mm;
+  margin-top: 2mm;
+  min-height: 0;
+}
+
+/* タイムラインコンテナ */
+.timeline-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2.2mm;
+  flex: 1 1 auto;
+}
+
+/* タイムライン共通カード */
+.card-step-standard,
+.card-step-map,
+.card-step-live,
+.card-step-tokuten {
+  background: var(--color-card-bg, #ffffff);
+  border: 1.2pt solid var(--color-border-bold, #94a3b8);
+  border-radius: 2mm;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.card-step-standard {
+  padding: 1.5mm 0;
+}
+
+.card-step-map {
+  padding: 1.8mm 0;
+}
+
+.card-step-live {
+  padding: 1.8mm 0;
+}
+
+.card-step-tokuten {
+  flex: 1.6 1 auto;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+.time-col-unified {
+  flex-shrink: 0;
+  width: 26mm;
+  background: var(--color-bg-sub, #f1f5f9);
+  border-right: 1pt solid var(--color-border, #cbd5e1);
+  padding: 1.5mm 1.5mm;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.time-col-val {
+  font-family: var(--font-num);
+  font-size: 11.5pt;
+  font-weight: 900;
+  color: var(--color-text-main, #1e293b);
+  line-height: 1.1;
+}
+
+.time-col-val.multi-time {
+  font-size: 9pt;
+}
+
+.time-col-label {
+  font-size: 6.5pt;
+  font-weight: 800;
+  color: var(--color-text-sub, #475569);
+  margin-top: 0.3mm;
+}
+
+.standard-content-row {
+  flex: 1 1 auto;
+  padding: 2mm 3mm;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2mm;
+}
+
+.standard-content-title {
+  font-family: var(--font-display);
+  font-size: 9pt;
+  font-weight: 900;
+  color: var(--color-text-main, #1e293b);
+}
+
+.entry-layout-row {
+  flex: 1 1 auto;
+  padding: 2mm 3mm;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 2.5mm;
+}
+
+.map-info-item {
+  display: flex;
+  align-items: center;
+  gap: 1.2mm;
+  font-size: 7pt;
+  margin-bottom: 0.8mm;
+}
+
+.map-info-tag {
+  background: var(--color-bg-sub, #f1f5f9);
+  border: 0.5pt solid var(--color-border, #cbd5e1);
+  padding: 0.3mm 1.5mm;
+  border-radius: 0.6mm;
+  font-weight: 800;
+  font-size: 6.2pt;
+  white-space: nowrap;
+}
+
+.map-info-tag.priority {
+  background: var(--color-primary-light, #e8f0fe);
+  color: var(--color-primary-dark, #1557b0);
+  border-color: var(--color-primary, #1a73e8);
+}
+
+.map-info-tag.alert {
+  background: var(--color-secondary-light, #ffe4e6);
+  color: var(--color-secondary, #e11d48);
+  border-color: var(--color-secondary, #e11d48);
+}
+
+.map-figure {
+  width: 100%;
+  height: 28mm;
+  border: 0.6pt solid var(--color-border, #cbd5e1);
+  border-radius: 1mm;
+}
+
+/* ライブカード */
+.live-layout-row {
+  flex: 1 1 auto;
+  padding: 2mm 3mm;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2mm;
+}
+
+/* 特典会カード（4枚目） */
+.tokuten-layout-row {
+  flex: 1 1 auto;
+  padding: 2mm 3mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.8mm;
+}
+
+.tokuten-visual-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2mm;
+}
+
+.tokuten-visual-item {
+  border: 0.8pt solid var(--color-border, #cbd5e1);
+  border-radius: 1.5mm;
+  padding: 1.2mm;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.tokuten-illust {
+  width: 100%;
+  height: 28mm;
+  object-fit: contain;
+  background: #ffffff;
+}
+
+.tokuten-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 7.5pt;
+}
+
+.tokuten-table th {
+  background: var(--color-bg-sub, #f1f5f9);
+  border: 0.5pt solid var(--color-border, #cbd5e1);
+  padding: 1.2mm 2mm;
+  font-weight: 800;
+  text-align: left;
+}
+
+.tokuten-table td {
+  border: 0.5pt solid var(--color-border, #cbd5e1);
+  padding: 1.8mm 2mm;
+}
+
+/* フッター・免責バー（4枚目：QRはヘッダーに統合済みのため全幅化） */
+.disclaimer-bar {
+  background: var(--color-card-bg, #ffffff);
+  border: 1pt solid var(--color-border-bold, #94a3b8);
+  border-radius: 1.8mm;
+  padding: 2.2mm 3.5mm;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  margin-top: 2mm;
+}
+
+.disclaimer-text-col {
+  flex: 1 1 auto;
+  font-size: 7.5pt;
+  color: var(--color-text-sub, #475569);
+  line-height: 1.4;
+}

@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 297" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fffbeb" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#fdf6ec" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#fef3c7" stop-opacity="0.8"/>
+    </linearGradient>
+
+    <!-- モミジ / カエデのパス定義 -->
+    <g id="maple-leaf">
+      <path d="M0,-12 C1,-8 3,-6 7,-9 C6,-5 7,-3 11,-4 C8,-1 8,2 10,5 C7,4 5,5 4,8 C3,5 1,4 0,7 C-1,4 -3,5 -4,8 C-5,5 -7,4 -10,5 C-8,2 -8,-1 -11,-4 C-7,-3 -6,-5 -7,-9 C-3,-6 -1,-8 0,-12 Z" />
+      <path d="M0,6 L0,12" stroke-width="1" stroke-linecap="round" fill="none" />
+    </g>
+
+    <!-- イチョウのパス定義 -->
+    <g id="ginkgo-leaf">
+      <path d="M0,8 C-2,3 -8,1 -10,-4 C-11,-7 -8,-9 -4,-9 C-1,-9 0,-6 0,-6 C0,-6 1,-9 4,-9 C8,-9 11,-7 10,-4 C8,1 2,3 0,8 Z" />
+      <path d="M0,8 C0,11 1,14 2,16" stroke-width="0.8" stroke-linecap="round" fill="none" />
+    </g>
+
+    <!-- どんぐりのパス定義 -->
+    <g id="acorn">
+      <path d="M-4,-2 C-4,-4 4,-4 4,-2 C5,-2 5,-1 4,0 L-4,0 C-5,-1 -5,-2 -4,-2 Z" fill="#78350f" opacity="0.6"/>
+      <path d="M-3.5,0 C-4,4 0,7 0,7 C0,7 4,4 3.5,0 Z" fill="#b45309" opacity="0.5"/>
+      <path d="M0,-4 L0,-6" stroke="#78350f" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.6"/>
+    </g>
+  </defs>
+
+  <!-- 全体背景 -->
+  <rect width="210" height="297" fill="#fcf9f2"/>
+  <rect width="210" height="297" fill="url(#bgGrad)"/>
+
+  <!-- 左上装飾（秋の葉） -->
+  <g transform="translate(14, 16) rotate(-20) scale(0.7)" fill="#b45309" stroke="#b45309" opacity="0.18">
+    <use href="#maple-leaf" />
+  </g>
+  <g transform="translate(28, 10) rotate(35) scale(0.6)" fill="#d97706" stroke="#d97706" opacity="0.2">
+    <use href="#ginkgo-leaf" />
+  </g>
+  <g transform="translate(8, 28) rotate(-45) scale(0.85)" opacity="0.3">
+    <use href="#acorn" />
+  </g>
+
+  <!-- 右上装飾 -->
+  <g transform="translate(196, 14) rotate(25) scale(0.75)" fill="#ea580c" stroke="#ea580c" opacity="0.16">
+    <use href="#maple-leaf" />
+  </g>
+  <g transform="translate(182, 8) rotate(-15) scale(0.65)" fill="#d97706" stroke="#d97706" opacity="0.22">
+    <use href="#ginkgo-leaf" />
+  </g>
+  <g transform="translate(202, 28) rotate(40) scale(0.9)" opacity="0.3">
+    <use href="#acorn" />
+  </g>
+
+  <!-- 左端・右端のアクセント（淡い葉） -->
+  <g transform="translate(6, 120) rotate(15) scale(0.55)" fill="#b45309" stroke="#b45309" opacity="0.12">
+    <use href="#maple-leaf" />
+  </g>
+  <g transform="translate(204, 160) rotate(-30) scale(0.5)" fill="#d97706" stroke="#d97706" opacity="0.14">
+    <use href="#ginkgo-leaf" />
+  </g>
+  <g transform="translate(5, 200) rotate(50) scale(0.7)" opacity="0.2">
+    <use href="#acorn" />
+  </g>
+
+  <!-- 左下装飾 -->
+  <g transform="translate(12, 284) rotate(-35) scale(0.75)" fill="#b45309" stroke="#b45309" opacity="0.18">
+    <use href="#maple-leaf" />
+  </g>
+  <g transform="translate(26, 288) rotate(20) scale(0.65)" fill="#d97706" stroke="#d97706" opacity="0.2">
+    <use href="#ginkgo-leaf" />
+  </g>
+  <g transform="translate(8, 270) rotate(-20) scale(0.8)" opacity="0.25">
+    <use href="#acorn" />
+  </g>
+
+  <!-- 右下装飾 -->
+  <g transform="translate(198, 282) rotate(45) scale(0.7)" fill="#ea580c" stroke="#ea580c" opacity="0.18">
+    <use href="#maple-leaf" />
+  </g>
+  <g transform="translate(184, 288) rotate(-25) scale(0.6)" fill="#d97706" stroke="#d97706" opacity="0.22">
+    <use href="#ginkgo-leaf" />
+  </g>
+  <g transform="translate(202, 268) rotate(30) scale(0.85)" opacity="0.28">
+    <use href="#acorn" />
+  </g>
+</svg>
