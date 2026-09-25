@@ -302,9 +302,11 @@ body {
   flex: 1 1 auto;
 }
 
-/* 共通統一時刻カラム */
+/* 共通統一時刻カラム（幅26mm固定・大きめ統一タイポグラフィ） */
 .time-col-unified {
-  width: 23mm;
+  width: 26mm;
+  min-width: 26mm;
+  max-width: 26mm;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -313,28 +315,61 @@ body {
   text-align: center;
   background: var(--color-bg-sub);
   border-right: 1.2pt solid var(--color-border);
-  padding: 1.1mm 1mm;
+  padding: 1.1mm 0.8mm;
+  gap: 0.4mm;
 }
 
 .time-col-val {
-  font-family: var(--font-num);
-  font-size: 10pt;
+  font-family: var(--font-num, var(--font-number, sans-serif));
+  font-size: 11.5pt;
   font-weight: 900;
-  line-height: 1.1;
+  line-height: 1.05;
   color: var(--color-text-main);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.02em;
+}
+
+/* 複数時刻表示（ミニライブ、特典会など） */
+.time-col-multi {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5mm;
+  width: 100%;
+}
+
+.time-row-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.6mm;
+  width: 100%;
+}
+
+.time-tag-mini {
+  font-size: 5.5pt;
+  font-weight: 800;
+  opacity: 0.88;
+  line-height: 1;
+}
+
+.time-val-item {
+  font-family: var(--font-num, var(--font-number, sans-serif));
+  font-size: 10.5pt;
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
 }
 
 /* 2部制並記時刻（例: 13:15 / 16:15） */
 .time-col-val.multi-time,
 .time-col-val:has(.multi-part-time) {
-  font-size: 8.2pt;
-  line-height: 1.15;
+  font-size: 10.2pt;
+  line-height: 1.12;
   letter-spacing: -0.02em;
 }
 
 .time-badge-val {
-  font-family: var(--font-num, sans-serif);
+  font-family: var(--font-num, var(--font-number, sans-serif));
   font-size: 10.5pt;
   font-weight: 800;
   line-height: 1.1;
@@ -342,7 +377,7 @@ body {
 }
 
 .time-col-label, .time-badge-sub {
-  font-size: 5.8pt;
+  font-size: 5.5pt;
   font-weight: 800;
   margin-top: 0.3mm;
   padding: 0.2mm 1mm;
@@ -1428,3 +1463,48 @@ body {
   color: var(--color-secondary);
   margin-right: 0.8mm;
 }
+
+/* ==========================================================================
+   汎用ベクターSVGアイコン用スタイル（絵文字完全代替）
+   ========================================================================== */
+.icon-svg {
+  width: 1.15em;
+  height: 1.15em;
+  vertical-align: -0.2em;
+  display: inline-block;
+}
+
+.icon-svg-badge {
+  width: 1.0em;
+  height: 1.0em;
+  vertical-align: -0.15em;
+  display: inline-block;
+  margin-right: 0.3mm;
+}
+
+.icon-svg-loc {
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: -0.22em;
+  display: inline-block;
+  margin-right: 0.3mm;
+}
+
+.rule-icon-svg {
+  width: 4.5mm;
+  height: 4.5mm;
+  display: block;
+  margin-bottom: 0.3mm;
+}
+
+.badge-step-new {
+  display: inline-block;
+  background: #16a34a;
+  color: #ffffff;
+  font-size: 5pt;
+  font-weight: 900;
+  padding: 0.2mm 0.8mm;
+  border-radius: 0.4mm;
+  letter-spacing: -0.02em;
+}
+
