@@ -321,17 +321,18 @@ html, body {
 }
 
 .summary-ribbon-item {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
   background: var(--color-card-bg, #ffffff);
   border: 1.2pt solid var(--color-border-bold, #94a3b8);
   border-radius: 2mm;
-  padding: 2.2mm 2.8mm;
+  padding: 1.4mm 1.8mm;
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.5mm;
-  font-size: 10.2pt;
+  gap: 1.2mm;
+  font-size: 8pt;
   font-weight: 900;
   color: var(--color-primary-dark, #1557b0);
   white-space: nowrap;
