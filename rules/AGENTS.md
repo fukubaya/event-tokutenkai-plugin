@@ -46,13 +46,11 @@
   - 特典会テーブルの「進行順」カラムは、ヘッダーを「#」または「順」とし、セル値は「1」「2」といった**数字のみを中央配置**すること（「①最初」「第1部」等の余分な文字は不要）。
   - 進行順が公式に発表されていない、または不明なイベントの場合は、**「進行順」カラム自体を完全に削除**し、その分内容・レギュレーション欄の横幅を最大化すること。
 - **ピクトグラム・アイコン・絵文字による文字削減原則**:
-  - 文字を長々と読ませず、直感的に0.1秒でルールが伝わるよう、絵文字やベクターSVGピクトグラムを活用して文字を置き換えること:
-    - 撮影禁止: 📸❌（または `no-camera.svg`）
-    - スマホ限定: 📱⭕️（または `smartphone-only.svg`）
-    - 傘禁止: ☂️❌（または `no-umbrella.svg`）
-    - 接触禁止: 🤝❌（または `no-touch.svg`）
-    - 手荷物自己管理・手ぶら: 🎒📦（または `bag-basket.svg`）
-    - 決済手段: 💴 現金 ｜ 💳 クレジットカード ｜ 📱 QRコード決済
+  - 文字を長々と読ませず、直感的に0.1秒でルールが伝わるよう、Skiaクラッシュを防止するベクターSVGピクトグラム（`skills/event-tokutenkai/assets/icons/`）を活用して文字を置き換えること:
+    - **ライブ・ステージ**: `mic.svg`（ライブ・MC）、`camera.svg`（撮可TIME）、`video.svg`（動画可）、`cheering.svg`（声出しOK）、`no-camera.svg`（撮影禁止）、`no-video.svg`（録画禁止）、`no-jump.svg`（ジャンプ・リフト禁止）、`no-stepladder.svg`（脚立・踏み台禁止）、`no-umbrella.svg`（傘・日傘禁止）
+    - **特典会・撮影会**: `talk.svg`（個別お話し会）、`two-shot.svg`（2shot撮影）、`group-shot.svg`（グループshot）、`hand-wave.svg`（お手振り会）、`smartphone-only.svg`（スマホ限定）、`no-touch.svg`（接触禁止）、`no-prop.svg`（小道具持たせ禁止）、`no-sit.svg`（着席強要・しゃがみ禁止）、`no-screen-record.svg`（画面録画・LivePhoto禁止）、`bag-basket.svg`（手ぶら整列・荷物カゴ）
+    - **物販・決済・入場**: `ticket.svg`（特典券・参加券）、`cash.svg`（現金）、`credit-card.svg`（クレジットカード）、`qr-pay.svg`（QR・電子マネー）、`clock.svg`（時計・時刻）
+    - **安全・施設・汎用**: `location.svg`（会場ピン）、`warning.svg`（注意・警告）、`check-ok.svg`（OK・許可）、`prohibit.svg`（NG・禁止）、`sun.svg`（熱中症対策・屋外案内）
   - これらにより、冗長な説明文を大幅に削ぎ落とし、すっきりとした余白と高い視認性を実現すること。
 - **参照元URLと印刷用ベクターQRコードの配置原則**:
   - Webの一次情報や最新スケジュールへのアクセスを担保するため、紙面下部等に参照元URLとQRコードを配置すること。

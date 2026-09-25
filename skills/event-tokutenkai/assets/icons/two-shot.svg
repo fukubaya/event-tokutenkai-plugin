@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <!-- Photo Frame / Camera corners -->
+  <path d="M4 14 L4 8 L10 8" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M44 14 L44 8 L38 8" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M4 34 L4 40 L10 40" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M44 34 L44 40 L38 40" fill="none" stroke="#94a3b8" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Person 1 (Left - Member) -->
+  <circle cx="18" cy="18" r="5.5" fill="#059669"/>
+  <path d="M9 37 C9 30 13 27 18 27 C23 27 27 30 27 37 Z" fill="#059669"/>
+  <!-- Person 2 (Right - Fan) -->
+  <circle cx="30" cy="18" r="5.5" fill="#10b981"/>
+  <path d="M21 37 C21 30 25 27 30 27 C35 27 39 30 39 37 Z" fill="#10b981"/>
+  <!-- Flash / Heart sparkle between them -->
+  <path d="M24 10 L25 13 L28 14 L25 15 L24 18 L23 15 L20 14 L23 13 Z" fill="#f59e0b"/>
+</svg>

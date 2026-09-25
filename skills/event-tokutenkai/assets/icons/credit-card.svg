@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
+  <!-- Card body -->
+  <rect x="5" y="11" width="38" height="26" rx="3.5" fill="#2563eb"/>
+  <!-- Magnetic stripe / Top banner -->
+  <rect x="5" y="17" width="38" height="5" fill="#1e40af"/>
+  <!-- EMV Chip -->
+  <rect x="10" y="25" width="7" height="6" rx="1" fill="#f59e0b"/>
+  <rect x="12" y="27" width="3" height="2" fill="#d97706"/>
+  <!-- Contactless waves -->
+  <path d="M22 26 C23 27 23 29 22 30" fill="none" stroke="#93c5fd" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M24 25 C25.5 27 25.5 30 24 32" fill="none" stroke="#93c5fd" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Card dots / numbers -->
+  <circle cx="28" cy="28" r="1" fill="#ffffff" opacity="0.8"/>
+  <circle cx="31" cy="28" r="1" fill="#ffffff" opacity="0.8"/>
+  <circle cx="34" cy="28" r="1" fill="#ffffff" opacity="0.8"/>
+  <circle cx="37" cy="28" r="1" fill="#ffffff" opacity="0.8"/>
+</svg>
