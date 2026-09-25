@@ -24,6 +24,7 @@ import random
 import shutil
 import subprocess
 import sys
+import uuid
 from pathlib import Path
 from typing import List
 
@@ -519,21 +520,83 @@ def cmd_all(args: argparse.Namespace) -> int:
 # ----------------------------------------------------------------------
 # 7. carousel (SNS 4枚カルーセルパイプライン) コマンド
 # ----------------------------------------------------------------------
+def _extract_carousel_slides(html_content: str) -> List[str]:
+    """
+    <section class="...carousel-slide..."> ... </section> を抽出する。
+    内部に <section> タグがネストされている場合でも、開閉タグの深さ（depth）を追跡して
+    対応する終了タグ </section> までを正確に抽出する。
+    """
+    import re
+
+    slide_start_regex = re.compile(
+        r'<section\b[^>]*\bclass=["\'][^"\']*\bcarousel-slide\b[^"\']*["\'][^>]*>',
+        re.IGNORECASE,
+    )
+    section_tag_regex = re.compile(r'</?section\b[^>]*>', re.IGNORECASE)
+
+    slides = []
+    pos = 0
+    while True:
+        match = slide_start_regex.search(html_content, pos)
+        if not match:
+            break
+
+        slide_start = match.start()
+        depth = 0
+        end_pos = None
+
+        # slide_start 以降の <section> および </section> を走査
+        for tag_match in section_tag_regex.finditer(html_content, slide_start):
+            tag_text = tag_match.group(0).lower()
+            if tag_text.startswith("</section"):
+                depth -= 1
+                if depth == 0:
+                    end_pos = tag_match.end()
+                    break
+            else:
+                depth += 1
+
+        if end_pos is not None:
+            slides.append(html_content[slide_start:end_pos])
+            pos = end_pos
+        else:
+            # 閉じタグが不整合な場合のフォールバック（次の検索位置へ）
+            pos = match.end()
+
+    return slides
+
+
+def _ensure_assets_available(work_dir: Path) -> None:
+    """assets ディレクトリが壊れたシンボリックリンク等の場合に修復・フォールバックを行う"""
+    assets_target = work_dir / "assets"
+    plugin_assets = Path(__file__).resolve().parent.parent / "assets"
+
+    # シンボリックリンクが存在するがリンク先が存在しない（壊れたリンク）場合
+    if assets_target.is_symlink() and not assets_target.exists():
+        try:
+            assets_target.unlink()
+            if plugin_assets.exists():
+                try:
+                    assets_target.symlink_to(plugin_assets)
+                except (OSError, NotImplementedError):
+                    # Windows等でシンボリックリンク権限がない場合はスキップ
+                    pass
+        except Exception:
+            pass
+
+
 def _slice_and_build_carousel(input_path: Path, output_pdf: Path, engine: str) -> bool:
     """各 .carousel-slide を一時的に個別ビルドし、PyMuPDFで1つの4ページPDFに結合する高信頼性方式"""
     import re
+
     html_content = input_path.read_text(encoding="utf-8")
 
     # <head> 部分を抽出
     head_match = re.search(r"(<head.*?>.*?</head>)", html_content, re.DOTALL | re.IGNORECASE)
     head_content = head_match.group(1) if head_match else "<head><meta charset='UTF-8'></head>"
 
-    # 各 <section class="...carousel-slide...">...</section> を抽出
-    slide_pattern = re.compile(
-        r'(<section\b[^>]*\bclass=["\'][^"\']*carousel-slide[^"\']*["\'][^>]*>.*?</section>)',
-        re.DOTALL | re.IGNORECASE,
-    )
-    slides = slide_pattern.findall(html_content)
+    # 開閉タグのネストを考慮して各スライドを正確に抽出
+    slides = _extract_carousel_slides(html_content)
 
     if not slides:
         print("Error: No elements with class 'carousel-slide' found in input HTML.", file=sys.stderr)
@@ -541,6 +604,7 @@ def _slice_and_build_carousel(input_path: Path, output_pdf: Path, engine: str) -
 
     tmp_files = []
     slide_pdfs = []
+    run_id = f"{os.getpid()}_{uuid.uuid4().hex[:8]}"
 
     print(f"✂️  Slicing and building {len(slides)} carousel slide(s) individually...")
     try:
@@ -554,8 +618,8 @@ def _slice_and_build_carousel(input_path: Path, output_pdf: Path, engine: str) -
 </div>
 </body>
 </html>"""
-            tmp_html = input_path.parent / f".tmp_slide_{idx}.html"
-            tmp_pdf = input_path.parent / f".tmp_slide_{idx}.pdf"
+            tmp_html = input_path.parent / f".tmp_slide_{run_id}_{idx}.html"
+            tmp_pdf = input_path.parent / f".tmp_slide_{run_id}_{idx}.pdf"
             tmp_html.write_text(single_html, encoding="utf-8")
             tmp_files.extend([tmp_html, tmp_pdf])
 
@@ -598,6 +662,9 @@ def cmd_carousel(args: argparse.Namespace) -> int:
     if not input_path.exists():
         print(f"Error: Input file '{input_path}' not found.", file=sys.stderr)
         return 1
+
+    # アセットのリンク状態・利用可能性を確認
+    _ensure_assets_available(input_path.parent)
 
     pdf_out = Path(args.output) if args.output else input_path.with_suffix(".pdf")
     png_out = Path(args.preview) if args.preview else input_path.with_suffix(".png")
