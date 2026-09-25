@@ -774,6 +774,84 @@ def cmd_dump(args: argparse.Namespace) -> int:
 
 
 # ----------------------------------------------------------------------
+# 9. init コマンド（プロジェクト初期化）
+# ----------------------------------------------------------------------
+def cmd_init(args: argparse.Namespace) -> int:
+    target_dir = Path(args.target_dir).resolve()
+    target_type = args.type  # "carousel" or "flyer"
+    template_name = "carousel" if target_type == "carousel" else "html-paged"
+
+    skill_root = Path(__file__).resolve().parent.parent
+    tmpl_dir = skill_root / "templates" / template_name
+    assets_dir = skill_root / "assets"
+
+    if not tmpl_dir.exists():
+        print(f"Error: Template directory not found: {tmpl_dir}", file=sys.stderr)
+        return 1
+
+    print(f"==> Initializing new event project [{target_type}] in: {target_dir}")
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    # テンプレートファイル（HTML, CSS, SVG等）をコピー
+    copied_files = []
+    for item in sorted(tmpl_dir.iterdir()):
+        if item.name.startswith(".") or item.suffix in [".pdf", ".png"]:
+            continue
+        dest = target_dir / item.name
+        if item.is_file():
+            shutil.copy2(item, dest)
+            copied_files.append(item.name)
+        elif item.is_dir() and item.name != "assets":
+            if dest.exists():
+                shutil.rmtree(dest)
+            shutil.copytree(item, dest)
+            copied_files.append(f"{item.name}/")
+
+    # assets（icons, illustrations）のシンボリックリンクまたはコピー
+    target_assets = target_dir / "assets"
+    if not target_assets.exists():
+        try:
+            rel_assets = os.path.relpath(assets_dir, target_dir)
+            target_assets.symlink_to(rel_assets, target_is_directory=True)
+            copied_files.append("assets -> " + str(rel_assets))
+        except Exception:
+            shutil.copytree(assets_dir, target_assets)
+            copied_files.append("assets/ (copied)")
+
+    # URLが指定されている場合は qr.svg を生成
+    if args.url:
+        qr_path = target_dir / "qr.svg"
+        print(f"==> Generating QR code for URL: {args.url}")
+        qr_args = argparse.Namespace(
+            url=args.url,
+            output=str(qr_path),
+            version=None,
+            box_size=10,
+            border=2,
+        )
+        cmd_qr(qr_args)
+        copied_files.append("qr.svg (generated)")
+
+    print(f"\n✅ Project initialized successfully in: {target_dir}")
+    print(f"   Template: [{target_type}] ({template_name})")
+    print(f"   Files created:")
+    for f in copied_files:
+        print(f"     - {f}")
+
+    print(f"\n🚀 Next steps:")
+    if target_type == "carousel":
+        print(f"   1. Edit {target_dir}/index.html and theme.css")
+        print(f"   2. Build carousel PDF & preview PNGs:")
+        print(f"      uv run python skills/event-tokutenkai/scripts/flyer.py carousel {target_dir}/index.html")
+    else:
+        print(f"   1. Edit {target_dir}/index.html and theme.css")
+        print(f"   2. Build single flyer PDF & preview PNG:")
+        print(f"      uv run python skills/event-tokutenkai/scripts/flyer.py all {target_dir}/index.html")
+
+    return 0
+
+
+# ----------------------------------------------------------------------
 # メイン エントリポイント
 # ----------------------------------------------------------------------
 def main():
@@ -782,6 +860,10 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 使用例:
+  # 0. テンプレートから新規イベントプロジェクトを初期化 (推奨)
+  uv run python flyer.py init events/20261015-release --type carousel --url "https://example.com"
+  uv run python flyer.py init events/20261015-release --type flyer --url "https://example.com"
+
   # 1. URL から情報を抽出し、要約 Markdown と JSON を生成
   uv run python flyer.py extract "https://starplanet-academy.com/schedule/item-359/" -o event_summary.md --json event_data.json
 
@@ -811,6 +893,18 @@ def main():
     )
 
     subparsers = parser.add_subparsers(dest="command", required=True, help="実行するサブコマンド")
+
+    # --- Subcommand: init ---
+    p_init = subparsers.add_parser("init", help="テンプレートから新規イベントプロジェクトを自己完結初期化")
+    p_init.add_argument("target_dir", help="作成先ディレクトリパス (例: events/20261015-release)")
+    p_init.add_argument(
+        "--type",
+        choices=["carousel", "flyer"],
+        default="carousel",
+        help="プロジェクト種別 (carousel: SNS向け4枚カルーセル, flyer: A4単枚フライヤー) (デフォルト: carousel)",
+    )
+    p_init.add_argument("--url", help="埋め込み用公式告知URL (指定時はベクターQRコード qr.svg を自動生成)")
+    p_init.set_defaults(func=cmd_init)
 
     # --- Subcommand: build ---
     p_build = subparsers.add_parser("build", help="HTML から PDF をビルド")
