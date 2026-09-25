@@ -1,0 +1,49 @@
+/* ==========================================================================
+   Pattern C: Parco Pop & Rooftop（パルコ・ポップ ＆ ルーフトップ）
+   吉祥寺パルコのルーフトップ（屋上オープンスペースの青空）とストリート感を表現した、
+   パルコビビッドオレンジ×スカイブルー×チャコールのモダンポップ配色
+   ========================================================================== */
+
+:root {
+  /* 印刷物理サイズ（A4縦） */
+  --page-width: 210mm;
+  --page-height: 297mm;
+  --page-padding-v: 5mm;
+  --page-padding-h: 6.5mm;
+
+  /* カラーセット（ブランド・テーマカラー） */
+  --color-primary: #ea580c;          /* パルコビビッドオレンジ */
+  --color-primary-dark: #9a3412;     /* ディープバーントオレンジ（タイトル） */
+  --color-primary-light: #ffedd5;    /* ペールオレンジ（淡背景） */
+  --color-secondary: #0284c7;        /* ルーフトップスカイブルー（アクセント） */
+  --color-secondary-light: #e0f2fe;  /* スカイブルー淡背景 */
+  --color-gold: #eab308;             /* サンシャインイエロー */
+  --color-gold-light: #fefce8;
+
+  --color-text-main: #1c1917;        /* 本文文字色 */
+  --color-text-sub: #44403c;         /* 補足説明文字色 */
+  --color-text-muted: #78716c;       /* 注釈・注記文字色 */
+
+  --color-bg-body: #fafaf9;          /* 全体背景 */
+  --color-card-bg: #ffffff;          /* カードソリッド背景色（※PDF透過漏れ防止） */
+  --color-bg-sub: #f5f5f4;           /* 表ヘッダー・薄いグレー背景 */
+  --color-border: #d6d3d1;           /* 境界線・区切り線 */
+  --color-border-bold: #a8a29e;      /* カード外枠ボーダー */
+
+  /* 背景画像（ルーフトップスカイ・ポップドットパターン） */
+  --bg-image: url("bg-parco.svg");
+
+  /* フォント指定（Mac / Windows OS標準フォント優先） */
+  --font-body: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", sans-serif;
+  --font-display: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", sans-serif;
+  --font-num: "Jost", "Helvetica Neue", Arial, "Segoe UI", sans-serif;
+
+  /* 組分けチップ固有カラー */
+  --color-pinecone-bg: #fef3c7;
+  --color-pinecone-text: #78350f;
+  --color-pinecone-border: #b45309;
+
+  --color-acorn-bg: #ffedd5;
+  --color-acorn-text: #9a3412;
+  --color-acorn-border: #ea580c;
+}

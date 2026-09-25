@@ -1,0 +1,49 @@
+/* ==========================================================================
+   Pattern B: Academy Navy & Gold（アカデミー・ネイビー ＆ ゴールド）
+   スタープラネット「アイドルアカデミー」の制服・放課後スクール感を意識した、
+   ノーブルなディープネイビー×アカデミーゴールド×クリムゾンの端正な配色
+   ========================================================================== */
+
+:root {
+  /* 印刷物理サイズ（A4縦） */
+  --page-width: 210mm;
+  --page-height: 297mm;
+  --page-padding-v: 5mm;
+  --page-padding-h: 6.5mm;
+
+  /* カラーセット（ブランド・テーマカラー） */
+  --color-primary: #1e3a8a;          /* スクールディープネイビー */
+  --color-primary-dark: #0f172a;     /* ダークスレート・タイトル */
+  --color-primary-light: #eff6ff;    /* ペールアイスブルー（淡背景） */
+  --color-secondary: #dc2626;        /* アラートクリムゾンレッド */
+  --color-secondary-light: #fee2e2;  /* アラート淡背景 */
+  --color-gold: #d97706;             /* アカデミーエンブレムゴールド */
+  --color-gold-light: #fefce8;
+
+  --color-text-main: #0f172a;        /* 本文文字色 */
+  --color-text-sub: #334155;         /* 補足説明文字色 */
+  --color-text-muted: #64748b;       /* 注釈・注記文字色 */
+
+  --color-bg-body: #f8fafc;          /* 全体背景（クリーンライトグレー） */
+  --color-card-bg: #ffffff;          /* カードソリッド背景色（※PDF透過漏れ防止） */
+  --color-bg-sub: #f1f5f9;           /* 表ヘッダー・薄いグレー背景 */
+  --color-border: #cbd5e1;           /* 境界線・区切り線 */
+  --color-border-bold: #94a3b8;      /* カード外枠ボーダー */
+
+  /* 背景画像（スクールチェック・幾何学パターン） */
+  --bg-image: url("bg-academy.svg");
+
+  /* フォント指定（Mac / Windows OS標準フォント優先） */
+  --font-body: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", sans-serif;
+  --font-display: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", "Noto Sans JP", sans-serif;
+  --font-num: "Jost", "Helvetica Neue", Arial, "Segoe UI", sans-serif;
+
+  /* 組分けチップ固有カラー */
+  --color-pinecone-bg: #fef3c7;
+  --color-pinecone-text: #78350f;
+  --color-pinecone-border: #b45309;
+
+  --color-acorn-bg: #ffedd5;
+  --color-acorn-text: #9a3412;
+  --color-acorn-border: #c2410c;
+}

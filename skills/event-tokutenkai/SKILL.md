@@ -109,23 +109,31 @@ Webフォントを併用する場合でも、Vivliostyle CLI（Puppeteer）内�
 
 ### 3. テンプレートディレクトリ構成
 テンプレートディレクトリ:
-[templates/html-paged/](./templates/html-paged/)
-- `index.html`: セマンティック構造化HTML（共通）
-- `layout.css`: A4 1ページ厳守印刷レイアウト（上寄せ・下寄せ・主役枠最大化）
-- `theme.css`: デザイントークン定義（フォント選定プリセット同梱）
-- `theme-autumn.css`: オータム・ウォーム（秋の放課後ツアーテーマ）
-- `theme-academy.css`: アカデミー・ネイビー＆ゴールド（公式制服テーマ）
-- `theme-parco.css`: パルコ・ポップ＆ルーフトップ（会場連動テーマ）
-- `assets/`: 共通SVGピクトグラムアイコン、イラストアセット
+1. **印刷・A4フライヤー単枚テンプレート**: [templates/html-paged/](./templates/html-paged/)
+   - `index.html`: セマンティック構造化HTML（共通）
+   - `layout.css`: A4 1ページ厳守印刷レイアウト（上寄せ・下寄せ・主役枠最大化）
+   - `theme.css`: デザイントークン定義（フォント選定プリセット同梱）
+   - `theme-autumn.css`: オータム・ウォーム（秋の放課後ツアーテーマ）
+   - `theme-academy.css`: アカデミー・ネイビー＆ゴールド（公式制服テーマ）
+   - `theme-parco.css`: パルコ・ポップ＆ルーフトップ（会場連動テーマ）
+   - `assets/`: 共通SVGピクトグラムアイコン、イラストアセット
+
+2. **SNS・スマホ最適化 4枚カルーセルテンプレート**: [templates/carousel/](./templates/carousel/)
+   - `index.html`: 4枚組スライドHTML（1.超集約サマリー、2.販売〜優先入場、3.ライブ〜特典会詳細、4.全体網羅フライヤー）
+   - `carousel.css`: A4縦長スライド分割・特大フォント・ゆったり配置スタイル
+   - `theme.css`: デザイントークン（共通）
+   - `assets/`: 共通SVGピクトグラムアイコン、イラストアセット（シンボリックリンク）
 
 ---
 
 ## ステップ3: 組版・コンテンツ配置とCLIビルド（flyer.py / uv）
 
 
-フライヤーのビルド、1ページ検証、高解像度プレビュー、QRコード生成を高速・確実に行うため、本プラグイン付属のツール [`scripts/flyer.py`](./scripts/flyer.py)（または [`scripts/build.sh`](./scripts/build.sh)）を使用します。
+フライヤーおよびSNSカルーセルのビルド、ページ検証、高解像度プレビュー、QRコード生成を高速・確実に行うため、本プラグイン付属のツール [`scripts/flyer.py`](./scripts/flyer.py)（または [`scripts/build.sh`](./scripts/build.sh)）を使用します。
 
-### 1. ビルド・1ページ検証・高精細PNG生成の一括実行（推奨）
+### 1. ビルド・検証・高精細PNG生成の一括実行（推奨）
+
+#### A. A4単枚フライヤーの一括ビルド (`all`)
 ワンコマンドで「PDFビルド ➔ ページ数・A4寸法チェック ➔ 300dpi（約2480×3508px）高精細PNG生成」を一気通貫で実行します。
 ```bash
 # HTMLからPDFとPNGプレビューを一括生成
@@ -133,6 +141,21 @@ uv run python scripts/flyer.py all index.html
 
 # 出力先を明示する場合
 uv run python scripts/flyer.py all index.html -o output.pdf --preview output.png --dpi 300
+```
+
+#### B. SNS用 4枚カルーセルの一括ビルド (`carousel`)
+スマホ・X（Twitter）投稿に特化した「4枚カルーセル（A4縦長 4枚組）」を一括生成します。
+Chromiumメモリ制限を自動回避するスライス＆マージパイプラインにより、4ページのPDFと4枚の高精細PNGを一発出力します。
+```bash
+# SNS用4枚カルーセルのビルド・4ページ検証・4枚PNGレンダリング
+uv run python scripts/flyer.py carousel templates/carousel/index.html -o sns.pdf --preview sns.png
+
+# 生成される成果物:
+# - sns.pdf (4ページのベクターPDF)
+# - sns-p1.png (【1枚目】超集約サマリー)
+# - sns-p2.png (【2枚目】販売〜優先入場・フロアマップ)
+# - sns-p3.png (【3枚目】ライブ〜特典会詳細テーブル)
+# - sns-p4.png (【4枚目】全体総合フライヤー)
 ```
 
 ### 2. 個別コマンドの利用
@@ -147,10 +170,13 @@ uv run python scripts/flyer.py build index.html -o output.pdf --engine weasyprin
 ```
 
 #### B. ページ数・寸法の検証 (`pages` / `verify`)
-PDFがA4 1枚（チラシ1枚もの）に厳密に収まっているか、超過ページがないかを瞬時に検証します。
+PDFが期待するページ数（A4 1枚、またはカルーセル4枚）に厳密に収まっているか、超過ページがないかを瞬時に検証します。
 ```bash
-# 1ページ厳守チェック（1ページ以外ならエラー終了）
+# 1ページ厳守チェック（A4フライヤー）
 uv run python scripts/flyer.py pages output.pdf --expect 1
+
+# 4ページ厳守チェック（SNSカルーセル）
+uv run python scripts/flyer.py pages sns.pdf --expect 4
 ```
 
 #### C. 高解像度 PNG プレビューの生成 (`render` / `preview`)
@@ -158,6 +184,9 @@ macOS の `qlmanage` や Swift スクリプトに依存せず、PyMuPDF によ�
 ```bash
 # 300dpi で第1ページをレンダリング
 uv run python scripts/flyer.py render output.pdf -o output.png --dpi 300
+
+# 全ページを個別の高精細PNGとして一括レンダリング (-p1.png, -p2.png, ...)
+uv run python scripts/flyer.py render sns.pdf -o sns.png --page all --dpi 300
 ```
 
 #### D. ベクター SVG QR コードの生成 (`qr`)
@@ -173,7 +202,7 @@ D2スクリプト（`.d2`）から、文字潰れのない精密なフロアマ�
 # ライトテーマ（--theme 0）でSVGを生成
 uv run python scripts/flyer.py d2 floormap1.d2 -o floormap1.svg --theme 0
 ```
-※ `scripts/flyer.py all index.html` 実行時は、同ディレクトリ内の `*.d2` を自動検出し、更新差分がある場合のみ自動でSVGへコンパイルします。
+※ `scripts/flyer.py all` または `carousel` 実行時は、同ディレクトリ内の `*.d2` を自動検出し、更新差分がある場合のみ自動でSVGへコンパイルします。
 
 ### 3. シェルスクリプトによる呼び出し (`build.sh`)
 ```bash

@@ -25,6 +25,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from typing import List
 
 # PyMuPDF と qrcode のインポートチェック
 # 'uv run python script.py' のように実行された場合でも
@@ -516,7 +517,161 @@ def cmd_all(args: argparse.Namespace) -> int:
 
 
 # ----------------------------------------------------------------------
-# 6. extract コマンド
+# 7. carousel (SNS 4枚カルーセルパイプライン) コマンド
+# ----------------------------------------------------------------------
+def _slice_and_build_carousel(input_path: Path, output_pdf: Path, engine: str) -> bool:
+    """各 .carousel-slide を一時的に個別ビルドし、PyMuPDFで1つの4ページPDFに結合する高信頼性方式"""
+    import re
+    html_content = input_path.read_text(encoding="utf-8")
+
+    # <head> 部分を抽出
+    head_match = re.search(r"(<head.*?>.*?</head>)", html_content, re.DOTALL | re.IGNORECASE)
+    head_content = head_match.group(1) if head_match else "<head><meta charset='UTF-8'></head>"
+
+    # 各 <section class="...carousel-slide...">...</section> を抽出
+    slide_pattern = re.compile(
+        r'(<section\b[^>]*\bclass=["\'][^"\']*carousel-slide[^"\']*["\'][^>]*>.*?</section>)',
+        re.DOTALL | re.IGNORECASE,
+    )
+    slides = slide_pattern.findall(html_content)
+
+    if not slides:
+        print("Error: No elements with class 'carousel-slide' found in input HTML.", file=sys.stderr)
+        return False
+
+    tmp_files = []
+    slide_pdfs = []
+
+    print(f"✂️  Slicing and building {len(slides)} carousel slide(s) individually...")
+    try:
+        for idx, slide_html in enumerate(slides, 1):
+            single_html = f"""<!DOCTYPE html>
+<html lang="ja">
+{head_content}
+<body>
+<div class="carousel-container">
+{slide_html}
+</div>
+</body>
+</html>"""
+            tmp_html = input_path.parent / f".tmp_slide_{idx}.html"
+            tmp_pdf = input_path.parent / f".tmp_slide_{idx}.pdf"
+            tmp_html.write_text(single_html, encoding="utf-8")
+            tmp_files.extend([tmp_html, tmp_pdf])
+
+            print(f"   Building Slide {idx}/{len(slides)}...")
+            res = _run_engine(engine, tmp_html, tmp_pdf)
+            if res != 0:
+                print(f"❌ Slide {idx} build failed!", file=sys.stderr)
+                _cleanup_temp_files(tmp_files)
+                return False
+            slide_pdfs.append(tmp_pdf)
+
+        # PyMuPDF でマージ
+        merged_doc = pymupdf.open()
+        for s_pdf in slide_pdfs:
+            sub_doc = pymupdf.open(s_pdf)
+            merged_doc.insert_pdf(sub_doc)
+        output_pdf.parent.mkdir(parents=True, exist_ok=True)
+        merged_doc.save(str(output_pdf))
+
+        # 一時ファイルのクリーンアップ
+        _cleanup_temp_files(tmp_files)
+        return True
+    except Exception as e:
+        print(f"Error during carousel build/merge: {e}", file=sys.stderr)
+        _cleanup_temp_files(tmp_files)
+        return False
+
+
+def _cleanup_temp_files(files: List[Path]) -> None:
+    for f in files:
+        try:
+            if f.exists():
+                f.unlink()
+        except Exception:
+            pass
+
+
+def cmd_carousel(args: argparse.Namespace) -> int:
+    input_path = Path(args.input)
+    if not input_path.exists():
+        print(f"Error: Input file '{input_path}' not found.", file=sys.stderr)
+        return 1
+
+    pdf_out = Path(args.output) if args.output else input_path.with_suffix(".pdf")
+    png_out = Path(args.preview) if args.preview else input_path.with_suffix(".png")
+
+    print("==================================================================")
+    print(f"🎠 SNS 4-Card Carousel Pipeline: {input_path.name}")
+    print("==================================================================")
+
+    # Step 0: Auto-compile *.d2 files if present
+    no_d2 = getattr(args, "no_d2", False)
+    if not no_d2:
+        parent_dir = input_path.parent
+        d2_files = list(parent_dir.glob("*.d2"))
+        if d2_files:
+            print(f"🗺️  Detected {len(d2_files)} D2 floor map(s) in {parent_dir.name}/")
+            for d2_file in sorted(d2_files):
+                svg_out = d2_file.with_suffix(".svg")
+                if not svg_out.exists() or d2_file.stat().st_mtime > svg_out.stat().st_mtime:
+                    _compile_d2(d2_file, svg_out, theme=getattr(args, "d2_theme", 0), pad=getattr(args, "d2_pad", 0))
+                else:
+                    print(f"   (cached) {svg_out.name} is up to date.")
+
+    # Step 1: Build Multi-Page PDF via High-Reliability Slide-Slice Pipeline
+    engine = args.engine if args.engine != "auto" else "vivliostyle"
+    success = _slice_and_build_carousel(input_path, pdf_out, engine)
+    if not success:
+        print("❌ Carousel build failed.", file=sys.stderr)
+        return 1
+    print("✅ Carousel PDF built successfully!")
+
+    # Step 2: Verify Exactly 4 Pages
+    expect_pages = getattr(args, "expect", 4)
+    pages_args = argparse.Namespace(
+        pdf=str(pdf_out),
+        expect=expect_pages,
+        quiet=False,
+    )
+    res = cmd_pages(pages_args)
+    if res != 0:
+        if args.strict:
+            print(f"❌ Step 2 (Verification) failed: expected {expect_pages} pages. Aborting.", file=sys.stderr)
+            return res
+        else:
+            print(f"⚠️  Step 2 (Verification) returned warning: expected {expect_pages} pages, continuing...")
+
+    # Step 3: Render All 4 Pages as PNGs
+    if not args.no_preview:
+        render_args = argparse.Namespace(
+            pdf=str(pdf_out),
+            output=str(png_out),
+            dpi=args.dpi,
+            page="all",
+        )
+        res = cmd_render(render_args)
+        if res != 0:
+            print("❌ Step 3 (Render preview PNGs) failed!", file=sys.stderr)
+            return res
+
+    print("==================================================================")
+    print(f"✨ Carousel pipeline completed successfully!")
+    print(f"   PDF:      {pdf_out} ({expect_pages} pages)")
+    if not args.no_preview:
+        out_stem = png_out.stem
+        parent = png_out.parent
+        print(f"   Images:   {parent / f'{out_stem}-p1.png'} (超集約サマリー)")
+        print(f"             {parent / f'{out_stem}-p2.png'} (販売〜優先入場)")
+        print(f"             {parent / f'{out_stem}-p3.png'} (ライブ〜特典会詳細)")
+        print(f"             {parent / f'{out_stem}-p4.png'} (全体総合フライヤー)")
+    print("==================================================================")
+    return 0
+
+
+# ----------------------------------------------------------------------
+# 8. extract コマンド
 # ----------------------------------------------------------------------
 def cmd_extract(args: argparse.Namespace) -> int:
     script_dir = Path(__file__).resolve().parent
@@ -569,16 +724,21 @@ def main():
   # 3. ビルド・検証・プレビューを一括実行 (推奨)
   uv run python flyer.py all index.html
 
-  # 4. PDF をビルド
+  # 4. SNS用4枚カルーセルを一括ビルド & 4枚PNG生成
+  uv run python flyer.py carousel index.html
+
+  # 5. PDF をビルド
   uv run python flyer.py build index.html -o flyer.pdf
 
-  # 5. ページ数・寸法の検証 (1ページチェック)
+  # 6. ページ数・寸法の検証 (1ページチェック / 4ページチェック)
   uv run python flyer.py pages flyer.pdf --expect 1
+  uv run python flyer.py pages sns.pdf --expect 4
 
-  # 6. 高解像度 PNG プレビューを生成 (300dpi)
+  # 7. 高解像度 PNG プレビューを生成 (300dpi)
   uv run python flyer.py render flyer.pdf -o flyer.png --dpi 300
+  uv run python flyer.py render sns.pdf --page all --dpi 300
 
-  # 7. ベクター SVG QR コードを生成
+  # 8. ベクター SVG QR コードを生成
   uv run python flyer.py qr "https://example.com" -o qr.svg
 """,
     )
@@ -662,6 +822,27 @@ def main():
     p_all.add_argument("--d2-theme", type=int, default=0, help="D2 テーマ番号 (デフォルト: 0 [ライト])")
     p_all.add_argument("--d2-pad", type=int, default=0, help="D2 余白パディング (デフォルト: 0)")
     p_all.set_defaults(func=cmd_all)
+
+    # --- Subcommand: carousel ---
+    p_carousel = subparsers.add_parser("carousel", help="SNS用4枚カルーセルの一括ビルド → 4ページ検証 → 4枚PNG生成を一気通貫で実行")
+    p_carousel.add_argument("input", help="入力カルーセルファイル (.html)")
+    p_carousel.add_argument("-o", "--output", help="出力PDFファイルパス (省略時: <input>.pdf)")
+    p_carousel.add_argument("--preview", help="出力プレビューPNGベースパス (省略時: <input>.png [各ページは -p1.png〜-p4.png])")
+    p_carousel.add_argument("--dpi", type=int, default=300, help="プレビュー解像度 (デフォルト: 300)")
+    p_carousel.add_argument(
+        "--engine",
+        choices=["auto", "vivliostyle", "weasyprint"],
+        default="auto",
+        help="組版エンジン (デフォルト: auto)",
+    )
+    p_carousel.add_argument("--expect", type=int, default=4, help="期待するページ数 (デフォルト: 4)")
+    p_carousel.add_argument("--strict", action="store_true", help="ページ数不一致時に処理を中断してエラー終了")
+    p_carousel.add_argument("--no-preview", action="store_true", help="プレビューPNG生成をスキップ")
+    p_carousel.add_argument("--no-fallback", action="store_true", help="Vivliostyle失敗時のWeasyPrintフォールバックを無効化")
+    p_carousel.add_argument("--no-d2", action="store_true", help="同ディレクトリ内 *.d2 の自動コンパイルをスキップ")
+    p_carousel.add_argument("--d2-theme", type=int, default=0, help="D2 テーマ番号 (デフォルト: 0 [ライト])")
+    p_carousel.add_argument("--d2-pad", type=int, default=0, help="D2 余白パディング (デフォルト: 0)")
+    p_carousel.set_defaults(func=cmd_carousel)
 
     # --- Subcommand: extract ---
     p_extract = subparsers.add_parser("extract", help="URL または HTML ファイルからイベント・特典会情報を構造化抽出")
