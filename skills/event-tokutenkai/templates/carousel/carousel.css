@@ -1,12 +1,12 @@
 /* ==========================================================================
-   Event & Tokutenkai 4-Card Carousel Stylesheet (SNS / Mobile Optimized)
-   全カード A4縦長（210×297mm）、共通ヘッダー（現在地バッジなし・単体成立）、
+   Event & Tokutenkai 4-Card Carousel Stylesheet (SNS / Mobile Optimized 9:16)
+   全カード スマホ最適化 9:16（216×384mm）、共通ヘッダー（現在地バッジなし・単体成立）、
    スマホ1画面で流し見しても即座に読めるジャンプ率・特大フォント・ゆったり配置
    ========================================================================== */
 
-/* 印刷・PDF基本設定（A4縦） */
+/* 画面・PDF基本設定（スマホ最適化 9:16 縦型） */
 @page {
-  size: A4 portrait;
+  size: 216mm 384mm;
   margin: 0;
 }
 
@@ -18,7 +18,7 @@
 
 html, body {
   font-family: var(--font-body);
-  font-size: 7.5pt;
+  font-size: 7.8pt;
   line-height: 1.35;
   color: var(--color-text-main);
   -webkit-font-smoothing: antialiased;
@@ -41,13 +41,13 @@ html, body {
   width: 100%;
 }
 
-/* 各スライドページ（厳密に1ページで改ページ・A4サイズ） */
+/* 各スライドページ（厳密に1ページで改ページ・スマホ最適化 9:16） */
 .carousel-slide {
   page-break-after: always;
   break-after: page;
-  width: var(--page-width, 210mm);
-  height: var(--page-height, 297mm);
-  padding: var(--page-padding-v, 6mm) var(--page-padding-h, 7mm);
+  width: var(--page-width, 216mm);
+  height: var(--page-height, 384mm);
+  padding: var(--page-padding-v, 7mm) var(--page-padding-h, 7mm);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -326,13 +326,13 @@ html, body {
   background: var(--color-card-bg, #ffffff);
   border: 1.2pt solid var(--color-border-bold, #94a3b8);
   border-radius: 2mm;
-  padding: 1.4mm 1.8mm;
+  padding: 2.2mm 2.8mm;
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.2mm;
-  font-size: 8pt;
+  gap: 1.4mm;
+  font-size: 8.8pt;
   font-weight: 900;
   color: var(--color-primary-dark, #1557b0);
   white-space: nowrap;
@@ -350,13 +350,13 @@ html, body {
   color: #b45309;
 }
 
-/* 超大型タイムラインカード（スライド1：項目間を詰めて縦を圧縮） */
+/* 超大型タイムラインカード（スライド1：スマホ画面最適化） */
 .summary-timeline-card {
   flex: 0 0 auto;
   background: var(--color-card-bg, #ffffff);
   border: 1.5pt solid var(--color-border-bold, #94a3b8);
   border-radius: 2.8mm;
-  padding: 2.5mm 4.5mm;
+  padding: 3.5mm 5.0mm;
   display: flex;
   flex-direction: column;
 }
@@ -364,8 +364,8 @@ html, body {
 .summary-timeline-row {
   display: flex;
   align-items: center;
-  gap: 3.5mm;
-  padding: 1.5mm 0;
+  gap: 4.0mm;
+  padding: 2.8mm 0;
   border-bottom: 0.8pt dashed var(--color-border, #cbd5e1);
 }
 
@@ -380,11 +380,11 @@ html, body {
 
 .summary-time-badge {
   flex-shrink: 0;
-  width: 40mm;
+  width: 44mm;
   background: var(--color-bg-sub, #f1f5f9);
   border: 1.2pt solid var(--color-border, #cbd5e1);
   border-radius: 1.8mm;
-  padding: 1.2mm 2.2mm;
+  padding: 1.8mm 2.6mm;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -499,21 +499,22 @@ html, body {
 
 .summary-illust-item {
   border: 1.2pt solid var(--color-border, #cbd5e1);
-  border-radius: 2.5mm;
+  border-radius: 2.8mm;
   background: #ffffff;
-  padding: 2.5mm;
+  padding: 3.5mm 3.0mm;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 2.5mm;
   text-align: center;
 }
 
 .summary-illust-img-wrap {
   width: 100%;
-  height: 68mm;
+  height: 102mm;
   background: #ffffff;
-  border-radius: 1.8mm;
+  border-radius: 2.0mm;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -527,10 +528,10 @@ html, body {
 }
 
 .summary-illust-name {
-  font-size: 13.5pt;
+  font-size: 14pt;
   font-weight: 900;
   color: var(--color-text-main, #1e293b);
-  margin-top: 1.5mm;
+  margin-top: 0.5mm;
 }
 
 .summary-illust-ticket {
@@ -542,7 +543,7 @@ html, body {
   font-weight: 800;
   padding: 0.8mm 3.2mm;
   border-radius: 1mm;
-  margin-top: 1.5mm;
+  margin-top: 1.0mm;
   white-space: nowrap;
 }
 
@@ -550,8 +551,99 @@ html, body {
   font-size: 8.8pt;
   font-weight: 700;
   color: var(--color-text-sub, #475569);
-  margin-top: 1.2mm;
-  line-height: 1.2;
+  margin-top: 1.0mm;
+  line-height: 1.3;
+}
+
+/* スライド1 特典会フロー & レーン */
+.summary-lanes-strip {
+  display: flex;
+  gap: 2.5mm;
+  margin-top: 2.5mm;
+}
+
+.summary-lane-box {
+  flex: 1 1 0;
+  min-width: 0;
+  background: var(--color-bg-sub, #f1f5f9);
+  border: 0.8pt solid var(--color-border, #cbd5e1);
+  border-radius: 1.8mm;
+  padding: 2.8mm 3.2mm;
+  display: flex;
+  align-items: center;
+  gap: 2.4mm;
+}
+
+.summary-lane-title {
+  font-size: 8.5pt;
+  font-weight: 900;
+  color: var(--color-primary-dark, #1557b0);
+  white-space: nowrap;
+}
+
+.summary-lane-members {
+  display: flex;
+  gap: 1.2mm;
+  flex-wrap: wrap;
+}
+
+.summary-flow-strip {
+  background: var(--color-primary-light, #e8f0fe);
+  border: 1.0pt solid var(--color-primary, #1a73e8);
+  border-radius: 1.8mm;
+  padding: 2.0mm 3.5mm;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2.0mm;
+  margin-top: 2.5mm;
+}
+
+.summary-flow-title {
+  font-size: 8.8pt;
+  font-weight: 900;
+  color: var(--color-primary-dark, #1557b0);
+  white-space: nowrap;
+}
+
+.summary-flow-steps {
+  display: flex;
+  align-items: center;
+  gap: 1.5mm;
+  font-size: 8.0pt;
+  font-weight: 800;
+  color: var(--color-text-main, #1e293b);
+  flex-wrap: wrap;
+}
+
+.summary-flow-step {
+  background: #ffffff;
+  border: 0.6pt solid var(--color-border, #cbd5e1);
+  padding: 0.6mm 2.2mm;
+  border-radius: 0.8mm;
+}
+
+/* スライド1 マナーストリップ */
+.summary-manner-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2.0mm;
+  background: var(--color-bg-sub, #f1f5f9);
+  border: 1.0pt solid var(--color-border, #cbd5e1);
+  border-radius: 1.8mm;
+  padding: 2.2mm 4.0mm;
+  margin-top: 2.5mm;
+}
+
+.summary-manner-pill {
+  font-size: 8.5pt;
+  font-weight: 800;
+  color: var(--color-text-sub, #475569);
+  display: flex;
+  align-items: center;
+  gap: 1.2mm;
+  white-space: nowrap;
 }
 
 /* ==========================================================================

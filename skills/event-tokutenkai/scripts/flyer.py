@@ -12,7 +12,7 @@ Event & Tokutenkai Flyer Utility Tool
 
 機能:
   build   - HTML (Vivliostyle / WeasyPrint) から PDF を生成
-  pages   - PDF のページ数・寸法（A4 / mm）の検証（1ページ厳守チェック）
+  pages   - PDF のページ数・寸法（スマホ9:16 / A4 / mm）の検証（1ページ厳守チェック）
   render  - PDF から 300dpi 高解像度 PNG プレビューを生成（macOS qlmanage / Swift代替）
   qr      - URL からベクター SVG QR コードを生成（外部CLI不要）
   all     - ビルド → ページ数検証 → 高解像度PNG生成 を一括実行
@@ -75,6 +75,9 @@ def cmd_build(args: argparse.Namespace) -> int:
     if not input_path.exists():
         print(f"Error: Input file '{input_path}' not found.", file=sys.stderr)
         return 1
+
+    # アセットのリンク状態・利用可能性を確認
+    _ensure_assets_available(input_path.parent)
 
     output_path = Path(args.output) if args.output else input_path.with_suffix(".pdf")
     engine = args.engine
@@ -175,9 +178,17 @@ def cmd_pages(args: argparse.Namespace) -> int:
         w_mm = rect.width * 0.352778
         h_mm = rect.height * 0.352778
         
-        # A4判定 (210 x 297 mm ± 2mm)
+        # 用紙サイズ・アスペクト比判定 (スマホ 9:16: 216x384mm, A4: 210x297mm)
+        ratio = h_mm / w_mm if w_mm > 0 else 0
+        is_9_16 = (abs(w_mm - 216.0) < 3.0 and abs(h_mm - 384.0) < 3.0) or abs(ratio - 16.0 / 9.0) < 0.03
         is_a4 = abs(w_mm - 210.0) < 2.0 and abs(h_mm - 297.0) < 2.0
-        size_note = "A4" if is_a4 else f"{w_mm:.1f}x{h_mm:.1f}mm"
+
+        if is_9_16:
+            size_note = "9:16 (スマホ最適化)"
+        elif is_a4:
+            size_note = "A4"
+        else:
+            size_note = f"{w_mm:.1f}x{h_mm:.1f}mm (1:{ratio:.2f})"
         print(f"   Page {idx + 1}: {rect.width:.1f} x {rect.height:.1f} pt ({w_mm:.1f} x {h_mm:.1f} mm, {size_note})")
 
     # 期待ページ数チェック
@@ -435,6 +446,9 @@ def cmd_all(args: argparse.Namespace) -> int:
         print(f"Error: Input file '{input_path}' not found.", file=sys.stderr)
         return 1
 
+    # アセットのリンク状態・利用可能性を確認
+    _ensure_assets_available(input_path.parent)
+
     pdf_out = Path(args.output) if args.output else input_path.with_suffix(".pdf")
     png_out = Path(args.preview) if args.preview else input_path.with_suffix(".png")
 
@@ -567,20 +581,25 @@ def _extract_carousel_slides(html_content: str) -> List[str]:
 
 
 def _ensure_assets_available(work_dir: Path) -> None:
-    """assets ディレクトリが壊れたシンボリックリンク等の場合に修復・フォールバックを行う"""
+    """assets ディレクトリが存在しないか、壊れたシンボリックリンク等の場合に自動設定・修復を行う"""
     assets_target = work_dir / "assets"
     plugin_assets = Path(__file__).resolve().parent.parent / "assets"
 
-    # シンボリックリンクが存在するがリンク先が存在しない（壊れたリンク）場合
+    if not plugin_assets.exists():
+        return
+
+    # 壊れたシンボリックリンクの場合は削除
     if assets_target.is_symlink() and not assets_target.exists():
         try:
             assets_target.unlink()
-            if plugin_assets.exists():
-                try:
-                    assets_target.symlink_to(plugin_assets)
-                except (OSError, NotImplementedError):
-                    # Windows等でシンボリックリンク権限がない場合はスキップ
-                    pass
+        except Exception:
+            pass
+
+    # assets が存在しない場合は相対シンボリックリンクを作成
+    if not assets_target.exists() and not assets_target.is_symlink():
+        try:
+            rel_assets = os.path.relpath(plugin_assets, work_dir)
+            assets_target.symlink_to(rel_assets, target_is_directory=True)
         except Exception:
             pass
 
@@ -901,7 +920,7 @@ def main():
         "--type",
         choices=["carousel", "flyer"],
         default="carousel",
-        help="プロジェクト種別 (carousel: SNS向け4枚カルーセル, flyer: A4単枚フライヤー) (デフォルト: carousel)",
+        help="プロジェクト種別 (carousel: SNS向け4枚カルーセル [9:16], flyer: 単枚フライヤー [9:16]) (デフォルト: carousel)",
     )
     p_init.add_argument("--url", help="埋め込み用公式告知URL (指定時はベクターQRコード qr.svg を自動生成)")
     p_init.set_defaults(func=cmd_init)
@@ -924,7 +943,7 @@ def main():
     p_build.set_defaults(func=cmd_build, fallback=True)
 
     # --- Subcommand: pages (verify) ---
-    p_pages = subparsers.add_parser("pages", aliases=["verify"], help="PDF のページ数・寸法（A4/mm）を検証")
+    p_pages = subparsers.add_parser("pages", aliases=["verify"], help="PDF のページ数・寸法（スマホ9:16 / A4 / mm）を検証")
     p_pages.add_argument("pdf", help="検査対象の PDF ファイル")
     p_pages.add_argument("--expect", type=int, default=1, help="期待するページ数 (デフォルト: 1)")
     p_pages.add_argument("-q", "--quiet", action="store_true", help="ページ数のみを出力")
@@ -934,14 +953,14 @@ def main():
     p_render = subparsers.add_parser("render", aliases=["preview"], help="PDF から高解像度 PNG プレビューを生成")
     p_render.add_argument("pdf", help="レンダリング対象の PDF ファイル")
     p_render.add_argument("-o", "--output", help="出力PNGファイルパス (省略時: <pdf>.png)")
-    p_render.add_argument("--dpi", type=int, default=300, help="レンダリング解像度 (デフォルト: 300 [A4で約2480x3508px])")
+    p_render.add_argument("--dpi", type=int, default=300, help="レンダリング解像度 (デフォルト: 300 [9:16で約2552x4536px])")
     p_render.add_argument("--page", default="1", help="レンダリング対象ページ ('1', '2', または 'all') (デフォルト: 1)")
     p_render.set_defaults(func=cmd_render)
 
     # --- Subcommand: check-space ---
     p_check = subparsers.add_parser("check-space", aliases=["space", "gaps"], help="PDF 内の余白・デッドスペース（垂直ギャップ）を自動検出・検証")
     p_check.add_argument("pdf", help="検査対象の PDF ファイル")
-    p_check.add_argument("--max-gap", type=float, default=20.0, help="許容される最大垂直ギャップ mm (デフォルト: 20.0mm)")
+    p_check.add_argument("--max-gap", type=float, default=25.0, help="許容される最大垂直ギャップ mm (デフォルト: 25.0mm)")
     p_check.add_argument("--strict", action="store_true", help="許容値超過時に非ゼロ終了")
     p_check.set_defaults(func=cmd_check_space)
 

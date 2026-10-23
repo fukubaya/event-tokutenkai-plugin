@@ -1,12 +1,12 @@
 ---
 name: event-tokutenkai
 description: >-
-  Guides the creation and compilation of print-ready flyers and information design for idol/artist events, release events (ririebe), and tokutenkai (meet-and-greets, photo sessions). Use when designing event schedules, floor maps, regulation guides, and A4 flyers using HTML/CSS (Vivliostyle/WeasyPrint) via flyer.py.
+  Guides the creation and compilation of print-ready flyers and information design for idol/artist events, release events (ririebe), and tokutenkai (meet-and-greets, photo sessions). Use when designing event schedules, floor maps, regulation guides, and smartphones (9:16) and print-ready flyers using HTML/CSS (Vivliostyle/WeasyPrint) via flyer.py.
 ---
 
 # Event & Tokutenkai Information Flyer Skill
 
-このスキルは、アイドル・アーティストのリリースイベント（リリイベ）、ライブ、特典会（撮影会・お話し会・お渡し会）などにおいて、タイムテーブル、購入レギュレーション、会場フロアマップ、参加注意事項を正確に整理し、印刷・WEB配信用フライヤー（A4ベクターPDF・高精細PNG）をコードベース（HTML/CSS）で作成・ビルドするためのワークフローを提供します。
+このスキルは、アイドル・アーティストのリリースイベント（リリイベ）、ライブ、特典会（撮影会・お話し会・お渡し会）などにおいて、タイムテーブル、購入レギュレーション、会場フロアマップ、参加注意事項を正確に整理し、スマートフォン向け（9:16ベクターPDF / 300dpi高精細PNG）または印刷用フライヤーをコードベース（HTML/CSS）で作成・ビルドするためのワークフローを提供します。
 
 ---
 
@@ -19,7 +19,7 @@ flowchart LR
     B --> C["スタイル＆フォント選定<br/>(3パターン提示・テーマ設計)"]
     C --> D["組版・コンテンツ配置<br/>(HTML/CSS)"]
     D --> E["パイプライン実行<br/>(flyer.py all)"]
-    E --> F["A4ベクターPDF<br/>& 300dpi高精細PNG"]
+    E --> F["9:16ベクターPDF<br/>& 300dpi高精細PNG"]
 ```
 
 ---
@@ -69,12 +69,12 @@ uv run python scripts/flyer.py extract "https://starplanet-academy.com/schedule/
 # SNS用4枚カルーセルプロジェクトの初期化（推奨）
 uv run python scripts/flyer.py init events/20261015-release --type carousel --url "https://example.com/event"
 
-# A4単枚印刷フライヤープロジェクトの初期化
+# 単枚フライヤープロジェクトの初期化
 uv run python scripts/flyer.py init events/20261015-release --type flyer --url "https://example.com/event"
 ```
 
 初期化によって以下が自動配備されます:
-* `index.html`: セマンティック構造化HTMLボイラープレート（4枚スライド または A4単枚）
+* `index.html`: セマンティック構造化HTMLボイラープレート（4枚カルーセル または 単枚フライヤー）
 * `carousel.css` / `layout.css`: 厳密に調整されたレイアウトCSS
 * `theme.css`: デザイントークン設定ファイル
 * `qr.svg`: 公式告知URLのベクターQRコード
@@ -125,9 +125,9 @@ Webフォントを併用する場合でも、Vivliostyle CLI（Puppeteer）内�
 
 ### 3. テンプレートディレクトリ構成
 テンプレートディレクトリ:
-1. **印刷・A4フライヤー単枚テンプレート**: [templates/html-paged/](./templates/html-paged/)
+1. **単枚フライヤーテンプレート（スマホ最適化 9:16 / 印刷両用）**: [templates/html-paged/](./templates/html-paged/)
    - `index.html`: セマンティック構造化HTML（共通）
-   - `layout.css`: A4 1ページ厳守印刷レイアウト（上寄せ・下寄せ・主役枠最大化）
+   - `layout.css`: スマホ最適化 9:16（216×384mm）1ページ厳守レイアウト（上寄せ・下寄せ・主役枠最大化）
    - `theme.css`: デザイントークン定義（フォント選定プリセット同梱）
    - `theme-autumn.css`: オータム・ウォーム（秋の放課後ツアーテーマ）
    - `theme-academy.css`: アカデミー・ネイビー＆ゴールド（公式制服テーマ）
@@ -136,7 +136,7 @@ Webフォントを併用する場合でも、Vivliostyle CLI（Puppeteer）内�
 
 2. **SNS・スマホ最適化 4枚カルーセルテンプレート**: [templates/carousel/](./templates/carousel/)
    - `index.html`: 4枚組スライドHTML（1.超集約サマリー、2.販売〜優先入場、3.ライブ〜特典会詳細、4.全体網羅フライヤー）
-   - `carousel.css`: A4縦長スライド分割・特大フォント・ゆったり配置スタイル
+   - `carousel.css`: スマホ最適化 9:16（216×384mm）4枚スライド分割・特大フォント・ゆったり配置スタイル
    - `theme.css`: デザイントークン（共通）
    - `assets/`: 共通SVGピクトグラムアイコン、イラストアセット（シンボリックリンク）
 
@@ -149,8 +149,8 @@ Webフォントを併用する場合でも、Vivliostyle CLI（Puppeteer）内�
 
 ### 1. ビルド・検証・高精細PNG生成の一括実行（推奨）
 
-#### A. A4単枚フライヤーの一括ビルド (`all`)
-ワンコマンドで「PDFビルド ➔ ページ数・A4寸法チェック ➔ 300dpi（約2480×3508px）高精細PNG生成」を一気通貫で実行します。
+#### A. 単枚フライヤーの一括ビルド (`all`)
+ワンコマンドで「PDFビルド ➔ ページ数・9:16寸法チェック ➔ 300dpi（2552×4536px）高精細PNG生成」を一気通貫で実行します。
 ```bash
 # HTMLからPDFとPNGプレビューを一括生成
 uv run python scripts/flyer.py all index.html
@@ -160,7 +160,7 @@ uv run python scripts/flyer.py all index.html -o output.pdf --preview output.png
 ```
 
 #### B. SNS用 4枚カルーセルの一括ビルド (`carousel`)
-スマホ・X（Twitter）投稿に特化した「4枚カルーセル（A4縦長 4枚組）」を一括生成します。
+スマホ・X（Twitter）投稿に特化した「4枚カルーセル（スマホ最適化 9:16縦長 4枚組）」を一括生成します。
 Chromiumメモリ制限を自動回避するスライス＆マージパイプラインにより、4ページのPDFと4枚の高精細PNGを一発出力します。
 ```bash
 # SNS用4枚カルーセルのビルド・4ページ検証・4枚PNGレンダリング
@@ -190,9 +190,9 @@ uv run python scripts/flyer.py build index.html -o output.pdf --engine weasyprin
 ```
 
 #### B. ページ数・寸法の検証 (`pages` / `verify`)
-PDFが期待するページ数（A4 1枚、またはカルーセル4枚）に厳密に収まっているか、超過ページがないかを瞬時に検証します。
+PDFが期待するページ数（単枚フライヤー1枚、またはカルーセル4枚）に厳密に収まっているか、超過ページがないかを瞬時に検証します。
 ```bash
-# 1ページ厳守チェック（A4フライヤー）
+# 1ページ厳守チェック（単枚フライヤー）
 uv run python scripts/flyer.py pages output.pdf --expect 1
 
 # 4ページ厳守チェック（SNSカルーセル）
@@ -247,7 +247,7 @@ uv run python scripts/flyer.py d2 floormap1.d2 -o floormap1.svg --theme 0
   - 特典会のように情報量が多いセクションでは、メニュー、チーム分け、マスコットを均等グリッドで整列させ、下部に横幅100%のくじ内訳表を密着配置することで、無駄な余白（隙間）を一切出さず充実したレイアウトを実現します。
 * **特典会イラスト入りデフォルト作成（初期配置とオーバーフロー時の除外判定）**:
   - 特典会セクションなどの大区画カードは、**「原則としてイラスト入り（`skills/event-tokutenkai/assets/illustrations/` のおはなし会、2shot、グループshot等）で初期構築する」** ことを推奨します。テキストのみで先行構築すると、紙面に広大なデッドスペースが生じる原因となります。
-  - 最初からイラストを配置してビジュアルリッチに設計し、情報量が過密でどうしてもA4 1ページに収まらない場合に限り、イラストの縮小または除外を行う「引き算の設計」を徹底します。
+  - 最初からイラストを配置してビジュアルリッチに設計し、情報量が過密でどうしても1画面（1ページ）に収まらない場合に限り、イラストの縮小または除外を行う「引き算の設計」を徹底します。
 * **注意事項・お問い合わせの2カラム水平圧縮（縦スペース創出）**:
   - 紙面下部の注意事項リスト（箇条書き）やお問い合わせ先は、1列で縦長に並べず、**2カラム（左列・右列のフレックス配置）で水平方向に圧縮してレイアウト**します。
   - これにより下部ブロックの縦方向占有高さを約半分（10〜15mm程度）に圧縮でき、紙面の主役である特典会テーブルや各部ビジュアルカードに十分な縦スペースを配分できます。
@@ -395,7 +395,7 @@ uv run python scripts/flyer.py d2 floormap1.d2 -o floormap1.svg --theme 0
   - イベント告知URL本文にメンバーカラーが明記されていなくても、AIは公式サイト・公式SNS・プロフィール・過去資料を能動的に調査（Web検索等）し、各メンバー固有のイメージカラー（背景色、文字色、ボーダー色）を特定してヘッダーのメンバーチップ（`.member-chip`）に反映します。ファンや現場参加者にとって推しのカラーは識別性の要であり、白黒や画一的な色で済ませてはなりません。
   - **メンバーカラー設定なし（未設定）グループの扱い**: イメージカラーが存在しないグループ（例: スタプラ研究生/スタアカなど）の場合は、勝手に色を推測・創作してはなりません。その場合はカラーチップではなく、公式のチーム分け・組分け（例: 「🍂 松ぼっくり組」「🌰 どんぐり組」）や学年別などのグループチップ（`.team-chip`）として整然と整理します。
 * **2部制（複数回公演）のタイムライン集約 ＆ 差分分離（ダブルテーブル）原則**:
-  - 1部・2部に分かれているイベントでも、共通するタイムライン（例: 優先エリア入場、ミニライブ開演）は独立カードを乱立させず、`13:15 / 16:15 優先エリア入場`、`13:30 / 16:30 ミニライブ開演` のように**同一カード内で時刻を並記して1つに集約・上寄せ**します。これにより貴重な縦スペース（約20〜30mm）を節約し、紙面全体のゆとりとA4 1ページの収まりを格段に向上させます。
+  - 1部・2部に分かれているイベントでも、共通するタイムライン（例: 優先エリア入場、ミニライブ開演）は独立カードを乱立させず、`13:15 / 16:15 優先エリア入場`、`13:30 / 16:30 ミニライブ開演` のように**同一カード内で時刻を並記して1つに集約・上寄せ**します。これにより貴重な縦スペース（約20〜30mm）を節約し、紙面全体のゆとりと1画面（1ページ）の収まりを格段に向上させます。
   - 一方、特典会のように**1部と2部でメニュー・レーン・実施内容に差分がある場合は、左右2カラムのダブルテーブル（`.tokutenkai-double-table` > `.session-box`）でそれぞれ独立させて明確に書き分けます**。参加者が1部と2部のメニューの違い（例: 1部お見送り会・2部個別お話し会、チェキお渡しなど）を一目で比較・把握できるようにします。
 * **タイムテーブルの時刻表示（ピルバッジ）のサイズ・フォント統一と大型化（複数時刻表示対応）**:
   - 各ステップの時刻バッジ（ピルバッジ）は紙面全体で厳密に同一（例: 横幅26mm固定、ラベル5.4pt）に統一します。
@@ -492,7 +492,7 @@ uv run python scripts/flyer.py d2 floormap1.d2 -o floormap1.svg --theme 0
        - 「推し運検定（ランダムくじ）」のような一般的でない特殊な特典会は、各賞（推し2shot、後ろ向き、3shot、ソロ、グループ等）をカラータグ化し、「メンバー背中向き」「じゃんけん指名」「スマホ持ち自撮り」「列途切れ次第最後に実施」などの特殊ルールを明確に区別・解説します。イラストサムネイルにも枚数・特徴ラベルを付与します。
     6. **特典会の重要ルール**: 「スマホ限定（標準カメラのみ）」「接触・着席強要 禁止」「小道具持たせ 禁止」「画面録画・LivePhoto 禁止」など、公式告知に明記された急所ルールを、SVGアイコン付きの「4大重要ルールカード（グリッド）」としてテーブル直下に整理・視覚化します。
 * **上下方向のスペース最大活用原則（上寄せ・下寄せと主役枠の極大化）**:
-  - A4 1枚（縦297mm）という極めてシビアな縦スペースにおいて、主役である「ライブ」および「特典会」のスペースと視認性を極大化するため、以下のレイアウト配分を徹底します:
+  - スマホ最適化 9:16（縦384mm）の縦長画面において、主役である「ライブ」および「特典会」のスペースと視認性を極大化するため、以下のレイアウト配分を徹底します:
     1. **上部要素（ヘッダー・物販・入場）のタイトな上寄せ**:
        - ヘッダーの内側パディング（`1.8mm 2.8mm` 程度）や、物販・整列入場のパディング（`1.1mm 2.4mm` 程度）を極限までコンパクトに圧縮し、紙面上部にピタッと寄せます（`flex-shrink: 0;`）。
     2. **下部要素（注意事項・公式QR・AI免責）の下部ピン留め（`margin-top: auto`）**:
@@ -573,7 +573,7 @@ uv run python scripts/flyer.py d2 floormap1.d2 -o floormap1.svg --theme 0
     - 実際の配置が未確定なエリアは、図面内で点線（破線）枠として横並び（並列）に配置します。
     - 図面内または直下に**「※実際の配置・区分けは当日の案内看板・係員の指示をご確認ください」**の注記を必ず明記します。
 * **自動余白・デッドスペース検出（`flyer.py check-space`）とパイプライン統合**:
-  - A4フライヤーで「1ページ厳守」を達成していても、特典会枠などの内容が少なく巨大な垂直空白（デッドスペース）が生じることを防ぐため、`flyer.py check-space`（PyMuPDF による垂直ギャップ解析）を実行し、許容閾値（25.0mm等）を超える空白が存在しないかを決定論的に検査・保証します。
+  - フライヤーで「1ページ厳守」を達成していても、特典会枠などの内容が少なく巨大な垂直空白（デッドスペース）が生じることを防ぐため、`flyer.py check-space`（PyMuPDF による垂直ギャップ解析）を実行し、許容閾値（25.0mm等）を超える空白が存在しないかを決定論的に検査・保証します。
   - `flyer.py all` コマンドを実行することで、ビルド ➔ ページ数検証 ➔ 余白検査 ➔ 高解像度プレビュー生成をワンステップで自動実行できます。
 * **特典会セクションのデッドスペース完全排除と多層高密度コンポーネント設計（黄金比率パラメータ）**:
   - 特典会枠（STEP 4）が広く空いている場合は、以下のコンポーネントを標準搭載して極めてリッチ化します:
@@ -587,12 +587,12 @@ uv run python scripts/flyer.py d2 floormap1.d2 -o floormap1.svg --theme 0
     - `.poster-wrapper { gap: 0.6mm; overflow: hidden; }`
     - `.card-step-tokuten { justify-content: space-between; }`
     - 要素パディング: `0.3mm` 〜 `0.45mm`、フォントサイズ: 見出し `5.8〜6.5pt`、本文・テーブル `5.0〜5.6pt`、注記 `4.6〜4.8pt`。
-    - これにより、A4（297mm）の物理サイズを1mmも超過させず、デッドスペースも20mm未満に抑え込みます。
+    - これにより、物理サイズ（縦384mm）を1mmも超過させず、デッドスペースも25mm未満に抑え込みます。
 * **Chromium / Skia PDF レンダラーの内部クラッシュ（`Protocol error (Page.printToPDF): Printing failed`）完全防止ガイドライン**:
   - **絵文字フォールバッククラッシュの防止**: `⚠️`（U+26A0 + 異体字セレクタ VS16 `\ufe0f`）、`🧎`（しゃがむ人）、`🗣️`（話す人）などの特定のOpenType絵文字は Chromium のフォント解決時に Skia で内部クラッシュを引き起こすため使用禁止。警告には `⛔` やテキスト表記を用い、安全な絵文字（`📸`, `💬`, `🎒`, `📱`, `🤝`, `👋`, `👥`, `🎥`, `⭕️`, `❌` 等）のみを使用します。
   - **サブピクセル境界線（`border: 0.3pt / 0.4pt`）の丸め誤差クラッシュ防止**: ネストされたFlexbox内のインラインバッジ（`.manner-pill-*`, `.prohibit-pill`, `.faq-badge` 等）に極小サブピクセル（1px未満）の border を適用すると、Skia の幾何計算が破綻してクラッシュします。バッジ類には border を使わず、背景色と文字色の十分なコントラスト＋ `border-radius: 0.4mm` のプレーンバッジとします。
   - **Flexbox内のCSS Gridネスト禁止**: 印刷用Chromiumでは `display: flex` の子要素に `display: grid; grid-template-columns: ...` を指定するとレイアウト計算でクラッシュしやすいため、すべて `display: flex; gap: ...` と子要素 `flex: 1 1 0; min-width: 0;` に統一します。
-  - **物理サイズ超過による改ページ衝突クラッシュ**: `@page { margin: 0; }` かつ `break-inside: avoid;` が指定されたコンテナ内で、子要素の高さの合計が 297mm をわずか数ミリでも超過すると、エンジンが改ページできずにクラッシュします。`.poster-wrapper { gap: 0.6mm; overflow: hidden; }` を基本とし、各カードのパディングとフォントサイズを緻密に調整します。
+  - **物理サイズ超過による改ページ衝突クラッシュ**: `@page { margin: 0; }` かつ `break-inside: avoid;` が指定されたコンテナ内で、子要素の高さの合計が設定高さ（384mm等）をわずか数ミリでも超過すると、エンジンが改ページできずにクラッシュします。`.poster-wrapper { gap: 0.6mm; overflow: hidden; }` を基本とし、各カードのパディングとフォントサイズを緻密に調整します。
   - **Google Fontsウェイト過剰取得によるタイムアウトクラッシュ**: 日本語Webフォント（Noto Sans JP, Shippori Mincho等）は数千グリフが数十個のwoff2サブセットに分割されており、複数ウェイト（500, 700, 800, 900等）を指定するとChromiumが全サブセットを並列フェッチしてPuppeteerタイムアウト / Skiaフォントバッファ枯渇を起こします。**印刷用HTMLではOS標準フォント（macOS: Hiragino Sans, Windows: Yu Gothic等）を最上位に配置し、Webフォントは最小ウェイト（1-2個）に限定**します。
 * **Vivliostyle Skiaクラッシュ時のWeasyPrintフォールバック自動リトライ**:
   - `flyer.py build` および `flyer.py all` は、Vivliostyleビルドが `Protocol error (Page.printToPDF): Printing failed` でクラッシュした場合、自動的に WeasyPrint（Python/Cairo エンジン）でリトライします。
