@@ -1,0 +1,123 @@
+# D2 Floor Map Template: 密着型フロアプラン（第2部 / グループShot優先・女性・カメラ）
+# 特徴: エリア間のすき間ゼロ、上端・下端完全揃え、縦優先グリッドによる正確な位置制御
+direction: right
+
+venue: "" {
+  grid-columns: 3
+  grid-gap: 0
+  style: {
+    fill: "transparent"
+    stroke: "transparent"
+  }
+
+  # 1. ステージ（左端）
+  stage: "Stage\n（ステージ）" {
+    width: 100
+    height: 340
+    style: {
+      fill: "#00a0e9"
+      stroke: transparent
+      font-color: "#ffffff"
+      bold: true
+      font-size: 15
+      border-radius: 4
+    }
+  }
+
+  # 2. 優先エリア（ステージ直後・前方〜中央）
+  priority_area: "優先エリア" {
+    grid-columns: 2
+    grid-gap: 12
+    style: {
+      fill: "#fff8db"
+      stroke: "#eddca8"
+      font-color: "#4a3c1a"
+      bold: true
+      font-size: 18
+      border-radius: 4
+    }
+
+    # 左列（ステージ側・前方）: グループShot参加者優先エリア＋女性・カメラ
+    front_block: "" {
+      direction: down
+      style: {
+        fill: "transparent"
+        stroke: "transparent"
+      }
+
+      group_shot: "グループShot\n参加者優先エリア\n（前方）" {
+        width: 125
+        height: 110
+        style: {
+          fill: "#f7b977"
+          stroke: transparent
+          font-color: "#ffffff"
+          bold: true
+          font-size: 13
+          border-radius: 6
+        }
+      }
+
+      bottom_sub: "" {
+        direction: right
+        style: {
+          fill: "transparent"
+          stroke: "transparent"
+        }
+        women_area: "女性\nエリア" {
+          width: 58
+          height: 95
+          style: {
+            fill: "#ffb6cb"
+            stroke: transparent
+            font-color: "#7a1a39"
+            bold: true
+            font-size: 13
+            border-radius: 6
+          }
+        }
+        camera_area: "カメラ\nエリア" {
+          width: 58
+          height: 95
+          style: {
+            fill: "#b8c9dc"
+            stroke: transparent
+            font-color: "#1c324a"
+            bold: true
+            font-size: 13
+            border-radius: 6
+          }
+        }
+      }
+    }
+
+    # 右列（後方）: 通常優先エリア（整理番号順）
+    priority_main: "優先エリア本体\n（整理番号順／\nランダム呼出）" {
+      width: 130
+      height: 230
+      style: {
+        fill: "#fbedb5"
+        stroke: "#eddca8"
+        font-color: "#5c4815"
+        bold: true
+        font-size: 14
+        border-radius: 6
+      }
+    }
+  }
+
+  # 3. フリーエリア（後方・観覧無料）
+  free_area: "フリーエリア\n（後方・観覧無料）" {
+    width: 140
+    height: 340
+    style: {
+      fill: "#ffffff"
+      stroke: "#cccccc"
+      stroke-dash: 4
+      font-color: "#666666"
+      bold: true
+      font-size: 14
+      border-radius: 4
+    }
+  }
+}

@@ -181,4 +181,136 @@
     <div style="font-size: 6.5pt; color: var(--color-text-sub, #475569);">全メンバーと記念撮影</div>
   </div>
 </div>
+
+---
+
+## 7. 特典会テーブルの2大分類パターン（共通券型 vs 専用券型）
+
+### パターンA: 【共通特典券・枚数消費型】（1枚の共通券を複数枚出して参加）
+```html
+<!-- 共通券消費型 特典会テーブル -->
+<table class="tokutenkai-table" style="width: 100%; border-collapse: collapse; font-size: 7.2pt; margin-top: 1.5mm;">
+  <thead>
+    <tr style="background: var(--color-bg-sub, #f1f5f9); border-bottom: 1pt solid var(--color-border-bold, #94a3b8);">
+      <th style="padding: 1.2mm 2mm; text-align: center; width: 6%;">#</th>
+      <th style="padding: 1.2mm 2mm; text-align: left; width: 28%;">特典会メニュー</th>
+      <th style="padding: 1.2mm 2mm; text-align: center; width: 18%;">必要特典券</th>
+      <th style="padding: 1.2mm 2mm; text-align: left; width: 24%;">対象メンバー</th>
+      <th style="padding: 1.2mm 2mm; text-align: left; width: 24%;">実施内容・備考</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom: 0.6pt solid var(--color-border, #cbd5e1);">
+      <td style="text-align: center; font-weight: 800;">1</td>
+      <td style="font-weight: 800;">個別お話し会</td>
+      <td style="text-align: center;"><span style="background: #e0f2fe; color: #0369a1; padding: 0.3mm 2mm; border-radius: 1mm; font-weight: 800;">特典券 1枚</span></td>
+      <td>各レーン希望メンバー</td>
+      <td>飛沫防止シート越し／手ぶら整列</td>
+    </tr>
+    <tr style="border-bottom: 0.6pt solid var(--color-border, #cbd5e1);">
+      <td style="text-align: center; font-weight: 800;">2</td>
+      <td style="font-weight: 800;">個別2shot撮影会</td>
+      <td style="text-align: center;"><span style="background: #fef3c7; color: #b45309; padding: 0.3mm 2mm; border-radius: 1mm; font-weight: 800;">特典券 2枚</span></td>
+      <td>各レーン希望メンバー</td>
+      <td>スマホ限定・スタッフが撮影・ポーズ指定可</td>
+    </tr>
+    <tr>
+      <td style="text-align: center; font-weight: 800;">3</td>
+      <td style="font-weight: 800;">グループshot撮影会</td>
+      <td style="text-align: center;"><span style="background: #fae8ff; color: #86198f; padding: 0.3mm 2mm; border-radius: 1mm; font-weight: 800;">特典券 3枚</span></td>
+      <td>全メンバー参加</td>
+      <td>中央に着席・静止画のみ（LivePhoto禁止）</td>
+    </tr>
+  </tbody>
+</table>
+```
+
+### パターンB: 【メニュー別専用参加券型（商品引換型）】（券種自体が分かれており、参加時は専用券1枚を提出）
+```html
+<!-- メニュー別専用参加券型 特典会テーブル -->
+<table class="tokutenkai-table" style="width: 100%; border-collapse: collapse; font-size: 7.2pt; margin-top: 1.5mm;">
+  <thead>
+    <tr style="background: #eff6ff; border-bottom: 1pt solid #3b82f6;">
+      <th style="padding: 1.2mm 2mm; text-align: center; width: 6%;">#</th>
+      <th style="padding: 1.2mm 2mm; text-align: left; width: 30%;">特典メニュー（引換券種）</th>
+      <th style="padding: 1.2mm 2mm; text-align: center; width: 22%;">商品購入条件</th>
+      <th style="padding: 1.2mm 2mm; text-align: center; width: 14%;">参加時提出</th>
+      <th style="padding: 1.2mm 2mm; text-align: left; width: 28%;">実施内容・備考</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr style="border-bottom: 0.6pt solid var(--color-border, #cbd5e1);">
+      <td style="text-align: center; font-weight: 800;">1</td>
+      <td style="font-weight: 800; color: #1e40af;">メンバー全員動画お手振り会</td>
+      <td style="text-align: center;"><span style="background: #dbeafe; color: #1e3a8a; padding: 0.3mm 1.5mm; border-radius: 1mm; font-weight: 700;">対象商品 1点購入</span></td>
+      <td style="text-align: center; font-weight: 800; color: #dc2626;">専用券 1枚</td>
+      <td>全員の前を歩きながらスマホで動画撮影</td>
+    </tr>
+    <tr style="border-bottom: 0.6pt solid var(--color-border, #cbd5e1);">
+      <td style="text-align: center; font-weight: 800;">2</td>
+      <td style="font-weight: 800; color: #1e40af;">メンバー指名 お話し会 / 10秒動画</td>
+      <td style="text-align: center;"><span style="background: #dbeafe; color: #1e3a8a; padding: 0.3mm 1.5mm; border-radius: 1mm; font-weight: 700;">対象商品 1点購入</span></td>
+      <td style="text-align: center; font-weight: 800; color: #dc2626;">専用券 1枚</td>
+      <td>希望メンバーの専用券を選択（トーク or 動画）</td>
+    </tr>
+    <tr style="border-bottom: 0.6pt solid var(--color-border, #cbd5e1);">
+      <td style="text-align: center; font-weight: 800;">3</td>
+      <td style="font-weight: 800; color: #1e40af;">メンバー指名 スマホ2shot / ソロshot</td>
+      <td style="text-align: center;"><span style="background: #dbeafe; color: #1e3a8a; padding: 0.3mm 1.5mm; border-radius: 1mm; font-weight: 700;">対象商品 1点購入</span></td>
+      <td style="text-align: center; font-weight: 800; color: #dc2626;">専用券 1枚</td>
+      <td>希望メンバーの専用券を選択（2shot or ソロ）</td>
+    </tr>
+    <tr>
+      <td style="text-align: center; font-weight: 800;">4</td>
+      <td style="font-weight: 800; color: #7e22ce;">スマホグループshot撮影会</td>
+      <td style="text-align: center;"><span style="background: #f3e8ff; color: #6b21a8; padding: 0.3mm 1.5mm; border-radius: 1mm; font-weight: 700;">対象商品 2点購入</span></td>
+      <td style="text-align: center; font-weight: 800; color: #dc2626;">専用券 1枚</td>
+      <td>メンバー全員と撮影（商品2点購入で専用券1枚引換）</td>
+    </tr>
+  </tbody>
+</table>
+```
+
+---
+
+## 8. 会場フロアマップの配置パターン（公式画像そのまま vs D2密着型）
+
+### パターンA: 【公式告知画像そのまま配置（トリミング `<img>`）】（最優先推奨）
+公式告知ページに分かりやすい会場図画像がある場合、AIの空間誤認リスクを完全排除するため、公式画像をそのまま利用します。
+```html
+<!-- 公式フロアマップ画像（アスペクト比保持・中央配置） -->
+<div class="floormap-container" style="background: #ffffff; border: 0.8pt solid var(--color-border, #cbd5e1); border-radius: 2mm; padding: 1.5mm; text-align: center;">
+  <div style="font-size: 7.5pt; font-weight: 800; color: var(--color-text-main, #1e293b); margin-bottom: 1mm; display: flex; align-items: center; justify-content: space-between;">
+    <span>🗺️ 会場エリア配置・観覧エリア図</span>
+    <span style="font-size: 6.5pt; color: var(--color-text-sub, #475569);">※公式案内図</span>
+  </div>
+  <div style="height: 38mm; display: flex; align-items: center; justify-content: center; background: #fafafa; border-radius: 1.5mm; overflow: hidden;">
+    <img src="assets/floormap_official.png" style="max-height: 100%; max-width: 100%; object-fit: contain;" alt="会場エリアマップ">
+  </div>
+</div>
+```
+
+### パターンB: 【D2 密着型ベクターSVGフロアプラン】（すき間ゼロ・境界線完全密着）
+公式図面がない場合や、印刷用に高精細ベクターで統一する場合は、D2の `venue: ""` 密着グリッド（`grid-gap: 0`）で生成したSVGを配置します。
+```html
+<!-- D2密着型ベクターフロアマップ -->
+<div class="floormap-container" style="background: #ffffff; border: 0.8pt solid var(--color-border, #cbd5e1); border-radius: 2mm; padding: 1.5mm;">
+  <div style="font-size: 7.5pt; font-weight: 800; color: var(--color-text-main, #1e293b); margin-bottom: 1mm; display: flex; align-items: center; justify-content: space-between;">
+    <span>🗺️ 会場エリアレイアウト（第1部 / 第2部）</span>
+    <span style="font-size: 6.5pt; color: var(--color-text-sub, #475569);">※各回完全入替制</span>
+  </div>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2mm;">
+    <!-- 第1部 -->
+    <div style="border: 0.6pt solid #cbd5e1; border-radius: 1.5mm; padding: 1mm; background: #fafafa; text-align: center;">
+      <div style="font-size: 6.8pt; font-weight: 700; color: #1e3a8a; margin-bottom: 0.5mm;">【第1部】お子様・新規・女性・カメラ優先</div>
+      <img src="floormap1.svg" style="width: 100%; height: auto; max-height: 32mm; object-fit: contain;" alt="第1部レイアウト">
+    </div>
+    <!-- 第2部 -->
+    <div style="border: 0.6pt solid #cbd5e1; border-radius: 1.5mm; padding: 1mm; background: #fafafa; text-align: center;">
+      <div style="font-size: 6.8pt; font-weight: 700; color: #be185d; margin-bottom: 0.5mm;">【第2部】グループShot参加者優先・女性・カメラ</div>
+      <img src="floormap2.svg" style="width: 100%; height: auto; max-height: 32mm; object-fit: contain;" alt="第2部レイアウト">
+    </div>
+  </div>
+</div>
+```
 ```
