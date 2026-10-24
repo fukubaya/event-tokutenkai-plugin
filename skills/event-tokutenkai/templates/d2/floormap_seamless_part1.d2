@@ -1,0 +1,125 @@
+# D2 Floor Map Template: 密着型フロアプラン（第1部 / お子様・新規・女性・カメラ）
+# 特徴: エリア間のすき間（隙間）ゼロ、上端・下端完全揃え、縦優先グリッドによる正確な位置制御
+direction: right
+
+venue: "" {
+  grid-columns: 4
+  grid-gap: 0
+  style: {
+    fill: "transparent"
+    stroke: "transparent"
+  }
+
+  # 1. ステージ（左端）
+  stage: "Stage\n（ステージ）" {
+    width: 100
+    height: 340
+    style: {
+      fill: "#00a0e9"
+      stroke: transparent
+      font-color: "#ffffff"
+      bold: true
+      font-size: 15
+      border-radius: 4
+    }
+  }
+
+  # 2. お子様保護者エリア（ステージ直前・座席）
+  kids_area: "お子様\n保護者\nエリア\n(座)" {
+    width: 70
+    height: 340
+    style: {
+      fill: "#fce3d4"
+      stroke: transparent
+      font-color: "#8c4a2a"
+      bold: true
+      font-size: 15
+      border-radius: 4
+    }
+  }
+
+  # 3. 優先エリア（内部は 2x2 縦優先グリッド）
+  priority_area: "優先エリア" {
+    grid-columns: 2
+    grid-gap: 12
+    style: {
+      fill: "#fff8db"
+      stroke: "#eddca8"
+      font-color: "#4a3c1a"
+      bold: true
+      font-size: 18
+      border-radius: 4
+    }
+
+    # (0,0) 左上: 新規エリア（優先券不要）
+    new_area: "新規\nエリア\n※優先券不要" {
+      width: 110
+      height: 105
+      style: {
+        fill: "#bce8b5"
+        stroke: transparent
+        font-color: "#235c1e"
+        bold: true
+        font-size: 13
+        border-radius: 6
+      }
+    }
+
+    # (0,1) 左下: 女性専用エリア
+    women_area: "女性\nエリア" {
+      width: 110
+      height: 105
+      style: {
+        fill: "#ffb6cb"
+        stroke: transparent
+        font-color: "#7a1a39"
+        bold: true
+        font-size: 14
+        border-radius: 8
+      }
+    }
+
+    # (1,0) 右上: 優先エリア本体
+    priority_main: "優先エリア\n（整理番号順）" {
+      width: 110
+      height: 105
+      style: {
+        fill: "#fbedb5"
+        stroke: "#eddca8"
+        font-color: "#5c4815"
+        bold: true
+        font-size: 13
+        border-radius: 6
+      }
+    }
+
+    # (1,1) 右下: カメラエリア
+    camera_area: "カメラ\nエリア" {
+      width: 110
+      height: 105
+      style: {
+        fill: "#b8c9dc"
+        stroke: transparent
+        font-color: "#1c324a"
+        bold: true
+        font-size: 14
+        border-radius: 8
+      }
+    }
+  }
+
+  # 4. フリーエリア（後方・観覧無料）
+  free_area: "フリーエリア\n（後方・観覧無料）" {
+    width: 130
+    height: 340
+    style: {
+      fill: "#ffffff"
+      stroke: "#cccccc"
+      stroke-dash: 4
+      font-color: "#666666"
+      bold: true
+      font-size: 14
+      border-radius: 4
+    }
+  }
+}

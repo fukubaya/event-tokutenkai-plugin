@@ -5,11 +5,11 @@
    ========================================================================== */
 
 :root {
-  /* 印刷物理サイズ（A4縦） */
-  --page-width: 210mm;
-  --page-height: 297mm;
-  --page-padding-v: 5mm;
-  --page-padding-h: 6.5mm;
+  /* 画面・出力物理サイズ（スマホ最適化 9:16 縦型） */
+  --page-width: 216mm;
+  --page-height: 384mm;
+  --page-padding-v: 7mm;
+  --page-padding-h: 7mm;
 
   /* カラーセット（ブランド・テーマカラー） */
   --color-primary: #ea580c;          /* パルコビビッドオレンジ */
